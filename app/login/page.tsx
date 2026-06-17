@@ -10,7 +10,6 @@ import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material"
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import BackgroundAurora from "../components/background-aurora";
 
 const ACCOUNTS_URL = "https://accounts.elixpo.com/docs";
 
@@ -64,7 +63,6 @@ function LoginInner() {
     if (checking) {
         return (
             <Box sx={{ position: "relative", minHeight: "100vh", display: "grid", placeItems: "center", p: 2, color: "#f5f5f4" }}>
-                <BackgroundAurora variant="auth" />
                 <CircularProgress sx={{ color: "#9b7bf7", position: "relative", zIndex: 1 }} />
             </Box>
         );
@@ -74,7 +72,6 @@ function LoginInner() {
 
     return (
         <Box sx={{ position: "relative", minHeight: "100vh", display: "grid", placeItems: "center", p: 2, color: "#f5f5f4" }}>
-            <BackgroundAurora variant="auth" />
             <Box
                 sx={{
                     position: "relative",

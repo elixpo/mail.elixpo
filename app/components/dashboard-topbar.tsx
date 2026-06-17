@@ -1,5 +1,6 @@
 "use client";
 
+import CreditCardIcon from "@mui/icons-material/CreditCard";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import DescriptionIcon from "@mui/icons-material/Description";
 import DnsIcon from "@mui/icons-material/Dns";
@@ -7,14 +8,19 @@ import HistoryIcon from "@mui/icons-material/History";
 import InventoryIcon from "@mui/icons-material/Inventory2";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LogoutIcon from "@mui/icons-material/Logout";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import MenuIcon from "@mui/icons-material/Menu";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import SettingsIcon from "@mui/icons-material/Settings";
+import SpaceDashboardIcon from "@mui/icons-material/SpaceDashboard";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import WebhookIcon from "@mui/icons-material/Webhook";
 import {
     Avatar,
     Box,
+    Chip,
     Divider,
     IconButton,
     Menu,

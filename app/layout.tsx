@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import BackgroundAurora from "./components/background-aurora";
 import "./globals.css";
 
 const SITE_URL = "https://mail.elixpo.com";
@@ -140,7 +141,13 @@ export default function RootLayout({
                     // eslint-disable-next-line react/no-danger
                     dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
                 />
-                {children}
+                {/* Single dark aurora behind every route. Individual shells no
+                    longer render their own — this guarantees a consistent
+                    background everywhere, including bare/404/error routes. */}
+                <BackgroundAurora />
+                <div style={{ position: "relative", zIndex: 1, minHeight: "100vh" }}>
+                    {children}
+                </div>
             </body>
         </html>
     );

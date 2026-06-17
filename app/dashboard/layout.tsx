@@ -2,7 +2,6 @@ export const runtime = "edge";
 
 import { Box, Container } from "@mui/material";
 import type React from "react";
-import BackgroundAurora from "../components/background-aurora";
 import DashboardTopbar, { type DashboardUser } from "../components/dashboard-topbar";
 import { requireDashboardSession } from "@/lib/dashboard-session";
 
@@ -18,11 +17,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
     return (
         <Box sx={{ position: "relative", minHeight: "100vh", color: "#f5f5f4" }}>
-            {/* Subtle, darker aurora for the app surface */}
-            <Box sx={{ opacity: 0.45 }}>
-                <BackgroundAurora variant="default" />
-            </Box>
-
+            {/* Aurora background is global (root layout). */}
             <Box sx={{ position: "relative", zIndex: 1, ml: { md: "256px" } }}>
                 <DashboardTopbar user={user} />
                 <Box component="main">
