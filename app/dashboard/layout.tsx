@@ -1,0 +1,36 @@
+export const runtime = "edge";
+
+import { Box, Container } from "@mui/material";
+import type React from "react";
+import BackgroundAurora from "../components/background-aurora";
+import DashboardTopbar, { type DashboardUser } from "../components/dashboard-topbar";
+import { requireDashboardSession } from "@/lib/dashboard-session";
+
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const session = await requireDashboardSession();
+
+    const user: DashboardUser = {
+        name: session.name || "",
+        email: session.email,
+        avatar: session.avatar ?? null,
+        tenantId: session.tenantId,
+    };
+
+    return (
+        <Box sx={{ position: "relative", minHeight: "100vh", color: "#f5f5f4" }}>
+            {/* Subtle, darker aurora for the app surface */}
+            <Box sx={{ opacity: 0.45 }}>
+                <BackgroundAurora variant="default" />
+            </Box>
+
+            <Box sx={{ position: "relative", zIndex: 1, ml: { md: "256px" } }}>
+                <DashboardTopbar user={user} />
+                <Box component="main">
+                    <Container maxWidth="lg" sx={{ py: { xs: 3.5, md: 5 }, px: { xs: 2, md: 3 } }}>
+                        {children}
+                    </Container>
+                </Box>
+            </Box>
+        </Box>
+    );
+}

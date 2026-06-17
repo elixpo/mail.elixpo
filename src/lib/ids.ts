@@ -5,10 +5,10 @@
 const PREFIXES = {
     tenant: "tenant",
     sender: "snd",
+    product: "prod", // groups templates + holds client_id/shared-secret
     template: "tmpl",
-    config: "cfg", // an email config = a credentialed send endpoint (client_id/secret)
+    webhook: "whk", // 1:1 with a template; public inbound trigger
     delivery: "dlv", // a delivery log row
-    webhookEvent: "whe", // inbound trigger webhook receipt
 } as const;
 
 export type IdKind = keyof typeof PREFIXES;
