@@ -6,6 +6,7 @@
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 import "@elixpo/lixeditor/styles";
+import "./lix-editor-overrides.css";
 import {
     LixEditor,
     type LixEditorHandle,

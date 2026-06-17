@@ -102,6 +102,11 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
         [subject, blocks],
     );
 
+    // Gate saving: require the details (name + subject) and a non-trivial body.
+    const bodyText = useMemo(() => blocksToPlainText(blocks), [blocks]);
+    const canSave =
+        name.trim().length > 0 && subject.trim().length > 0 && bodyText.length > 2;
+
     async function save() {
         if (saving) return;
         if (!name.trim()) {
@@ -171,7 +176,7 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                     {savedMsg && <Typography sx={{ color: "#86efac", fontSize: "0.85rem" }}>Saved</Typography>}
                     <Button
                         onClick={save}
-                        disabled={saving}
+                        disabled={saving || !canSave}
                         startIcon={saving ? <CircularProgress size={16} sx={{ color: "rgba(245,245,244,0.6)" }} /> : <SaveIcon sx={{ fontSize: "1.1rem !important" }} />}
                         sx={SAVE_BTN_SX}
                     >
@@ -270,9 +275,14 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                 {/* Create / save — below */}
                 <Stack direction="row" justifyContent="flex-end" alignItems="center" spacing={1.5}>
                     {savedMsg && <Typography sx={{ color: "#86efac", fontSize: "0.85rem" }}>Saved</Typography>}
+                    {!canSave && (
+                        <Typography sx={{ color: "rgba(245,245,244,0.45)", fontSize: "0.8rem" }}>
+                            Add a name, subject, and a bit of body content to continue.
+                        </Typography>
+                    )}
                     <Button
                         onClick={save}
-                        disabled={saving}
+                        disabled={saving || !canSave}
                         startIcon={saving ? <CircularProgress size={16} sx={{ color: "rgba(245,245,244,0.6)" }} /> : <SaveIcon sx={{ fontSize: "1.1rem !important" }} />}
                         sx={SAVE_BTN_SX}
                     >
@@ -282,6 +292,20 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
             </Stack>
         </Box>
     );
+}
+
+/** Flatten a BlockNote document to its plain text (for the min-length gate). */
+function blocksToPlainText(blocks: any[]): string {
+    if (!Array.isArray(blocks)) return "";
+    let out = "";
+    for (const b of blocks) {
+        if (Array.isArray(b?.content)) {
+            for (const c of b.content) if (typeof c?.text === "string") out += c.text;
+        }
+        if (Array.isArray(b?.children)) out += ` ${blocksToPlainText(b.children)}`;
+        out += " ";
+    }
+    return out.trim();
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
