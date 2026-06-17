@@ -32,10 +32,13 @@ function decodeKey(raw: string): Uint8Array {
 
 async function getKey(): Promise<CryptoKey> {
     const raw = await requireEnv("ELIXPO_MAIL_ENCRYPTION_KEY");
-    return crypto.subtle.importKey("raw", decodeKey(raw), { name: "AES-GCM" }, false, [
-        "encrypt",
-        "decrypt",
-    ]);
+    return crypto.subtle.importKey(
+        "raw",
+        decodeKey(raw) as unknown as BufferSource,
+        { name: "AES-GCM" },
+        false,
+        ["encrypt", "decrypt"],
+    );
 }
 
 function bytesToBase64(bytes: Uint8Array): string {

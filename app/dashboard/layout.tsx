@@ -17,14 +17,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
     return (
         <Box sx={{ position: "relative", minHeight: "100vh", color: "#f5f5f4" }}>
-            {/* Aurora background is global (root layout). */}
-            <Box sx={{ position: "relative", zIndex: 1, ml: { md: "256px" } }}>
-                <DashboardTopbar user={user} />
-                <Box component="main">
-                    <Container maxWidth="lg" sx={{ py: { xs: 3.5, md: 5 }, px: { xs: 2, md: 3 } }}>
-                        {children}
-                    </Container>
-                </Box>
+            {/* Aurora background is global (root layout). Top nav, full-width content. */}
+            <DashboardTopbar user={user} />
+            <Box component="main">
+                <Container maxWidth="lg" sx={{ py: { xs: 3.5, md: 5 }, px: { xs: 2, md: 3 } }}>
+                    {children}
+                </Container>
             </Box>
         </Box>
     );

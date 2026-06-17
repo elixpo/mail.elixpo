@@ -1,27 +1,21 @@
 "use client";
 
+import CloseIcon from "@mui/icons-material/Close";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import DescriptionIcon from "@mui/icons-material/Description";
-import DnsIcon from "@mui/icons-material/Dns";
-import HistoryIcon from "@mui/icons-material/History";
-import InventoryIcon from "@mui/icons-material/Inventory2";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import MenuIcon from "@mui/icons-material/Menu";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
-import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
-import SettingsIcon from "@mui/icons-material/Settings";
 import SpaceDashboardIcon from "@mui/icons-material/SpaceDashboard";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
-import WebhookIcon from "@mui/icons-material/Webhook";
 import {
     Avatar,
     Box,
     Chip,
     Divider,
+    Drawer,
     IconButton,
     Menu,
     MenuItem,
@@ -31,9 +25,10 @@ import {
 import Link from "next/link";
 import type React from "react";
 import { useState } from "react";
-import DashboardNav, { type NavItem } from "./dashboard-nav";
+import { DashboardNavLinks } from "./dashboard-nav";
 
 const BORDER = "rgba(255,255,255,0.07)";
+const ACCENT = "#9b7bf7";
 
 const MENU_ITEM_SX = {
     fontSize: "0.86rem",
@@ -43,20 +38,6 @@ const MENU_ITEM_SX = {
     "&:hover": { background: "rgba(255,255,255,0.04)" },
 } as const;
 const MENU_ICON_SX = { fontSize: 18, color: "rgba(245,245,244,0.55)" } as const;
-
-const PRIMARY_NAV: NavItem[] = [
-    { label: "Overview", href: "/dashboard", icon: DashboardIcon },
-    { label: "Products", href: "/dashboard/products", icon: InventoryIcon },
-    { label: "Templates", href: "/dashboard/templates", icon: DescriptionIcon },
-    { label: "Senders", href: "/dashboard/senders", icon: DnsIcon },
-    { label: "Webhooks", href: "/dashboard/webhooks", icon: WebhookIcon },
-    { label: "Delivery logs", href: "/dashboard/logs", icon: HistoryIcon },
-    { label: "Settings", href: "/dashboard/settings", icon: SettingsIcon },
-];
-
-const SECONDARY_NAV: NavItem[] = [
-    { label: "Billing & Plan", href: "/dashboard/billing", icon: ReceiptLongIcon },
-];
 
 export interface DashboardUser {
     name: string;
@@ -69,6 +50,29 @@ function initials(user: DashboardUser): string {
     return (user.name || user.email || "?").charAt(0).toUpperCase();
 }
 
+function Brand() {
+    return (
+        <Box
+            component={Link}
+            href="/dashboard"
+            sx={{ display: "flex", alignItems: "center", gap: 1.1, textDecoration: "none", color: "inherit" }}
+        >
+            <Box
+                component="img"
+                src="/mark.png"
+                alt="mail.elixpo"
+                sx={{ height: 28, width: 28, borderRadius: "8px", display: "block" }}
+            />
+            <Typography sx={{ fontWeight: 700, fontSize: "1.02rem", color: "#f5f5f4", letterSpacing: "-0.01em", display: { xs: "none", sm: "block" } }}>
+                mail
+                <Box component="span" sx={{ color: ACCENT }}>
+                    .elixpo
+                </Box>
+            </Typography>
+        </Box>
+    );
+}
+
 export default function DashboardTopbar({ user }: { user: DashboardUser }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -76,13 +80,6 @@ export default function DashboardTopbar({ user }: { user: DashboardUser }) {
 
     return (
         <>
-            <DashboardNav
-                primary={PRIMARY_NAV}
-                secondary={SECONDARY_NAV}
-                mobileOpen={mobileOpen}
-                onClose={() => setMobileOpen(false)}
-            />
-
             <Box
                 component="header"
                 sx={{
@@ -92,7 +89,7 @@ export default function DashboardTopbar({ user }: { user: DashboardUser }) {
                     height: 60,
                     display: "flex",
                     alignItems: "center",
-                    gap: 1,
+                    gap: { xs: 1, md: 2 },
                     px: { xs: 2, md: 3 },
                     borderBottom: `1px solid ${BORDER}`,
                     background: "rgba(11,13,18,0.72)",
@@ -102,14 +99,21 @@ export default function DashboardTopbar({ user }: { user: DashboardUser }) {
                 <IconButton
                     onClick={() => setMobileOpen(true)}
                     aria-label="Open menu"
-                    sx={{ display: { xs: "inline-flex", md: "none" }, color: "rgba(245,245,244,0.8)", mr: 0.5 }}
+                    sx={{ display: { xs: "inline-flex", md: "none" }, color: "rgba(245,245,244,0.8)" }}
                 >
                     <MenuIcon />
                 </IconButton>
 
+                <Brand />
+
+                {/* Horizontal nav (desktop) */}
+                <Box sx={{ display: { xs: "none", md: "flex" }, ml: 1.5 }}>
+                    <DashboardNavLinks orientation="horizontal" />
+                </Box>
+
                 <Box sx={{ flexGrow: 1 }} />
 
-                {/* User menu */}
+                {/* Profile menu */}
                 <Box
                     component="button"
                     onClick={(e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget)}
@@ -259,6 +263,33 @@ export default function DashboardTopbar({ user }: { user: DashboardUser }) {
                     </MenuItem>
                 </Menu>
             </Box>
+
+            {/* Mobile nav drawer */}
+            <Drawer
+                anchor="left"
+                open={mobileOpen}
+                onClose={() => setMobileOpen(false)}
+                ModalProps={{ keepMounted: true }}
+                sx={{ display: { xs: "block", md: "none" } }}
+                PaperProps={{
+                    sx: {
+                        width: 264,
+                        px: 1.5,
+                        py: 2,
+                        background: "#0d1016",
+                        borderRight: `1px solid ${BORDER}`,
+                        color: "#f5f5f4",
+                    },
+                }}
+            >
+                <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2.5, px: 0.5 }}>
+                    <Brand />
+                    <IconButton onClick={() => setMobileOpen(false)} sx={{ color: "rgba(245,245,244,0.6)" }} aria-label="Close menu">
+                        <CloseIcon />
+                    </IconButton>
+                </Stack>
+                <DashboardNavLinks orientation="vertical" onNavigate={() => setMobileOpen(false)} />
+            </Drawer>
         </>
     );
 }
