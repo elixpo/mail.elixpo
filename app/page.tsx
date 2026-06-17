@@ -21,6 +21,7 @@ import WebhookIcon from "@mui/icons-material/Webhook";
 import { Box, Button, Chip, Container, Stack, Typography } from "@mui/material";
 import Link from "next/link";
 import type React from "react";
+import { useEffect, useState } from "react";
 import CodeBlock from "./components/code-block";
 import { GlassCard } from "./components/glass-card";
 import PageShell from "./components/page-shell";
@@ -85,6 +86,38 @@ function SectionHead({
                 </Typography>
             )}
         </Stack>
+    );
+}
+
+// ── Auth-aware primary CTA ──────────────────────────────────────────────────
+// null = still resolving session; true/false = known. Defaults to the
+// signed-out label while resolving to avoid a misleading flash.
+function useAuthed(): boolean | null {
+    const [authed, setAuthed] = useState<boolean | null>(null);
+    useEffect(() => {
+        let alive = true;
+        fetch("/api/auth/me", { cache: "no-store" })
+            .then((r) => r.json())
+            .then((d: any) => alive && setAuthed(Boolean(d?.authenticated)))
+            .catch(() => alive && setAuthed(false));
+        return () => {
+            alive = false;
+        };
+    }, []);
+    return authed;
+}
+
+function PrimaryCta({ authed, signedOutLabel }: { authed: boolean | null; signedOutLabel: string }) {
+    const signedIn = authed === true;
+    return (
+        <Button
+            component={signedIn ? Link : "a"}
+            href={signedIn ? "/dashboard" : "/api/auth/login"}
+            endIcon={<ArrowForwardIcon sx={{ fontSize: "1.1rem !important" }} />}
+            sx={PRIMARY_BTN}
+        >
+            {signedIn ? "Go to your dashboard" : signedOutLabel}
+        </Button>
     );
 }
 
@@ -180,6 +213,7 @@ const WEBHOOK_EXAMPLE = `curl -X POST https://mail.elixpo.com/v1/send \\
   }'`;
 
 export default function Home() {
+    const authed = useAuthed();
     return (
         <PageShell variant="default">
             {/* ── Hero ─────────────────────────────────────────────────────── */}
@@ -227,14 +261,7 @@ export default function Home() {
                         — one config, one event, delivered.
                     </Typography>
                     <Stack direction={{ xs: "column", sm: "row" }} spacing={1.6} sx={{ pt: 1 }}>
-                        <Button
-                            component="a"
-                            href="/api/auth/login"
-                            endIcon={<ArrowForwardIcon sx={{ fontSize: "1.1rem !important" }} />}
-                            sx={PRIMARY_BTN}
-                        >
-                            Get started — Sign in with Elixpo
-                        </Button>
+                        <PrimaryCta authed={authed} signedOutLabel="Get started — Sign in with Elixpo" />
                         <Button
                             component={Link}
                             href="/docs"
@@ -540,14 +567,7 @@ export default function Home() {
                         Connect a sender, design a template, and trigger a send in minutes —
                         no SMTP servers, no template engines, no queues.
                     </Typography>
-                    <Button
-                        component="a"
-                        href="/api/auth/login"
-                        endIcon={<ArrowForwardIcon sx={{ fontSize: "1.1rem !important" }} />}
-                        sx={PRIMARY_BTN}
-                    >
-                        Sign in with Elixpo
-                    </Button>
+                    <PrimaryCta authed={authed} signedOutLabel="Sign in with Elixpo" />
                 </GlassCard>
             </Container>
         </PageShell>
