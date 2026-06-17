@@ -19,6 +19,7 @@ const REPO_URL = `https://github.com/${REPO}`;
 
 const LINKS = [
     { label: "Home", href: "/" },
+    { label: "Pricing", href: "/pricing" },
     { label: "Docs", href: "/docs" },
     { label: "Dashboard", href: "/dashboard" },
 ];

@@ -1,6 +1,5 @@
 "use client";
 
-import type { SvgIconComponent } from "@mui/icons-material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import DescriptionIcon from "@mui/icons-material/Description";
 import DnsIcon from "@mui/icons-material/Dns";
@@ -24,10 +23,10 @@ import {
     Typography,
 } from "@mui/material";
 import Link from "next/link";
+import type React from "react";
 import { useState } from "react";
 import DashboardNav, { type NavItem } from "./dashboard-nav";
 
-const ACCENT = "#9b7bf7";
 const BORDER = "rgba(255,255,255,0.07)";
 
 const PRIMARY_NAV: NavItem[] = [
@@ -210,6 +209,3 @@ export default function DashboardTopbar({ user }: { user: DashboardUser }) {
         </>
     );
 }
-
-export { ACCENT, BORDER };
-export type { SvgIconComponent };
