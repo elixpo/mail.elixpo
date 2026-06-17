@@ -26,10 +26,15 @@
         "db:tables": "wrangler d1 execute elixpo_mail --remote --command \"SELECT name FROM sqlite_master WHERE type='table';\""
     },
     "dependencies": {
+        "@blocknote/core": "^0.51.4",
+        "@blocknote/mantine": "^0.51.4",
+        "@blocknote/react": "^0.51.4",
         "@elixpo/lixeditor": "latest",
         "@emotion/cache": "^11.14.0",
         "@emotion/react": "^11.14.0",
         "@emotion/styled": "^11.14.1",
+        "@mantine/core": "^9.3.2",
+        "@mantine/hooks": "^9.3.2",
         "@mui/icons-material": "7.0.2",
         "@mui/material": "7.0.2",
         "@mui/system": "7.0.2",

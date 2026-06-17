@@ -1,0 +1,76 @@
+export const runtime = "edge";
+
+import { type NextRequest, NextResponse } from "next/server";
+import { getDatabase } from "@/lib/d1-client";
+import { slugify } from "@/lib/products";
+import { getSession } from "@/lib/session";
+import { deleteTemplate, getTemplate, toPublic, updateTemplate } from "@/lib/templates";
+
+type Ctx = { params: Promise<{ id: string }> };
+
+/** GET /api/templates/:id — full template (editor doc included). */
+export async function GET(request: NextRequest, { params }: Ctx) {
+    const session = await getSession(request);
+    if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    const { id } = await params;
+
+    const db = await getDatabase();
+    const row = await getTemplate(db, session.tenantId, id);
+    if (!row) return NextResponse.json({ error: "not_found" }, { status: 404 });
+    return NextResponse.json({ ok: true, template: toPublic(row) });
+}
+
+/** PATCH /api/templates/:id — update content/metadata. */
+export async function PATCH(request: NextRequest, { params }: Ctx) {
+    const session = await getSession(request);
+    if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    const { id } = await params;
+
+    let body: any;
+    try {
+        body = await request.json();
+    } catch {
+        return NextResponse.json({ error: "invalid_json" }, { status: 400 });
+    }
+
+    const db = await getDatabase();
+    const existing = await getTemplate(db, session.tenantId, id);
+    if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
+
+    try {
+        const row = await updateTemplate(db, session.tenantId, id, {
+            name: typeof body?.name === "string" ? body.name.trim() : undefined,
+            slug: typeof body?.slug === "string" && body.slug.trim() ? slugify(body.slug) : undefined,
+            subject: typeof body?.subject === "string" ? body.subject : undefined,
+            kind: typeof body?.kind === "string" ? body.kind : undefined,
+            contentJson: body?.contentJson !== undefined ? (Array.isArray(body.contentJson) ? body.contentJson : null) : undefined,
+            contentHtml: typeof body?.contentHtml === "string" ? body.contentHtml : undefined,
+            senderId: body?.senderId !== undefined ? (typeof body.senderId === "string" ? body.senderId : null) : undefined,
+            status: body?.status === "active" || body?.status === "archived" ? body.status : undefined,
+        });
+        return NextResponse.json({ ok: true, template: row ? toPublic(row) : null });
+    } catch (e: any) {
+        if (String(e?.message || "").includes("UNIQUE")) {
+            return NextResponse.json(
+                { error: "duplicate", message: "A template with that slug already exists." },
+                { status: 409 },
+            );
+        }
+        console.error("[templates] update error:", e);
+        return NextResponse.json({ error: "update_failed" }, { status: 500 });
+    }
+}
+
+/** DELETE /api/templates/:id */
+export async function DELETE(request: NextRequest, { params }: Ctx) {
+    const session = await getSession(request);
+    if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    const { id } = await params;
+
+    const db = await getDatabase();
+    const existing = await getTemplate(db, session.tenantId, id);
+    if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
+
+    await deleteTemplate(db, session.tenantId, id);
+    return NextResponse.json({ ok: true });
+}

@@ -1,0 +1,65 @@
+export const runtime = "edge";
+
+import { type NextRequest, NextResponse } from "next/server";
+import { getDatabase } from "@/lib/d1-client";
+import { getOrCreateDefaultProduct, slugify } from "@/lib/products";
+import { getSession } from "@/lib/session";
+import { createTemplate, listTemplates, toSummary } from "@/lib/templates";
+
+/** GET /api/templates — list the tenant's templates (summaries). */
+export async function GET(request: NextRequest) {
+    const session = await getSession(request);
+    if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+    const db = await getDatabase();
+    const rows = await listTemplates(db, session.tenantId);
+    return NextResponse.json({ ok: true, templates: rows.map(toSummary) });
+}
+
+/** POST /api/templates — create a template (under the tenant's default product). */
+export async function POST(request: NextRequest) {
+    const session = await getSession(request);
+    if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+    let body: any;
+    try {
+        body = await request.json();
+    } catch {
+        return NextResponse.json({ error: "invalid_json" }, { status: 400 });
+    }
+
+    const name = typeof body?.name === "string" ? body.name.trim() : "";
+    if (!name) {
+        return NextResponse.json(
+            { error: "invalid_name", message: "Give the template a name." },
+            { status: 400 },
+        );
+    }
+    const slug = (typeof body?.slug === "string" && body.slug.trim()) ? slugify(body.slug) : slugify(name);
+
+    const db = await getDatabase();
+    const product = await getOrCreateDefaultProduct(db, session.tenantId);
+
+    try {
+        const row = await createTemplate(db, session.tenantId, product.id, {
+            name,
+            slug,
+            subject: typeof body?.subject === "string" ? body.subject : "",
+            kind: typeof body?.kind === "string" ? body.kind : "custom",
+            contentJson: Array.isArray(body?.contentJson) ? body.contentJson : null,
+            contentHtml: typeof body?.contentHtml === "string" ? body.contentHtml : "",
+            senderId: typeof body?.senderId === "string" ? body.senderId : null,
+        });
+        const { toPublic } = await import("@/lib/templates");
+        return NextResponse.json({ ok: true, template: toPublic(row) }, { status: 201 });
+    } catch (e: any) {
+        if (String(e?.message || "").includes("UNIQUE")) {
+            return NextResponse.json(
+                { error: "duplicate", message: "A template with that slug already exists." },
+                { status: 409 },
+            );
+        }
+        console.error("[templates] create error:", e);
+        return NextResponse.json({ error: "create_failed" }, { status: 500 });
+    }
+}

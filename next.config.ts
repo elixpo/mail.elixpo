@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
         "@mui/utils",
         "@mui/private-theming",
         "@mui/styled-engine",
+        // WYSIWYG editor (BlockNote-based) — browser-only, loaded via ssr:false.
+        "@elixpo/lixeditor",
     ],
     // Rewrite barrel imports to deep paths so we never load the MUI barrel
     // module (the source of the circular init crash above).
