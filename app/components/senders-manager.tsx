@@ -1,6 +1,7 @@
 "use client";
 
 import AddIcon from "@mui/icons-material/Add";
+import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DnsIcon from "@mui/icons-material/Dns";
@@ -50,6 +51,7 @@ const TEXT_55 = "rgba(245,245,244,0.55)";
 const TEXT_40 = "rgba(245,245,244,0.4)";
 
 const GMAIL_HELP = "https://support.google.com/accounts/answer/185833";
+const SEND_AS_HELP = "https://support.google.com/mail/answer/22370";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 interface Sender {
@@ -63,6 +65,19 @@ interface Sender {
     status: string; // "active" | "disabled"
     last_verified_at: string | null;
     created_at: string;
+}
+
+/** An additional "From" identity that sends through a sender's mailbox auth. */
+interface Alias {
+    id: string;
+    from_email: string;
+    from_name: string | null;
+    created_at: string;
+}
+
+/** Compose a display label like `Acme Support <support@acme.com>`. */
+function aliasLabel(a: Alias): string {
+    return a.from_name ? `${a.from_name} <${a.from_email}>` : a.from_email;
 }
 
 // ── Relative-time formatter (no deps) ───────────────────────────────────────
@@ -636,6 +651,322 @@ function DeleteDialog({
     );
 }
 
+// ── Aliases section (additional From identities on a sender) ─────────────────
+function AliasesSection({
+    senderId,
+    expanded,
+    aliases,
+    loadState,
+    onAdded,
+    onDeleted,
+}: {
+    senderId: string;
+    expanded: boolean;
+    aliases: Alias[] | null; // null = not loaded yet
+    loadState: "idle" | "loading" | "error";
+    onAdded: (alias: Alias) => void;
+    onDeleted: (aliasId: string) => void;
+}) {
+    const [fromEmail, setFromEmail] = useState("");
+    const [fromName, setFromName] = useState("");
+    const [saving, setSaving] = useState(false);
+    const [formError, setFormError] = useState<string | null>(null);
+    const [confirmId, setConfirmId] = useState<string | null>(null);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromEmail.trim());
+    const canSubmit = !saving && emailValid;
+
+    async function addAlias() {
+        if (!canSubmit) return;
+        setSaving(true);
+        setFormError(null);
+        try {
+            const res = await fetch(`/api/senders/${senderId}/aliases`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    fromEmail: fromEmail.trim(),
+                    fromName: fromName.trim() || undefined,
+                }),
+            });
+            const data: any = await res.json().catch(() => ({}));
+            if (!res.ok || !data?.ok) {
+                throw new Error(data?.message || data?.error || "Could not add the alias.");
+            }
+            onAdded(data.alias as Alias);
+            setFromEmail("");
+            setFromName("");
+        } catch (e: any) {
+            setFormError(e?.message || "Could not add the alias.");
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    async function removeAlias(aliasId: string) {
+        setDeletingId(aliasId);
+        try {
+            const res = await fetch(`/api/senders/${senderId}/aliases/${aliasId}`, {
+                method: "DELETE",
+            });
+            const data: any = await res.json().catch(() => ({}));
+            if (!res.ok || !data?.ok) {
+                throw new Error("delete");
+            }
+            onDeleted(aliasId);
+            setConfirmId(null);
+        } catch {
+            // Surface as an inline form error to stay consistent with the rest of the UI.
+            setFormError("Could not remove the alias. Try again.");
+        } finally {
+            setDeletingId(null);
+        }
+    }
+
+    const count = aliases?.length ?? 0;
+
+    return (
+        <Collapse in={expanded} unmountOnExit>
+            <Box
+                sx={{
+                    mt: 2,
+                    pt: 2,
+                    borderTop: `1px solid ${BORDER}`,
+                }}
+            >
+                {/* Provider caveat hint */}
+                <Typography sx={{ fontSize: "0.76rem", color: TEXT_40, lineHeight: 1.6, mb: 1.6 }}>
+                    Aliases send through this mailbox&rsquo;s auth. The provider must permit sending as
+                    the address (e.g. Gmail{" "}
+                    <MuiLink
+                        href={SEND_AS_HELP}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                            color: ACCENT,
+                            fontWeight: 600,
+                            textDecorationColor: "rgba(155,123,247,0.4)",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 0.3,
+                        }}
+                    >
+                        Send mail as
+                        <OpenInNewIcon sx={{ fontSize: 12 }} />
+                    </MuiLink>{" "}
+                    or a Workspace domain) or it may be rewritten or rejected.
+                </Typography>
+
+                {loadState === "loading" && (
+                    <Stack direction="row" spacing={1} alignItems="center" sx={{ py: 0.5 }}>
+                        <CircularProgress size={14} sx={{ color: ACCENT }} />
+                        <Typography sx={{ fontSize: "0.8rem", color: TEXT_55 }}>
+                            Loading aliases…
+                        </Typography>
+                    </Stack>
+                )}
+
+                {loadState === "error" && (
+                    <Stack direction="row" spacing={0.8} alignItems="center" sx={{ py: 0.5 }}>
+                        <ErrorOutlineIcon sx={{ fontSize: 15, color: RED }} />
+                        <Typography sx={{ fontSize: "0.8rem", color: RED }}>
+                            Could not load aliases.
+                        </Typography>
+                    </Stack>
+                )}
+
+                {loadState === "idle" && aliases != null && (
+                    <>
+                        {count === 0 ? (
+                            <Typography sx={{ fontSize: "0.8rem", color: TEXT_40, mb: 1.6 }}>
+                                No aliases — sends use the mailbox address.
+                            </Typography>
+                        ) : (
+                            <Stack spacing={0.6} sx={{ mb: 1.6 }}>
+                                {aliases.map((a) => (
+                                    <Stack
+                                        key={a.id}
+                                        direction="row"
+                                        alignItems="center"
+                                        spacing={1}
+                                        sx={{
+                                            px: 1.4,
+                                            py: 0.9,
+                                            borderRadius: "9px",
+                                            background: "rgba(255,255,255,0.02)",
+                                            border: `1px solid ${BORDER}`,
+                                        }}
+                                    >
+                                        <AlternateEmailIcon sx={{ fontSize: 15, color: TEXT_40, flexShrink: 0 }} />
+                                        <Box sx={{ minWidth: 0, flex: 1 }}>
+                                            {a.from_name && (
+                                                <Typography
+                                                    sx={{
+                                                        fontSize: "0.82rem",
+                                                        fontWeight: 600,
+                                                        color: TEXT,
+                                                        overflow: "hidden",
+                                                        textOverflow: "ellipsis",
+                                                        whiteSpace: "nowrap",
+                                                    }}
+                                                >
+                                                    {a.from_name}
+                                                </Typography>
+                                            )}
+                                            <Typography
+                                                sx={{
+                                                    fontSize: "0.78rem",
+                                                    color: a.from_name ? TEXT_55 : TEXT,
+                                                    fontFamily: "var(--font-geist-mono)",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                    whiteSpace: "nowrap",
+                                                }}
+                                            >
+                                                {a.from_email}
+                                            </Typography>
+                                        </Box>
+
+                                        {confirmId === a.id ? (
+                                            <Stack direction="row" spacing={0.5} alignItems="center" sx={{ flexShrink: 0 }}>
+                                                <Button
+                                                    onClick={() => removeAlias(a.id)}
+                                                    disabled={deletingId === a.id}
+                                                    size="small"
+                                                    sx={{
+                                                        textTransform: "none",
+                                                        minWidth: 0,
+                                                        px: 1.2,
+                                                        py: 0.3,
+                                                        fontSize: "0.74rem",
+                                                        fontWeight: 700,
+                                                        color: RED,
+                                                        "&:hover": { background: "rgba(252,165,165,0.08)" },
+                                                    }}
+                                                >
+                                                    {deletingId === a.id ? (
+                                                        <CircularProgress size={13} sx={{ color: RED }} />
+                                                    ) : (
+                                                        "Remove"
+                                                    )}
+                                                </Button>
+                                                <Button
+                                                    onClick={() => setConfirmId(null)}
+                                                    disabled={deletingId === a.id}
+                                                    size="small"
+                                                    sx={{
+                                                        textTransform: "none",
+                                                        minWidth: 0,
+                                                        px: 1.2,
+                                                        py: 0.3,
+                                                        fontSize: "0.74rem",
+                                                        fontWeight: 600,
+                                                        color: TEXT_55,
+                                                        "&:hover": { background: "rgba(255,255,255,0.05)" },
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                            </Stack>
+                                        ) : (
+                                            <Tooltip title="Remove alias" arrow>
+                                                <IconButton
+                                                    onClick={() => {
+                                                        setFormError(null);
+                                                        setConfirmId(a.id);
+                                                    }}
+                                                    size="small"
+                                                    sx={{
+                                                        color: TEXT_40,
+                                                        flexShrink: 0,
+                                                        "&:hover": { color: RED, background: "rgba(252,165,165,0.08)" },
+                                                    }}
+                                                    aria-label={`Remove alias ${a.from_email}`}
+                                                >
+                                                    <DeleteOutlineIcon sx={{ fontSize: 16 }} />
+                                                </IconButton>
+                                            </Tooltip>
+                                        )}
+                                    </Stack>
+                                ))}
+                            </Stack>
+                        )}
+
+                        {/* Add alias inline form */}
+                        <Box
+                            sx={{
+                                display: "grid",
+                                gap: 1,
+                                gridTemplateColumns: { xs: "1fr", sm: "1.4fr 1fr auto" },
+                                alignItems: "start",
+                            }}
+                        >
+                            <TextField
+                                value={fromEmail}
+                                onChange={(e) => setFromEmail(e.target.value)}
+                                placeholder="support@yourdomain.com"
+                                size="small"
+                                fullWidth
+                                sx={darkField}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        addAlias();
+                                    }
+                                }}
+                            />
+                            <TextField
+                                value={fromName}
+                                onChange={(e) => setFromName(e.target.value)}
+                                placeholder="Display name (optional)"
+                                size="small"
+                                fullWidth
+                                sx={darkField}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        addAlias();
+                                    }
+                                }}
+                            />
+                            <Button
+                                onClick={addAlias}
+                                disabled={!canSubmit}
+                                startIcon={
+                                    saving ? undefined : <AddIcon sx={{ fontSize: "1rem !important" }} />
+                                }
+                                sx={{
+                                    ...GHOST_BTN,
+                                    fontSize: "0.84rem",
+                                    px: 2,
+                                    whiteSpace: "nowrap",
+                                    "&.Mui-disabled": { color: "rgba(245,245,244,0.4)", borderColor: BORDER },
+                                }}
+                            >
+                                {saving ? (
+                                    <CircularProgress size={16} sx={{ color: "rgba(245,245,244,0.6)" }} />
+                                ) : (
+                                    "Add alias"
+                                )}
+                            </Button>
+                        </Box>
+
+                        {formError && (
+                            <Stack direction="row" spacing={0.8} alignItems="flex-start" sx={{ mt: 1.2 }}>
+                                <ErrorOutlineIcon sx={{ fontSize: 15, color: RED, mt: 0.2 }} />
+                                <Typography sx={{ fontSize: "0.8rem", color: RED, lineHeight: 1.5 }}>
+                                    {formError}
+                                </Typography>
+                            </Stack>
+                        )}
+                    </>
+                )}
+            </Box>
+        </Collapse>
+    );
+}
+
 // ── Sender card ─────────────────────────────────────────────────────────────
 type TestState = { phase: "loading" } | { phase: "ok"; text: string } | { phase: "err"; text: string } | null;
 
@@ -657,14 +988,58 @@ function SenderCard({
     const verified = !!sender.last_verified_at;
     const active = sender.status === "active";
 
+    // ── Aliases (lazy-loaded on first expand) ──
+    const [aliasesOpen, setAliasesOpen] = useState(false);
+    const [aliases, setAliases] = useState<Alias[] | null>(null);
+    const [aliasLoad, setAliasLoad] = useState<"idle" | "loading" | "error">("idle");
+    // Which identity to send the test as: "" = the mailbox itself, else an alias id.
+    const [sendAsId, setSendAsId] = useState<string>("");
+
+    async function loadAliases() {
+        setAliasLoad("loading");
+        try {
+            const res = await fetch(`/api/senders/${sender.id}/aliases`);
+            const data: any = await res.json().catch(() => ({}));
+            if (!res.ok || !data?.ok) throw new Error("load");
+            setAliases(Array.isArray(data.aliases) ? (data.aliases as Alias[]) : []);
+            setAliasLoad("idle");
+        } catch {
+            setAliasLoad("error");
+        }
+    }
+
+    function toggleAliases() {
+        const next = !aliasesOpen;
+        setAliasesOpen(next);
+        // Lazy-load the first time it's opened.
+        if (next && aliases == null && aliasLoad !== "loading") {
+            loadAliases();
+        }
+    }
+
+    function handleAliasAdded(alias: Alias) {
+        setAliases((list) => [...(list ?? []), alias]);
+    }
+
+    function handleAliasDeleted(aliasId: string) {
+        setAliases((list) => (list ?? []).filter((a) => a.id !== aliasId));
+        // If the removed alias was selected for send-test, fall back to the mailbox.
+        setSendAsId((cur) => (cur === aliasId ? "" : cur));
+    }
+
+    const aliasCount = aliases?.length ?? 0;
+    const hasAliases = aliasCount > 0;
+
     async function sendTest() {
         setTest({ phase: "loading" });
         try {
-            // Sends to the sender's own address (self-verification).
+            // Sends to the sender's own address (self-verification). When an alias is
+            // selected, send AS that alias by passing its id; omit for the mailbox.
+            const body = sendAsId ? { aliasId: sendAsId } : {};
             const res = await fetch(`/api/senders/${sender.id}/test`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({}),
+                body: JSON.stringify(body),
             });
             const data: any = await res.json().catch(() => ({}));
             if (!res.ok || !data?.ok) {
@@ -748,6 +1123,71 @@ function SenderCard({
 
                 {/* Action row */}
                 <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
+                    {/* Send-as selector — only when the sender has at least one alias. */}
+                    {hasAliases && (
+                        <Tooltip title="Send the test as this identity" arrow>
+                            <Select
+                                value={sendAsId}
+                                onChange={(e) => setSendAsId(e.target.value)}
+                                size="small"
+                                displayEmpty
+                                sx={{
+                                    color: TEXT,
+                                    borderRadius: "11px",
+                                    background: "rgba(255,255,255,0.02)",
+                                    maxWidth: 200,
+                                    "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.16)" },
+                                    "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(155,123,247,0.5)" },
+                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: ACCENT },
+                                    "& .MuiSelect-icon": { color: TEXT_40 },
+                                    "& .MuiSelect-select": {
+                                        fontSize: "0.82rem",
+                                        py: 0.9,
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                    },
+                                }}
+                                MenuProps={{
+                                    slotProps: {
+                                        paper: {
+                                            sx: {
+                                                background: SURFACE,
+                                                border: `1px solid ${BORDER}`,
+                                                backgroundImage: "none",
+                                                maxWidth: 320,
+                                                "& .MuiMenuItem-root": { color: TEXT, fontSize: "0.84rem" },
+                                                "& .MuiMenuItem-root.Mui-selected": {
+                                                    background: "rgba(155,123,247,0.12)",
+                                                },
+                                            },
+                                        },
+                                    },
+                                }}
+                            >
+                                <MenuItem value="">
+                                    <Typography component="span" sx={{ fontSize: "0.84rem" }}>
+                                        From: mailbox
+                                    </Typography>
+                                </MenuItem>
+                                {(aliases ?? []).map((a) => (
+                                    <MenuItem key={a.id} value={a.id} sx={{ display: "block" }}>
+                                        <Typography
+                                            component="span"
+                                            sx={{
+                                                fontSize: "0.84rem",
+                                                display: "block",
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                            }}
+                                        >
+                                            {aliasLabel(a)}
+                                        </Typography>
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </Tooltip>
+                    )}
+
                     <Tooltip title={`Sends a verification email to ${sender.email}`} arrow>
                         <span>
                             <Button
@@ -865,6 +1305,41 @@ function SenderCard({
                     </Typography>
                 </Stack>
             )}
+
+            {/* Aliases — collapsible "From" identities that send through this mailbox */}
+            <Box sx={{ mt: 1.8 }}>
+                <Button
+                    onClick={toggleAliases}
+                    startIcon={<AlternateEmailIcon sx={{ fontSize: "1rem !important" }} />}
+                    endIcon={
+                        <ExpandMoreIcon
+                            sx={{
+                                transition: "transform .2s",
+                                transform: aliasesOpen ? "rotate(180deg)" : "none",
+                            }}
+                        />
+                    }
+                    sx={{
+                        textTransform: "none",
+                        color: TEXT_55,
+                        fontWeight: 600,
+                        fontSize: "0.82rem",
+                        px: 0.4,
+                        "&:hover": { background: "transparent", color: TEXT },
+                    }}
+                >
+                    Aliases{aliases != null ? ` (${aliasCount})` : ""}
+                </Button>
+
+                <AliasesSection
+                    senderId={sender.id}
+                    expanded={aliasesOpen}
+                    aliases={aliases}
+                    loadState={aliasLoad}
+                    onAdded={handleAliasAdded}
+                    onDeleted={handleAliasDeleted}
+                />
+            </Box>
         </GlassCard>
     );
 }
