@@ -1,0 +1,18 @@
+/node_modules
+/.next
+/.vercel
+/.wrangler
+/out
+/build
+
+# env / secrets
+.env
+.env.local
+.dev.vars
+*.tmp
+
+# OS
+.DS_Store
+*.log
+
+next-env.d.ts

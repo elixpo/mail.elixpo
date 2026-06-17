@@ -1,0 +1,53 @@
+{
+    "name": "elixpo-mail",
+    "version": "0.1.0",
+    "private": true,
+    "description": "mail.elixpo — event-based transactional email for the Elixpo ecosystem. Bring your own sender, design templates with {{variables}} in a WYSIWYG editor, and trigger sends from your service via a webhook + per-config client credentials. On Cloudflare's edge.",
+    "homepage": "https://mail.elixpo.com",
+    "author": {
+        "name": "Elixpo",
+        "url": "https://elixpo.com"
+    },
+    "license": "MIT",
+    "engines": {
+        "node": ">=22"
+    },
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "pages:build": "npx @cloudflare/next-on-pages",
+        "start": "next start",
+        "lint": "biome check .",
+        "format": "biome check --write .",
+        "db:create": "wrangler d1 create elixpo_mail",
+        "db:migrate": "wrangler d1 migrations apply elixpo_mail --remote",
+        "db:migrate:local": "wrangler d1 migrations apply elixpo_mail --local",
+        "db:query:remote": "wrangler d1 execute elixpo_mail --remote",
+        "db:tables": "wrangler d1 execute elixpo_mail --remote --command \"SELECT name FROM sqlite_master WHERE type='table';\""
+    },
+    "dependencies": {
+        "@elixpo/lixeditor": "latest",
+        "@emotion/cache": "^11.14.0",
+        "@emotion/react": "^11.14.0",
+        "@emotion/styled": "^11.14.1",
+        "@mui/icons-material": "7.0.2",
+        "@mui/material": "7.0.2",
+        "@mui/system": "7.0.2",
+        "jose": "^5.9.6",
+        "next": "15.2.4",
+        "react": "19.2.3",
+        "react-dom": "19.2.3"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^1.9.4",
+        "@cloudflare/next-on-pages": "^1.13.16",
+        "@cloudflare/workers-types": "^4.20240905.0",
+        "@tailwindcss/postcss": "^4",
+        "@types/node": "^20",
+        "@types/react": "^19",
+        "@types/react-dom": "^19",
+        "tailwindcss": "^4",
+        "typescript": "^5",
+        "wrangler": "^4.67.0"
+    }
+}

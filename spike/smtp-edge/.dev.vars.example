@@ -1,0 +1,7 @@
+# Copy to .dev.vars (gitignored) for local `wrangler dev`. NEVER commit real creds.
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your-test@gmail.com
+SMTP_PASS=your-16-char-app-password
+SMTP_FROM=your-test@gmail.com
+MAIL_TO=where-to-deliver@example.com
