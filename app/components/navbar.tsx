@@ -170,7 +170,8 @@ const Navbar = () => {
                 <Box sx={{ flexGrow: { xs: 1, md: 0 } }} />
 
                 <Stack direction="row" spacing={{ xs: 1, md: 1.2 }} alignItems="center">
-                    {/* GitHub: icon | star count */}
+                    {/* GitHub (marketing nav only — hidden once signed in) */}
+                    {!me && (
                     <Box
                         component="a"
                         href={REPO_URL}
@@ -208,61 +209,48 @@ const Navbar = () => {
                             </>
                         )}
                     </Box>
+                    )}
 
                     {me === undefined ? (
                         // Placeholder while we resolve the session — avoids flashing
                         // "Sign in" to an already-signed-in user.
                         <Box sx={{ width: 104, height: 38 }} />
                     ) : me ? (
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <Button
-                                component={Link}
-                                href="/dashboard"
-                                disableElevation
-                                sx={{
-                                    textTransform: "none",
-                                    fontWeight: 600,
-                                    fontSize: "0.9rem",
-                                    color: "#f4f4f6",
-                                    borderRadius: "10px",
-                                    pl: 0.6,
-                                    pr: 1.4,
-                                    py: 0.5,
-                                    gap: 0.9,
-                                    border: "1px solid rgba(255,255,255,0.1)",
-                                    "&:hover": { borderColor: "rgba(155,123,247,0.45)", background: "rgba(155,123,247,0.08)" },
-                                }}
+                        // Signed in: dashboard-style profile chip → /dashboard (no sign out here).
+                        <Box
+                            component={Link}
+                            href="/dashboard"
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 1,
+                                textDecoration: "none",
+                                color: "inherit",
+                                border: "1px solid rgba(255,255,255,0.1)",
+                                borderRadius: "10px",
+                                pl: 0.6,
+                                pr: { xs: 0.6, sm: 1 },
+                                py: 0.5,
+                                transition: "all 0.15s ease",
+                                "&:hover": { borderColor: "rgba(155,123,247,0.4)", background: "rgba(155,123,247,0.06)" },
+                            }}
+                        >
+                            <Avatar
+                                src={me.avatar || undefined}
+                                sx={{ width: 28, height: 28, fontSize: "0.85rem", bgcolor: "rgba(155,123,247,0.4)" }}
                             >
-                                <Avatar
-                                    src={me.avatar || undefined}
-                                    sx={{ width: 26, height: 26, fontSize: "0.8rem", bgcolor: "rgba(155,123,247,0.4)" }}
-                                >
-                                    {(me.name || me.email || "?").charAt(0).toUpperCase()}
-                                </Avatar>
-                                <Box component="span" sx={{ display: { xs: "none", sm: "inline" }, maxWidth: 130, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                {(me.name || me.email || "?").charAt(0).toUpperCase()}
+                            </Avatar>
+                            <Stack sx={{ display: { xs: "none", sm: "flex" }, alignItems: "flex-start", lineHeight: 1.1 }}>
+                                <Typography sx={{ fontSize: "0.82rem", fontWeight: 600, color: "#f5f5f4", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                     {me.name || me.email}
-                                </Box>
-                            </Button>
-                            <Button
-                                component="a"
-                                href="/api/auth/logout"
-                                disableElevation
-                                sx={{
-                                    display: { xs: "none", sm: "inline-flex" },
-                                    textTransform: "none",
-                                    fontWeight: 600,
-                                    fontSize: "0.85rem",
-                                    color: "rgba(244,244,246,0.7)",
-                                    borderRadius: "10px",
-                                    px: 1.4,
-                                    py: 0.7,
-                                    border: "1px solid rgba(255,255,255,0.1)",
-                                    "&:hover": { color: "#fff", borderColor: "rgba(239,68,68,0.45)", background: "rgba(239,68,68,0.08)" },
-                                }}
-                            >
-                                Sign out
-                            </Button>
-                        </Stack>
+                                </Typography>
+                                <Typography sx={{ fontSize: "0.7rem", color: "rgba(245,245,244,0.45)", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    {me.email}
+                                </Typography>
+                            </Stack>
+                            <KeyboardArrowDownIcon sx={{ fontSize: 18, color: "rgba(245,245,244,0.5)", display: { xs: "none", sm: "block" } }} />
+                        </Box>
                     ) : (
                         <Button
                             component="a"
