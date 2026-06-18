@@ -222,19 +222,39 @@ function CopyButton({
     );
 }
 
-// ── Build the curl sample for a webhook ──────────────────────────────────────
-function buildCurl(origin: string, endpointKey: string, variables: string[]): string {
+// ── Build the Node.js HMAC-signed request sample for a webhook ────────────────
+function buildSnippet(origin: string, endpointKey: string, variables: string[]): string {
     const base = origin || "https://your-domain";
+    const url = `${base}/v1/hooks/${endpointKey}`;
     const varsObj =
         variables.length > 0
-            ? `{${variables.map((v) => `"${v}":"..."`).join(",")}}`
+            ? `{ ${variables.map((v) => `"${v}": "..."`).join(", ")} }`
             : "{}";
-    const body = `{"to":"user@example.com","variables":${varsObj}}`;
+    // Build as a plain string so the literal backticks and ${...} appear verbatim
+    // in the snippet the user copies — they are JS, not TSX template interpolation.
+    const dollar = "$";
     return [
-        `curl -X POST ${base}/v1/hooks/${endpointKey} \\`,
-        `  -H "Authorization: Bearer YOUR_PRODUCT_SECRET" \\`,
-        `  -H "Content-Type: application/json" \\`,
-        `  -d '${body}'`,
+        `import crypto from "node:crypto";`,
+        ``,
+        `const secret = "YOUR_PRODUCT_SECRET"; // your product's shared secret`,
+        `const url = "${url}";`,
+        ``,
+        `const payload = JSON.stringify({`,
+        `  to: "user@example.com",`,
+        `  variables: ${varsObj},`,
+        `});`,
+        ``,
+        `const t = Math.floor(Date.now() / 1000);`,
+        `const v1 = crypto.createHmac("sha256", secret).update(\`${dollar}{t}.${dollar}{payload}\`).digest("hex");`,
+        ``,
+        `const res = await fetch(url, {`,
+        `  method: "POST",`,
+        `  headers: {`,
+        `    "Content-Type": "application/json",`,
+        `    "X-Elixpo-Signature": \`t=${dollar}{t},v1=${dollar}{v1}\`,`,
+        `  },`,
+        `  body: payload,`,
+        `});`,
     ].join("\n");
 }
 
@@ -667,7 +687,7 @@ function WebhookRow({
 }) {
     const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
     const triggerUrl = `${origin}/v1/hooks/${webhook.endpoint_key}`;
-    const curl = buildCurl(origin, webhook.endpoint_key, variables);
+    const snippet = buildSnippet(origin, webhook.endpoint_key, variables);
     const disabled = webhook.status === "disabled";
 
     return (
@@ -830,8 +850,8 @@ function WebhookRow({
             <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <Box sx={{ mt: 1.6 }}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 0.7 }}>
-                        <FieldLabel>Send with curl</FieldLabel>
-                        <CopyButton value={curl} label="Copy curl sample" onCopied={() => onCopied("Copied")} />
+                        <FieldLabel>Send with Node.js</FieldLabel>
+                        <CopyButton value={snippet} label="Copy code sample" onCopied={() => onCopied("Copied")} />
                     </Stack>
                     <Box
                         component="pre"
@@ -849,11 +869,19 @@ function WebhookRow({
                             whiteSpace: "pre",
                         }}
                     >
-                        {curl}
+                        {snippet}
                     </Box>
                     <Typography sx={{ fontSize: "0.78rem", color: TEXT_55, mt: 1.2, lineHeight: 1.6 }}>
-                        Use your product&rsquo;s shared secret (shown once when you created the product, or after
-                        rotating it) as the Bearer token. Find it under{" "}
+                        Sign every request with your product&rsquo;s shared secret. The{" "}
+                        <Box component="code" sx={{ fontFamily: "var(--font-geist-mono)", fontSize: "0.74rem" }}>
+                            X-Elixpo-Signature
+                        </Box>{" "}
+                        header is{" "}
+                        <Box component="code" sx={{ fontFamily: "var(--font-geist-mono)", fontSize: "0.74rem" }}>
+                            t=&lt;unix seconds&gt;,v1=&lt;hex HMAC-SHA256 of &quot;t.body&quot;&gt;
+                        </Box>
+                        . We reject signatures older than 5 minutes. Your product secret is shown once when you
+                        create or rotate the product — find it under{" "}
                         <Box
                             component={Link}
                             href="/dashboard/products"
