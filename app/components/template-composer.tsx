@@ -3,14 +3,17 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DataObjectIcon from "@mui/icons-material/DataObject";
 import SaveIcon from "@mui/icons-material/Save";
-import { Box, Button, Chip, CircularProgress, Stack, TextField, Typography } from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
+import { Box, Button, Chip, CircularProgress, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { extractVariables } from "@/lib/template-vars";
+import { GHOST_BTN } from "./dashboard-ui";
 import { GlassCard } from "./glass-card";
 import LixEditor from "./lix-editor";
+import TemplateTestDialog from "./template-test-dialog";
 
 const ACCENT = "#9b7bf7";
 const TEXT_60 = "rgba(245,245,244,0.6)";
@@ -70,6 +73,7 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [savedMsg, setSavedMsg] = useState(false);
+    const [testOpen, setTestOpen] = useState(false);
 
     useEffect(() => {
         if (!templateId) return;
@@ -174,6 +178,22 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                 </Stack>
                 <Stack direction="row" alignItems="center" spacing={1.5}>
                     {savedMsg && <Typography sx={{ color: "#86efac", fontSize: "0.85rem" }}>Saved</Typography>}
+                    <Tooltip title={templateId ? "" : "Save the template first"} arrow disableHoverListener={Boolean(templateId)}>
+                        <span>
+                            <Button
+                                onClick={() => setTestOpen(true)}
+                                disabled={!templateId}
+                                startIcon={<SendIcon sx={{ fontSize: "1.05rem !important" }} />}
+                                sx={{
+                                    ...GHOST_BTN,
+                                    fontSize: "0.9rem",
+                                    "&.Mui-disabled": { color: "rgba(245,245,244,0.4)", borderColor: "rgba(255,255,255,0.07)" },
+                                }}
+                            >
+                                Test send
+                            </Button>
+                        </span>
+                    </Tooltip>
                     <Button
                         onClick={save}
                         disabled={saving || !canSave}
@@ -290,6 +310,17 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                     </Button>
                 </Stack>
             </Stack>
+
+            {templateId && (
+                <TemplateTestDialog
+                    open={testOpen}
+                    onClose={() => setTestOpen(false)}
+                    templateId={templateId}
+                    subject={subject}
+                    variables={variables}
+                    getContentHtml={async () => (apiRef.current ? await apiRef.current.getHTML() : "")}
+                />
+            )}
         </Box>
     );
 }
