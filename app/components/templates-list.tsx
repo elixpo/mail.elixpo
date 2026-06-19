@@ -121,22 +121,37 @@ export default function TemplatesList() {
                     {templates.map((t) => (
                         <GlassCard key={t.id} sx={{ p: 0 }}>
                             <Stack direction="row" alignItems="center" sx={{ p: 2, gap: 2 }}>
-                                <Box sx={{ width: 40, height: 40, borderRadius: "11px", display: "grid", placeItems: "center", background: "rgba(155,123,247,0.12)", border: "1px solid rgba(155,123,247,0.28)", flexShrink: 0 }}>
-                                    <DescriptionIcon sx={{ fontSize: 20, color: ACCENT }} />
-                                </Box>
-                                <Box sx={{ minWidth: 0, flex: 1 }}>
-                                    <Stack direction="row" alignItems="center" spacing={1}>
-                                        <Typography sx={{ fontWeight: 700, fontSize: "1rem", color: "#f5f5f4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                            {t.name}
-                                        </Typography>
+                                <Box
+                                    component={Link}
+                                    href={`/dashboard/templates/${t.id}`}
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 2,
+                                        flex: 1,
+                                        minWidth: 0,
+                                        textDecoration: "none",
+                                        color: "inherit",
+                                        "&:hover .t-name": { color: ACCENT },
+                                    }}
+                                >
+                                    <Box sx={{ width: 40, height: 40, borderRadius: "11px", display: "grid", placeItems: "center", background: "rgba(155,123,247,0.12)", border: "1px solid rgba(155,123,247,0.28)", flexShrink: 0 }}>
+                                        <DescriptionIcon sx={{ fontSize: 20, color: ACCENT }} />
+                                    </Box>
+                                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                                        <Stack direction="row" alignItems="center" spacing={1}>
+                                            <Typography className="t-name" sx={{ fontWeight: 700, fontSize: "1rem", color: "#f5f5f4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", transition: "color 0.15s ease" }}>
+                                                {t.name}
+                                            </Typography>
                                         <Chip label={t.slug} size="small" sx={{ height: 20, fontFamily: "var(--font-geist-mono)", fontSize: "0.68rem", color: "rgba(245,245,244,0.6)", bgcolor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }} />
                                         {t.variables.length > 0 && (
                                             <Chip label={`${t.variables.length} var${t.variables.length > 1 ? "s" : ""}`} size="small" sx={{ height: 20, fontSize: "0.68rem", color: "#c4b5fd", bgcolor: "rgba(155,123,247,0.12)", border: "1px solid rgba(155,123,247,0.3)" }} />
                                         )}
                                     </Stack>
-                                    <Typography sx={{ color: TEXT_60, fontSize: "0.85rem", mt: 0.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                        {t.subject || "No subject"} · updated {relativeTime(t.updated_at)}
-                                    </Typography>
+                                        <Typography sx={{ color: TEXT_60, fontSize: "0.85rem", mt: 0.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                            {t.subject || "No subject"} · updated {relativeTime(t.updated_at)}
+                                        </Typography>
+                                    </Box>
                                 </Box>
                                 <Stack direction="row" spacing={0.5} sx={{ flexShrink: 0 }}>
                                     <Button component={Link} href={`/dashboard/templates/${t.id}`} startIcon={<EditIcon sx={{ fontSize: "1rem !important" }} />} sx={{ textTransform: "none", fontSize: "0.85rem", color: "rgba(245,245,244,0.8)", borderRadius: "9px", "&:hover": { background: "rgba(255,255,255,0.05)", color: "#fff" } }}>
