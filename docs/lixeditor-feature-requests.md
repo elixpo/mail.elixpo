@@ -236,3 +236,45 @@ export function setImageUploader(fn: (file: File) => Promise<string>): void;
    - delete the hand-written `types/lixeditor.d.ts` (or trim to gaps),
    - pass `uploadFile`, `variableSuggestions`, `buttonDefaults`, `editable` from
      the template composer, and ship the Cloudinary upload route.
+
+---
+
+# 2.7.1 follow-ups (after dogfooding 2.7.0)
+
+2.7.0 wired up correctly on our side (types, `uploadFile`, slash button). Two
+package-level issues surfaced when actually using it:
+
+### A. Button block inline editor is unstyled / broken (P0 bug)
+Inserting a button from `/` renders its inline editor with **no layout**: the
+fields (`text`, `url`, align, variant, color, radius) are cramped onto lines and
+the **"Cancel" / "Done" buttons run together** ("CancelDone"). Screenshot shows
+the controls have effectively no CSS. Likely the button-editor styles aren't in
+the shipped `dist/styles/index.css`, or are scoped to a class that isn't emitted.
+- Ship the button-editor styles (spacing, control sizing, a real button row with
+  a gap, labels). It should look like a small popover/toolbar, not raw inputs.
+- Verify against a **dark** `LixThemeProvider` (our embed is dark) — the inputs
+  need readable contrast.
+
+### B. Suppress BlockNote's default image placeholder UI (for host-driven insert)
+We insert images from our **own** toolbar (file → Cloudinary → insert a ready
+image block), and via drag/drop/paste (already routed through `uploadFile`). But
+an empty image block still shows BlockNote's default **"Upload / Embed URL"**
+card with an Embed-URL tab — which is not our flow and confuses users. Please add
+a way to turn that off:
+```ts
+// on <LixEditor> (or features):
+imageInsert?: "default" | "host";   // "host" → no in-block Upload/Embed-URL placeholder;
+                                     // images appear only once they have a URL
+```
+and/or expose a tiny imperative helper on the handle so the host can insert an
+image block programmatically with the URL already set (we can do this via
+`getEditor()` + BlockNote today, but a first-class helper is cleaner):
+```ts
+insertImage(url: string, opts?: { alt?: string; align?: "left"|"center"|"right" }): void;
+```
+With `imageInsert:"host"`, the slash "Image" item should either be hidden or
+trigger the host's `uploadFile` directly (file picker → upload → inserted), never
+the embed-URL card.
+
+> Everything else in 2.7.0 is working. These two unblock a clean compose UX on
+> our side; once published we'll bump and drop our remaining workarounds.

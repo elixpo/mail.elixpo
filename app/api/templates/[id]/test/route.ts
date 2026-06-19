@@ -56,8 +56,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // Render (allowing live overrides so the test reflects unsaved edits).
     const subject = typeof body?.subject === "string" ? body.subject : tmpl.subject;
     const contentHtml = typeof body?.contentHtml === "string" ? body.contentHtml : tmpl.content_html;
+    const bgColor = typeof body?.bgColor === "string" ? body.bgColor : tmpl.bg_color;
     const vars = body?.vars && typeof body.vars === "object" ? body.vars : {};
-    const rendered = renderTemplate({ subject, content_html: contentHtml }, vars);
+    const rendered = renderTemplate({ subject, content_html: contentHtml, background_color: bgColor }, vars);
 
     let pass: string;
     try {

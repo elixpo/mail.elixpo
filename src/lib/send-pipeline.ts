@@ -78,7 +78,11 @@ export async function deliverTemplate(
 
     const sender = await resolveSender(db, tenantId, template, product);
     const rendered = renderTemplate(
-        { subject: template.subject, content_html: template.content_html },
+        {
+            subject: template.subject,
+            content_html: template.content_html,
+            background_color: template.bg_color,
+        },
         vars,
     );
     const subject = rendered.subject || "(no subject)";

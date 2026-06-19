@@ -60,9 +60,12 @@ export async function uploadImage(
     folder: string,
 ): Promise<UploadResult> {
     const timestamp = Math.floor(Date.now() / 1000);
+    // Prefix every asset with ml_lix_ so mail-service uploads are identifiable
+    // in the Cloudinary account.
+    const publicId = `ml_lix_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
     // Cloudinary signs every param except file/api_key/cloud_name/resource_type,
     // sorted alphabetically, joined with `&`, then the api_secret appended.
-    const toSign = `folder=${folder}&timestamp=${timestamp}`;
+    const toSign = `folder=${folder}&public_id=${publicId}&timestamp=${timestamp}`;
     const signature = await sha1Hex(`${toSign}${cfg.apiSecret}`);
 
     const form = new FormData();
@@ -70,6 +73,7 @@ export async function uploadImage(
     form.append("api_key", cfg.apiKey);
     form.append("timestamp", String(timestamp));
     form.append("folder", folder);
+    form.append("public_id", publicId);
     form.append("signature", signature);
 
     const res = await fetch(

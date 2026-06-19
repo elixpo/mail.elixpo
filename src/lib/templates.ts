@@ -21,6 +21,7 @@ export interface TemplateRow {
     content_html: string | null;
     variables_json: string | null;
     sender_id: string | null;
+    bg_color: string | null;
     status: string;
     created_at: string;
     updated_at: string;
@@ -44,6 +45,7 @@ export interface TemplateSummary {
 export interface TemplatePublic extends TemplateSummary {
     content: any[] | null;
     content_html: string | null;
+    bg_color: string | null;
     created_at: string;
 }
 
@@ -76,6 +78,7 @@ export function toPublic(row: TemplateRow): TemplatePublic {
         ...toSummary(row),
         content: parseJson<any[] | null>(row.content_json, null),
         content_html: row.content_html,
+        bg_color: row.bg_color,
         created_at: row.created_at,
     };
 }
@@ -107,6 +110,7 @@ export interface TemplateInput {
     contentJson?: any[] | null;
     contentHtml?: string | null;
     senderId?: string | null;
+    bgColor?: string | null;
 }
 
 export async function createTemplate(
@@ -123,8 +127,8 @@ export async function createTemplate(
     await db
         .prepare(
             `INSERT INTO templates
-                (id, tenant_id, product_id, slug, name, kind, subject, content_json, content_html, variables_json, sender_id)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                (id, tenant_id, product_id, slug, name, kind, subject, content_json, content_html, variables_json, sender_id, bg_color)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .bind(
             id,
@@ -138,6 +142,7 @@ export async function createTemplate(
             contentHtml || null,
             JSON.stringify(variables),
             input.senderId || null,
+            input.bgColor || null,
         )
         .run();
 
@@ -154,6 +159,7 @@ export interface TemplateUpdate {
     contentJson?: any[] | null;
     contentHtml?: string | null;
     senderId?: string | null;
+    bgColor?: string | null;
     status?: string;
 }
 
@@ -184,6 +190,10 @@ export async function updateTemplate(
     if (update.senderId !== undefined) {
         sets.push("sender_id = ?");
         vals.push(update.senderId);
+    }
+    if (update.bgColor !== undefined) {
+        sets.push("bg_color = ?");
+        vals.push(update.bgColor);
     }
     if (update.status !== undefined) {
         sets.push("status = ?");

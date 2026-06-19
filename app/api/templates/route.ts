@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
             contentJson: Array.isArray(body?.contentJson) ? body.contentJson : null,
             contentHtml: typeof body?.contentHtml === "string" ? body.contentHtml : "",
             senderId: typeof body?.senderId === "string" ? body.senderId : null,
+            bgColor: typeof body?.bgColor === "string" ? body.bgColor : null,
         });
         const { toPublic } = await import("@/lib/templates");
         return NextResponse.json({ ok: true, template: toPublic(row) }, { status: 201 });

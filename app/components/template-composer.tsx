@@ -4,11 +4,13 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DataObjectIcon from "@mui/icons-material/DataObject";
 import SaveIcon from "@mui/icons-material/Save";
 import SendIcon from "@mui/icons-material/Send";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Box, Button, Chip, CircularProgress, MenuItem, Select, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { DEFAULT_BG_COLOR, wrapEmailHtml } from "@/lib/render";
 import { extractVariables } from "@/lib/template-vars";
 import { GHOST_BTN } from "./dashboard-ui";
 import { BORDER, GlassCard, SURFACE } from "./glass-card";
@@ -17,6 +19,9 @@ import TemplateTestDialog from "./template-test-dialog";
 
 const ACCENT = "#9b7bf7";
 const TEXT_60 = "rgba(245,245,244,0.6)";
+
+// Common email canvas colours offered as quick swatches (plus a custom picker).
+const BG_PRESETS = ["#f4f4f7", "#ffffff", "#eef2ff", "#f0fdf4", "#0b0d12"];
 
 // Email clients don't render diagrams/equations/PDF/TOC/syntax-highlighting —
 // keep the editor focused on what survives in an inbox.
@@ -90,6 +95,11 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
     const [savedMsg, setSavedMsg] = useState(false);
     const [testOpen, setTestOpen] = useState(false);
 
+    // Email canvas colour + true-to-inbox preview.
+    const [bgColor, setBgColor] = useState(DEFAULT_BG_COLOR);
+    const [showPreview, setShowPreview] = useState(true);
+    const [previewHtml, setPreviewHtml] = useState("");
+
     // Load the tenant's products for the picker.
     useEffect(() => {
         let alive = true;
@@ -122,6 +132,7 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                     setSlug(t.slug || "");
                     setSubject(t.subject || "");
                     setProductId(t.product_id ? String(t.product_id) : "");
+                    setBgColor(t.bg_color || DEFAULT_BG_COLOR);
                     setInitialContent(Array.isArray(t.content) ? t.content : undefined);
                     setBlocks(Array.isArray(t.content) ? t.content : []);
                 } else {
@@ -150,6 +161,22 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
         bodyText.length > 2 &&
         (Boolean(templateId) || productId.length > 0);
 
+    // Debounced true-to-inbox preview: drop the editor's email-safe HTML into the
+    // real email shell (chosen canvas colour + white card) so the user sees what
+    // the recipient will see. {{variables}} are left literal in the preview.
+    useEffect(() => {
+        if (!showPreview) return;
+        const id = setTimeout(() => {
+            try {
+                const html = apiRef.current ? apiRef.current.getHTML() : "";
+                setPreviewHtml(wrapEmailHtml(html, bgColor));
+            } catch {
+                /* editor not mounted yet */
+            }
+        }, 350);
+        return () => clearTimeout(id);
+    }, [blocks, bgColor, showPreview]);
+
     async function save() {
         if (saving) return;
         if (!name.trim()) {
@@ -168,6 +195,7 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                 subject,
                 contentJson,
                 contentHtml,
+                bgColor,
             };
             // Templates belong to a product; required on create.
             if (productId) payload.productId = productId;
@@ -274,6 +302,102 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                             onChange={(ed: any) => setBlocks(ed?.document ?? [])}
                         />
                     </Box>
+                </GlassCard>
+
+                {/* Inbox preview */}
+                <GlassCard sx={{ p: 0, overflow: "hidden" }}>
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        justifyContent="space-between"
+                        sx={{ px: 2.5, py: 1.5, borderBottom: "1px solid rgba(255,255,255,0.07)", flexWrap: "wrap", gap: 1 }}
+                    >
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            <VisibilityIcon sx={{ fontSize: 18, color: ACCENT }} />
+                            <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "#f5f5f4" }}>
+                                Inbox preview
+                            </Typography>
+                            <Typography sx={{ color: "rgba(245,245,244,0.45)", fontSize: "0.82rem", display: { xs: "none", md: "block" } }}>
+                                — exactly how it lands in the recipient's inbox
+                            </Typography>
+                        </Stack>
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                            <Typography sx={{ color: TEXT_60, fontSize: "0.8rem", mr: 0.3 }}>Background</Typography>
+                            {BG_PRESETS.map((c) => (
+                                <Box
+                                    key={c}
+                                    onClick={() => setBgColor(c)}
+                                    title={c}
+                                    sx={{
+                                        width: 22,
+                                        height: 22,
+                                        borderRadius: "6px",
+                                        cursor: "pointer",
+                                        background: c,
+                                        border:
+                                            bgColor.toLowerCase() === c.toLowerCase()
+                                                ? `2px solid ${ACCENT}`
+                                                : "1px solid rgba(255,255,255,0.18)",
+                                    }}
+                                />
+                            ))}
+                            <Box
+                                component="label"
+                                title="Custom colour"
+                                sx={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    width: 22,
+                                    height: 22,
+                                    borderRadius: "6px",
+                                    overflow: "hidden",
+                                    cursor: "pointer",
+                                    border: "1px solid rgba(255,255,255,0.18)",
+                                    background: "conic-gradient(red, yellow, lime, aqua, blue, magenta, red)",
+                                }}
+                            >
+                                <Box
+                                    component="input"
+                                    type="color"
+                                    value={bgColor}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBgColor(e.target.value)}
+                                    sx={{ width: 0, height: 0, opacity: 0, p: 0, m: 0, border: 0 }}
+                                />
+                            </Box>
+                            <Button
+                                onClick={() => setShowPreview((v) => !v)}
+                                sx={{ ...GHOST_BTN, py: 0.5, px: 1.5, fontSize: "0.8rem", ml: 0.5 }}
+                            >
+                                {showPreview ? "Hide" : "Show"}
+                            </Button>
+                        </Stack>
+                    </Stack>
+                    {showPreview && (
+                        <Box sx={{ p: { xs: 1.5, md: 2 } }}>
+                            <Box sx={{ mb: 1.2, px: 0.5 }}>
+                                <Typography sx={{ color: "rgba(245,245,244,0.45)", fontSize: "0.74rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                                    Subject
+                                </Typography>
+                                <Typography sx={{ color: "#f5f5f4", fontSize: "0.95rem", fontWeight: 600 }}>
+                                    {subject.trim() || "(no subject)"}
+                                </Typography>
+                            </Box>
+                            <Box
+                                component="iframe"
+                                title="Email inbox preview"
+                                srcDoc={previewHtml}
+                                sx={{
+                                    width: "100%",
+                                    height: 560,
+                                    border: "1px solid rgba(255,255,255,0.08)",
+                                    borderRadius: "10px",
+                                    background: "#fff",
+                                    display: "block",
+                                }}
+                            />
+                        </Box>
+                    )}
                 </GlassCard>
 
                 {/* Variables */}
@@ -430,6 +554,7 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                     subject={subject}
                     variables={variables}
                     getContentHtml={async () => (apiRef.current ? await apiRef.current.getHTML() : "")}
+                    bgColor={bgColor}
                 />
             )}
         </Box>

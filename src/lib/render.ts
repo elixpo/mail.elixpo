@@ -13,9 +13,14 @@
 
 import { substituteVariables } from "./template-vars";
 
+/** Default email canvas colour (the area around the white content card). */
+export const DEFAULT_BG_COLOR = "#f4f4f7";
+
 export interface RenderableTemplate {
     subject: string;
     content_html: string | null;
+    /** Email canvas colour; falls back to DEFAULT_BG_COLOR. */
+    background_color?: string | null;
 }
 
 export interface RenderedEmail {
@@ -32,13 +37,14 @@ export function renderTemplate(
     const content = substituteVariables(template.content_html || "", vars);
     return {
         subject,
-        html: wrapEmailHtml(content),
+        html: wrapEmailHtml(content, template.background_color),
         text: htmlToText(content),
     };
 }
 
 /** Wrap rendered content in a responsive, email-client-safe HTML document. */
-export function wrapEmailHtml(content: string): string {
+export function wrapEmailHtml(content: string, bgColor?: string | null): string {
+    const bg = sanitizeColor(bgColor) || DEFAULT_BG_COLOR;
     return `<!doctype html>
 <html lang="en">
 <head>
@@ -46,7 +52,7 @@ export function wrapEmailHtml(content: string): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="x-apple-disable-message-reformatting">
 <style>
-  body { margin:0; padding:0; background:#f4f4f7; -webkit-text-size-adjust:100%; }
+  body { margin:0; padding:0; background:${bg}; -webkit-text-size-adjust:100%; }
   .e-content { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#1a1a1a; font-size:16px; line-height:1.6; }
   .e-content p { margin:0 0 16px; }
   .e-content h1 { font-size:26px; line-height:1.25; margin:0 0 16px; }
@@ -63,7 +69,7 @@ export function wrapEmailHtml(content: string): string {
 </style>
 </head>
 <body>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f7;padding:24px 12px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${bg};padding:24px 12px;">
 <tr><td align="center">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;">
 <tr><td class="e-content" style="padding:32px;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1a1a1a;font-size:16px;line-height:1.6;">
@@ -77,6 +83,19 @@ Sent with Elixpo Mails
 </table>
 </body>
 </html>`;
+}
+
+/**
+ * Allow only a safe colour literal in the email's inline styles: a #hex (3/6/8)
+ * or a basic CSS colour keyword. Anything else → null (caller uses the default),
+ * so a stored value can never break out of the style attribute.
+ */
+export function sanitizeColor(value?: string | null): string | null {
+    if (!value) return null;
+    const v = value.trim();
+    if (/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(v)) return v;
+    if (/^[a-zA-Z]{3,20}$/.test(v)) return v.toLowerCase(); // named colour (white, transparent, …)
+    return null;
 }
 
 /** Cheap HTML → plain-text fallback for the multipart/alternative text part. */

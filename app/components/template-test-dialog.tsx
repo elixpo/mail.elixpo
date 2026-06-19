@@ -125,6 +125,7 @@ export default function TemplateTestDialog({
     subject,
     variables,
     getContentHtml,
+    bgColor,
 }: {
     open: boolean;
     onClose: () => void;
@@ -132,6 +133,7 @@ export default function TemplateTestDialog({
     subject: string;
     variables: string[];
     getContentHtml: () => Promise<string>;
+    bgColor?: string;
 }) {
     // Recipient + senders
     const [to, setTo] = useState("");
@@ -261,6 +263,7 @@ export default function TemplateTestDialog({
                     vars,
                     subject: subjectRef.current,
                     contentHtml: contentHtmlRef.current,
+                    bgColor,
                 }),
             });
             const d: any = await res.json().catch(() => ({}));
@@ -303,6 +306,7 @@ export default function TemplateTestDialog({
                     aliasId: aliasId || undefined,
                     subject: subjectRef.current,
                     contentHtml: contentHtmlRef.current,
+                    bgColor,
                 }),
             });
             const d: any = await res.json().catch(() => ({}));
