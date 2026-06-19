@@ -114,6 +114,33 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
     const [footer, setFooter] = useState<EmailFooter | null>(null);
     const [toast, setToast] = useState<string | null>(null);
 
+    // New templates have no product yet, so pull the default product's footer so
+    // the preview shows the configured brand block immediately. (Existing
+    // templates get their home product's footer from the template fetch below.)
+    useEffect(() => {
+        if (templateId) return;
+        let alive = true;
+        fetch("/api/products")
+            .then((r) => r.json())
+            .then((d: any) => {
+                if (!alive || !d?.ok || !Array.isArray(d.products) || d.products.length === 0) return;
+                const p = d.products[0];
+                setFooter({
+                    name: p.name,
+                    logoUrl: p.logo_url,
+                    homepageUrl: p.homepage_url,
+                    supportEmail: p.support_email,
+                    address: p.address,
+                    phone: p.phone,
+                    quote: p.footer_note,
+                });
+            })
+            .catch(() => {});
+        return () => {
+            alive = false;
+        };
+    }, [templateId]);
+
     useEffect(() => {
         if (!templateId) return;
         let alive = true;
@@ -211,6 +238,22 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
             setSaving(false);
         }
     }
+
+    // ⌘/Ctrl+S saves. Refs keep the latest save + gate without re-binding the listener.
+    const saveRef = useRef<() => void>(() => {});
+    const canSaveRef = useRef(false);
+    saveRef.current = save;
+    canSaveRef.current = canSave && !saving;
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+                e.preventDefault();
+                if (canSaveRef.current) saveRef.current();
+            }
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, []);
 
     if (loading) {
         return (
