@@ -276,5 +276,14 @@ With `imageInsert:"host"`, the slash "Image" item should either be hidden or
 trigger the host's `uploadFile` directly (file picker → upload → inserted), never
 the embed-URL card.
 
-> Everything else in 2.7.0 is working. These two unblock a clean compose UX on
-> our side; once published we'll bump and drop our remaining workarounds.
+### C. `getHTML()` drops paragraph/heading text alignment (P0 bug — fixing in 2.7.1)
+The email export renders text blocks as `<p>${content}</p>` / headings with **no
+`text-align`**, so `block.props.textAlignment` ("center"/"right"/"justify") is
+lost — centered/right content renders left in the email (and our preview). Only
+**images** currently emit alignment (`<figure style="text-align:…">`).
+- `renderBlock` should emit `style="text-align:<align>"` (inline, email-safe) for
+  `paragraph`/`heading`/`quote`/list items when `props.textAlignment` is set and
+  not the default `left`.
+
+> Everything else in 2.7.0 is working. These unblock a clean compose UX on our
+> side; once published we'll bump and drop our remaining workarounds.

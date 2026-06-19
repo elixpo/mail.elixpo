@@ -48,9 +48,34 @@ const darkField = {
         "&:hover fieldset": { borderColor: "rgba(155,123,247,0.4)" },
         "&.Mui-focused fieldset": { borderColor: ACCENT },
     },
-    "& .MuiInputBase-input": { fontSize: "0.95rem", py: 1.1 },
+    "& .MuiInputBase-input": { fontSize: "0.92rem", py: 0.95 },
     "& .MuiInputBase-input::placeholder": { color: "rgba(245,245,244,0.35)", opacity: 1 },
 };
+
+const selectSx = {
+    color: "#f5f5f4",
+    borderRadius: "10px",
+    background: "rgba(255,255,255,0.02)",
+    "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.12)" },
+    "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(155,123,247,0.4)" },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: ACCENT },
+    "& .MuiSelect-icon": { color: "rgba(245,245,244,0.4)" },
+    "& .MuiSelect-select": { fontSize: "0.9rem", py: 1.05 },
+};
+
+const selectMenuProps = {
+    slotProps: {
+        paper: {
+            sx: {
+                background: SURFACE,
+                border: `1px solid ${BORDER}`,
+                backgroundImage: "none",
+                "& .MuiMenuItem-root": { color: "#f5f5f4", fontSize: "0.9rem" },
+                "& .MuiMenuItem-root.Mui-selected": { background: "rgba(155,123,247,0.12)" },
+            },
+        },
+    },
+} as const;
 
 const SAVE_BTN_SX = {
     textTransform: "none" as const,
@@ -241,10 +266,24 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
         );
     }
 
+    const noProductYet = !templateId && products.length === 0;
+
     return (
-        <Box>
-            {/* Header */}
-            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 3, gap: 2 }}>
+        // Full-bleed: break out of the dashboard's max-width container and fill
+        // the viewport so the editor + preview sit side by side in one screen.
+        <Box
+            sx={{
+                width: "100vw",
+                ml: "calc(50% - 50vw)",
+                px: { xs: 2, md: 3 },
+                display: "flex",
+                flexDirection: "column",
+                height: { xs: "auto", lg: "calc(100vh - 140px)" },
+                minHeight: { lg: 540 },
+            }}
+        >
+            {/* Compact header */}
+            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.5, gap: 2, flexShrink: 0 }}>
                 <Stack direction="row" alignItems="center" spacing={1.5} sx={{ minWidth: 0 }}>
                     <Button
                         component={Link}
@@ -254,7 +293,7 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                     >
                         Templates
                     </Button>
-                    <Typography sx={{ fontWeight: 800, fontSize: "1.4rem", color: "#f5f5f4", letterSpacing: "-0.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <Typography sx={{ fontWeight: 800, fontSize: "1.3rem", color: "#f5f5f4", letterSpacing: "-0.01em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {templateId ? name || "Edit template" : "New template"}
                     </Typography>
                 </Stack>
@@ -266,42 +305,121 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                                 onClick={() => setTestOpen(true)}
                                 disabled={!templateId}
                                 startIcon={<SendIcon sx={{ fontSize: "1.05rem !important" }} />}
-                                sx={{
-                                    ...GHOST_BTN,
-                                    fontSize: "0.9rem",
-                                    "&.Mui-disabled": { color: "rgba(245,245,244,0.4)", borderColor: "rgba(255,255,255,0.07)" },
-                                }}
+                                sx={{ ...GHOST_BTN, fontSize: "0.9rem", "&.Mui-disabled": { color: "rgba(245,245,244,0.4)", borderColor: "rgba(255,255,255,0.07)" } }}
                             >
                                 Test send
                             </Button>
                         </span>
                     </Tooltip>
-                    <Button
-                        onClick={save}
-                        disabled={saving || !canSave}
-                        startIcon={saving ? <CircularProgress size={16} sx={{ color: "rgba(245,245,244,0.6)" }} /> : <SaveIcon sx={{ fontSize: "1.1rem !important" }} />}
-                        sx={SAVE_BTN_SX}
-                    >
-                        {templateId ? "Save changes" : "Create template"}
-                    </Button>
+                    <Tooltip title={canSave ? "" : "Add a product, name, subject, and some body content"} arrow disableHoverListener={canSave}>
+                        <span>
+                            <Button
+                                onClick={save}
+                                disabled={saving || !canSave}
+                                startIcon={saving ? <CircularProgress size={16} sx={{ color: "rgba(245,245,244,0.6)" }} /> : <SaveIcon sx={{ fontSize: "1.1rem !important" }} />}
+                                sx={SAVE_BTN_SX}
+                            >
+                                {templateId ? "Save changes" : "Create template"}
+                            </Button>
+                        </span>
+                    </Tooltip>
                 </Stack>
             </Stack>
 
             {error && (
-                <Box sx={{ mb: 2.5, px: 2, py: 1.2, borderRadius: "10px", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5", fontSize: "0.85rem" }}>
+                <Box sx={{ mb: 1.5, px: 2, py: 1, borderRadius: "10px", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5", fontSize: "0.85rem", flexShrink: 0 }}>
                     {error}
                 </Box>
             )}
 
-            <Stack spacing={2.5}>
+            {/* Variables — top strip */}
+            <Stack direction="row" alignItems="center" sx={{ mb: 1.5, flexWrap: "wrap", gap: 0.8, flexShrink: 0 }}>
+                <DataObjectIcon sx={{ fontSize: 17, color: ACCENT, mr: 0.4 }} />
+                <Typography sx={{ fontWeight: 700, fontSize: "0.85rem", color: "#f5f5f4", mr: 0.5 }}>
+                    Variables{variables.length > 0 ? ` (${variables.length})` : ""}
+                </Typography>
+                {variables.length > 0 ? (
+                    variables.map((v) => (
+                        <Chip
+                            key={v}
+                            label={`{{${v}}}`}
+                            size="small"
+                            sx={{ height: 22, fontFamily: "var(--font-geist-mono)", fontSize: "0.72rem", color: "#c4b5fd", bgcolor: "rgba(155,123,247,0.12)", border: "1px solid rgba(155,123,247,0.3)" }}
+                        />
+                    ))
+                ) : (
+                    <Typography sx={{ color: TEXT_60, fontSize: "0.8rem" }}>
+                        — type{" "}
+                        <Box component="span" sx={{ fontFamily: "var(--font-geist-mono)", color: "#86efac" }}>
+                            {"{{name}}"}
+                        </Box>{" "}
+                        in the subject or body to add one
+                    </Typography>
+                )}
+            </Stack>
 
-                <GlassCard sx={{ p: 0, overflow: "hidden" }}>
-                    <Box sx={{ px: 2.5, py: 1.5, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "#f5f5f4" }}>Compose the email body here - supports Rich Text</Typography>
+            {/* Workspace: compose | inbox preview */}
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", lg: "row" }, gap: 2, flex: 1, minHeight: 0 }}>
+                {/* LEFT — compose (metadata header + editor + toolbar) */}
+                <GlassCard sx={{ p: 0, overflow: "hidden", display: "flex", flexDirection: "column", flex: 1, minWidth: 0, minHeight: { xs: 540, lg: 0 } }}>
+                    <Box sx={{ p: 1.6, borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", flexDirection: "column", gap: 1.2, flexShrink: 0 }}>
+                        <Box sx={{ display: "grid", gap: 1.2, gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr 1.2fr" } }}>
+                            <TextField value={name} onChange={(e) => setName(e.target.value)} placeholder="Template name" fullWidth size="small" sx={darkField} />
+                            <TextField value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="slug (auto)" fullWidth size="small" sx={darkField} />
+                            {noProductYet ? (
+                                <Box
+                                    component={Link}
+                                    href="/dashboard/products"
+                                    sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        px: 1.5,
+                                        borderRadius: "10px",
+                                        border: "1px dashed rgba(155,123,247,0.45)",
+                                        color: ACCENT,
+                                        fontSize: "0.85rem",
+                                        fontWeight: 600,
+                                        textDecoration: "none",
+                                        whiteSpace: "nowrap",
+                                        "&:hover": { background: "rgba(155,123,247,0.06)" },
+                                    }}
+                                >
+                                    + Create a product
+                                </Box>
+                            ) : (
+                                <Select
+                                    value={productId}
+                                    onChange={(e) => setProductId(e.target.value)}
+                                    fullWidth
+                                    size="small"
+                                    displayEmpty
+                                    disabled={Boolean(templateId)}
+                                    renderValue={(val) => (val ? products.find((p) => p.id === val)?.name ?? "Unknown product" : "Select a product")}
+                                    sx={selectSx}
+                                    MenuProps={selectMenuProps}
+                                >
+                                    {products.map((p) => (
+                                        <MenuItem key={p.id} value={p.id}>
+                                            {p.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            )}
+                        </Box>
+                        <TextField
+                            value={subject}
+                            onChange={(e) => setSubject(e.target.value)}
+                            placeholder="Subject line — supports {{variables}}"
+                            fullWidth
+                            size="small"
+                            sx={darkField}
+                        />
                     </Box>
-                    {/* Extra left padding so BlockNote's block handles (+ / drag)
-                        — which sit in a left gutter outside the text — stay in view. */}
-                    <Box sx={{ minHeight: 450, py: { xs: 2, md: 3 }, pr: { xs: 2, md: 3 }, pl: { xs: 5, md: 7, lg: 9 } }}>
+
+                    {/* Editor body — scrolls. Extra left padding keeps BlockNote's
+                        block handles (+ / drag), which sit in a left gutter, in view. */}
+                    <Box sx={{ flex: 1, minHeight: 0, overflowY: "auto", py: { xs: 2, md: 2.5 }, pr: { xs: 2, md: 3 }, pl: { xs: 5, md: 7 } }}>
                         <LixEditor
                             initialContent={initialContent}
                             features={EMAIL_FEATURES}
@@ -315,88 +433,43 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                             onChange={(ed: any) => setBlocks(ed?.document ?? [])}
                         />
                     </Box>
-                    <ComposerToolbar
-                        getEditor={() => apiRef.current?.getEditor?.() ?? null}
-                        uploadImage={handleUpload}
-                    />
+                    <ComposerToolbar getEditor={() => apiRef.current?.getEditor?.() ?? null} uploadImage={handleUpload} />
                 </GlassCard>
 
-                {/* Inbox preview */}
-                <GlassCard sx={{ p: 0, overflow: "hidden" }}>
-                    <Stack
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        sx={{ px: 2.5, py: 1.5, borderBottom: "1px solid rgba(255,255,255,0.07)", flexWrap: "wrap", gap: 1 }}
-                    >
+                {/* RIGHT — inbox preview */}
+                <GlassCard sx={{ p: 0, overflow: "hidden", display: "flex", flexDirection: "column", flex: 1, minWidth: 0, minHeight: { xs: 480, lg: 0 } }}>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 2, py: 1.3, borderBottom: "1px solid rgba(255,255,255,0.07)", flexWrap: "wrap", gap: 1, flexShrink: 0 }}>
                         <Stack direction="row" alignItems="center" spacing={1}>
                             <VisibilityIcon sx={{ fontSize: 18, color: ACCENT }} />
-                            <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "#f5f5f4" }}>
-                                Inbox preview
-                            </Typography>
-                            <Typography sx={{ color: "rgba(245,245,244,0.45)", fontSize: "0.82rem", display: { xs: "none", md: "block" } }}>
-                                — exactly how it lands in the recipient's inbox
-                            </Typography>
+                            <Typography sx={{ fontWeight: 700, fontSize: "0.92rem", color: "#f5f5f4" }}>Inbox preview</Typography>
                         </Stack>
                         <Stack direction="row" alignItems="center" spacing={1}>
-                            <Typography sx={{ color: TEXT_60, fontSize: "0.8rem", mr: 0.3 }}>Background</Typography>
+                            <Typography sx={{ color: TEXT_60, fontSize: "0.78rem", mr: 0.2, display: { xs: "none", sm: "block" } }}>Background</Typography>
                             {BG_PRESETS.map((c) => (
                                 <Box
                                     key={c}
                                     onClick={() => setBgColor(c)}
                                     title={c}
-                                    sx={{
-                                        width: 22,
-                                        height: 22,
-                                        borderRadius: "6px",
-                                        cursor: "pointer",
-                                        background: c,
-                                        border:
-                                            bgColor.toLowerCase() === c.toLowerCase()
-                                                ? `2px solid ${ACCENT}`
-                                                : "1px solid rgba(255,255,255,0.18)",
-                                    }}
+                                    sx={{ width: 20, height: 20, borderRadius: "6px", cursor: "pointer", background: c, border: bgColor.toLowerCase() === c.toLowerCase() ? `2px solid ${ACCENT}` : "1px solid rgba(255,255,255,0.18)" }}
                                 />
                             ))}
                             <Box
                                 component="label"
                                 title="Custom colour"
-                                sx={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    width: 22,
-                                    height: 22,
-                                    borderRadius: "6px",
-                                    overflow: "hidden",
-                                    cursor: "pointer",
-                                    border: "1px solid rgba(255,255,255,0.18)",
-                                    background: "conic-gradient(red, yellow, lime, aqua, blue, magenta, red)",
-                                }}
+                                sx={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 20, height: 20, borderRadius: "6px", overflow: "hidden", cursor: "pointer", border: "1px solid rgba(255,255,255,0.18)", background: "conic-gradient(red, yellow, lime, aqua, blue, magenta, red)" }}
                             >
-                                <Box
-                                    component="input"
-                                    type="color"
-                                    value={bgColor}
-                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBgColor(e.target.value)}
-                                    sx={{ width: 0, height: 0, opacity: 0, p: 0, m: 0, border: 0 }}
-                                />
+                                <Box component="input" type="color" value={bgColor} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBgColor(e.target.value)} sx={{ width: 0, height: 0, opacity: 0, p: 0, m: 0, border: 0 }} />
                             </Box>
-                            <Button
-                                onClick={() => setShowPreview((v) => !v)}
-                                sx={{ ...GHOST_BTN, py: 0.5, px: 1.5, fontSize: "0.8rem", ml: 0.5 }}
-                            >
+                            <Button onClick={() => setShowPreview((v) => !v)} sx={{ ...GHOST_BTN, py: 0.4, px: 1.3, fontSize: "0.78rem", ml: 0.3 }}>
                                 {showPreview ? "Hide" : "Show"}
                             </Button>
                         </Stack>
                     </Stack>
-                    {showPreview && (
-                        <Box sx={{ p: { xs: 1.5, md: 2 } }}>
-                            <Box sx={{ mb: 1.2, px: 0.5 }}>
-                                <Typography sx={{ color: "rgba(245,245,244,0.45)", fontSize: "0.74rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                                    Subject
-                                </Typography>
-                                <Typography sx={{ color: "#f5f5f4", fontSize: "0.95rem", fontWeight: 600 }}>
+                    {showPreview ? (
+                        <Box sx={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", p: { xs: 1.5, md: 2 } }}>
+                            <Box sx={{ mb: 1, px: 0.5, flexShrink: 0 }}>
+                                <Typography sx={{ color: "rgba(245,245,244,0.45)", fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.04em" }}>Subject</Typography>
+                                <Typography sx={{ color: "#f5f5f4", fontSize: "0.92rem", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                     {subject.trim() || "(no subject)"}
                                 </Typography>
                             </Box>
@@ -404,164 +477,16 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                                 component="iframe"
                                 title="Email inbox preview"
                                 srcDoc={previewHtml}
-                                sx={{
-                                    width: "100%",
-                                    height: 560,
-                                    border: "1px solid rgba(255,255,255,0.08)",
-                                    borderRadius: "10px",
-                                    background: "#fff",
-                                    display: "block",
-                                }}
+                                sx={{ flex: 1, minHeight: 0, width: "100%", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "10px", background: "#fff", display: "block" }}
                             />
                         </Box>
-                    )}
-                </GlassCard>
-
-                {/* Variables */}
-                <GlassCard>
-                    <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: variables.length ? 1.5 : 0 }}>
-                        <DataObjectIcon sx={{ fontSize: 18, color: ACCENT }} />
-                        <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "#f5f5f4" }}>
-                            Variables {variables.length > 0 && `(${variables.length})`}
-                        </Typography>
-                        <Typography sx={{ color: "rgba(245,245,244,0.45)", fontSize: "0.82rem" }}>
-                            — detected from {"{{double braces}}"} in the subject and body
-                        </Typography>
-                    </Stack>
-                    {variables.length > 0 ? (
-                        <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1 }}>
-                            {variables.map((v) => (
-                                <Chip
-                                    key={v}
-                                    label={`{{${v}}}`}
-                                    size="small"
-                                    sx={{
-                                        fontFamily: "var(--font-geist-mono)",
-                                        fontSize: "0.74rem",
-                                        color: "#c4b5fd",
-                                        bgcolor: "rgba(155,123,247,0.12)",
-                                        border: "1px solid rgba(155,123,247,0.3)",
-                                    }}
-                                />
-                            ))}
-                        </Stack>
                     ) : (
-                        <Typography sx={{ color: TEXT_60, fontSize: "0.85rem" }}>
-                            No variables yet. Type{" "}
-                            <Box component="span" sx={{ fontFamily: "var(--font-geist-mono)", color: "#86efac" }}>
-                                {"{{name}}"}
-                            </Box>{" "}
-                            in the subject or body to add one.
-                        </Typography>
+                        <Box sx={{ flex: 1, display: "grid", placeItems: "center" }}>
+                            <Typography sx={{ color: TEXT_60, fontSize: "0.85rem" }}>Preview hidden</Typography>
+                        </Box>
                     )}
                 </GlassCard>
-
-                {/* Metadata — bottom */}
-                <GlassCard>
-                    <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "#f5f5f4", mb: 2 }}>
-                        Details
-                    </Typography>
-                    <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" } }}>
-                        <Box sx={{ gridColumn: { sm: "1 / -1" } }}>
-                            <FieldLabel>Product</FieldLabel>
-                            {!templateId && products.length === 0 ? (
-                                <Typography sx={{ color: TEXT_60, fontSize: "0.85rem", py: 1 }}>
-                                    No products yet.{" "}
-                                    <Box
-                                        component={Link}
-                                        href="/dashboard/products"
-                                        sx={{
-                                            color: ACCENT,
-                                            fontWeight: 600,
-                                            textDecoration: "none",
-                                            "&:hover": { textDecoration: "underline" },
-                                        }}
-                                    >
-                                        Create a product first
-                                    </Box>{" "}
-                                    to add a template.
-                                </Typography>
-                            ) : (
-                                <Select
-                                    value={productId}
-                                    onChange={(e) => setProductId(e.target.value)}
-                                    fullWidth
-                                    size="small"
-                                    displayEmpty
-                                    renderValue={(val) =>
-                                        val
-                                            ? products.find((p) => p.id === val)?.name ?? "Unknown product"
-                                            : "Select a product"
-                                    }
-                                    sx={{
-                                        color: "#f5f5f4",
-                                        borderRadius: "10px",
-                                        background: "rgba(255,255,255,0.02)",
-                                        "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.12)" },
-                                        "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(155,123,247,0.4)" },
-                                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: ACCENT },
-                                        "& .MuiSelect-icon": { color: "rgba(245,245,244,0.4)" },
-                                        "& .MuiSelect-select": { fontSize: "0.95rem", py: 1.1 },
-                                    }}
-                                    MenuProps={{
-                                        slotProps: {
-                                            paper: {
-                                                sx: {
-                                                    background: SURFACE,
-                                                    border: `1px solid ${BORDER}`,
-                                                    backgroundImage: "none",
-                                                    "& .MuiMenuItem-root": { color: "#f5f5f4", fontSize: "0.9rem" },
-                                                    "& .MuiMenuItem-root.Mui-selected": {
-                                                        background: "rgba(155,123,247,0.12)",
-                                                    },
-                                                },
-                                            },
-                                        },
-                                    }}
-                                >
-                                    {products.map((p) => (
-                                        <MenuItem key={p.id} value={p.id}>
-                                            {p.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            )}
-                        </Box>
-                        <Box>
-                            <FieldLabel>Name</FieldLabel>
-                            <TextField value={name} onChange={(e) => setName(e.target.value)} placeholder="Welcome email" fullWidth size="small" sx={darkField} />
-                        </Box>
-                        <Box>
-                            <FieldLabel>Slug</FieldLabel>
-                            <TextField value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="welcome-email (auto from name)" fullWidth size="small" sx={darkField} />
-                        </Box>
-                        <Box sx={{ gridColumn: { sm: "1 / -1" } }}>
-                            <FieldLabel>Subject</FieldLabel>
-                            <TextField value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Welcome to {{product}}, {{name}}!" fullWidth size="small" sx={darkField} />
-                        </Box>
-                    </Box>
-                </GlassCard>
-
-                {/* Create / save — below */}
-                <Stack direction="row" justifyContent="flex-end" alignItems="center" spacing={1.5}>
-                    {savedMsg && <Typography sx={{ color: "#86efac", fontSize: "0.85rem" }}>Saved</Typography>}
-                    {!canSave && (
-                        <Typography sx={{ color: "rgba(245,245,244,0.45)", fontSize: "0.8rem" }}>
-                            {!templateId && !productId
-                                ? "Select a product, then add a name, subject, and a bit of body content to continue."
-                                : "Add a name, subject, and a bit of body content to continue."}
-                        </Typography>
-                    )}
-                    <Button
-                        onClick={save}
-                        disabled={saving || !canSave}
-                        startIcon={saving ? <CircularProgress size={16} sx={{ color: "rgba(245,245,244,0.6)" }} /> : <SaveIcon sx={{ fontSize: "1.1rem !important" }} />}
-                        sx={SAVE_BTN_SX}
-                    >
-                        {templateId ? "Save changes" : "Create template"}
-                    </Button>
-                </Stack>
-            </Stack>
+            </Box>
 
             {templateId && (
                 <TemplateTestDialog
@@ -590,12 +515,4 @@ function blocksToPlainText(blocks: any[]): string {
         out += " ";
     }
     return out.trim();
-}
-
-function FieldLabel({ children }: { children: React.ReactNode }) {
-    return (
-        <Typography sx={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase", color: "rgba(245,245,244,0.4)", mb: 0.7 }}>
-            {children}
-        </Typography>
-    );
 }
