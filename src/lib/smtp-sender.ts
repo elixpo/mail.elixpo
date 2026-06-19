@@ -26,6 +26,8 @@ export interface RelayRequest {
     html?: string;
     text?: string;
     attachments?: RelayAttachment[];
+    /** Per-recipient unsubscribe URL → List-Unsubscribe + one-click POST headers. */
+    listUnsubscribe?: string | null;
 }
 
 export interface RelayResult {

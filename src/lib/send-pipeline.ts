@@ -12,8 +12,10 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { listAttachments, resolveAttachments } from "./attachments";
 import { createDelivery, markDeliveryFailed, markDeliverySent } from "./deliveries";
 import { decryptSecret } from "./encryption";
+import { appUrl } from "./env";
 import { type ProductRow, productToFooter } from "./products";
 import { renderTemplate } from "./render";
+import { isSuppressed, signUnsub } from "./suppressions";
 import { type SenderRow, getSender } from "./senders";
 import { relayViaSender } from "./smtp-sender";
 import type { TemplateRow } from "./templates";
@@ -60,7 +62,7 @@ export interface DeliverInput {
 export interface DeliverResult {
     ok: boolean;
     deliveryId: string;
-    status: "sent" | "failed";
+    status: "sent" | "failed" | "suppressed";
     subject: string;
     error?: string;
     smtpResponse?: string | null;
@@ -76,23 +78,48 @@ export async function deliverTemplate(
     input: DeliverInput,
 ): Promise<DeliverResult> {
     const { tenantId, template, product, webhookId, to, vars = {} } = input;
+    const productId = product?.id ?? template.product_id;
+    const isTransactional = template.transactional === 1;
+
+    // Honor unsubscribes — except for transactional templates (receipts etc.),
+    // which are CAN-SPAM exempt and always send.
+    if (!isTransactional && (await isSuppressed(db, productId, to))) {
+        const deliveryId = await createDelivery(db, {
+            tenantId,
+            productId,
+            templateId: template.id,
+            webhookId: webhookId || null,
+            senderId: null,
+            toEmail: to,
+            subject: template.subject,
+            vars,
+            idempotencyKey: input.idempotencyKey || null,
+            status: "suppressed",
+        });
+        return { ok: false, deliveryId, status: "suppressed", subject: template.subject, error: "Recipient is unsubscribed." };
+    }
+
+    // Per-recipient one-click unsubscribe link (non-transactional only).
+    const unsubscribeUrl = isTransactional ? null : `${await appUrl()}/u/${await signUnsub(productId, to)}`;
 
     const sender = await resolveSender(db, tenantId, template, product);
+    const footer = product ? productToFooter(product) : null;
+    if (footer && unsubscribeUrl) footer.unsubscribeUrl = unsubscribeUrl;
     const rendered = renderTemplate(
         {
             subject: template.subject,
             content_html: template.content_html,
             background_color: template.bg_color,
         },
-        vars,
-        product ? productToFooter(product) : null,
+        { ...vars, unsubscribe_url: unsubscribeUrl || "" },
+        footer,
     );
     const subject = rendered.subject || "(no subject)";
 
     // Open the delivery row up front so even a pre-send failure is auditable.
     const deliveryId = await createDelivery(db, {
         tenantId,
-        productId: product?.id ?? template.product_id,
+        productId,
         templateId: template.id,
         webhookId: webhookId || null,
         senderId: sender?.id ?? null,
@@ -144,6 +171,7 @@ export async function deliverTemplate(
         html: rendered.html,
         text: rendered.text,
         attachments,
+        listUnsubscribe: unsubscribeUrl,
     });
 
     if (result.ok) {

@@ -11,7 +11,7 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import { newId } from "./ids";
 
-export type DeliveryStatus = "queued" | "sending" | "sent" | "failed";
+export type DeliveryStatus = "queued" | "sending" | "sent" | "failed" | "suppressed";
 
 export interface DeliveryRow {
     id: string;

@@ -5,7 +5,7 @@ import DataObjectIcon from "@mui/icons-material/DataObject";
 import SaveIcon from "@mui/icons-material/Save";
 import SendIcon from "@mui/icons-material/Send";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { Box, Button, Chip, CircularProgress, Snackbar, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { Box, Button, Chip, CircularProgress, Snackbar, Stack, Switch, TextField, Tooltip, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
@@ -112,6 +112,7 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
     const [previewHtml, setPreviewHtml] = useState("");
     const [attachments, setAttachments] = useState<Attachment[]>([]);
     const [footer, setFooter] = useState<EmailFooter | null>(null);
+    const [transactional, setTransactional] = useState(false);
     const [toast, setToast] = useState<string | null>(null);
 
     // New templates have no product yet, so pull the default product's footer so
@@ -156,6 +157,7 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                     setBgColor(t.bg_color || DEFAULT_BG_COLOR);
                     setAttachments(Array.isArray(t.attachments) ? (t.attachments as Attachment[]) : []);
                     setFooter((t.footer as EmailFooter | null) ?? null);
+                    setTransactional(Boolean(t.transactional));
                     setInitialContent(Array.isArray(t.content) ? t.content : undefined);
                     setBlocks(Array.isArray(t.content) ? t.content : []);
                 } else {
@@ -217,6 +219,7 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                 bgColor,
                 uploadedImages: uploadedImagesRef.current,
                 attachments: attachments.map((a) => ({ kind: a.kind, source: a.source, filename: a.filename, mime: a.mime })),
+                transactional,
             };
             const url = templateId ? `/api/templates/${templateId}` : "/api/templates";
             const res = await fetch(url, {
@@ -370,6 +373,23 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                             size="small"
                             sx={darkField}
                         />
+                        <Stack direction="row" alignItems="center" spacing={0.5}>
+                            <Switch
+                                checked={transactional}
+                                onChange={(e) => setTransactional(e.target.checked)}
+                                size="small"
+                                sx={{ "& .Mui-checked": { color: ACCENT }, "& .Mui-checked + .MuiSwitch-track": { backgroundColor: `${ACCENT} !important` } }}
+                            />
+                            <Typography sx={{ fontSize: "0.82rem", color: "rgba(245,245,244,0.7)" }}>Transactional</Typography>
+                            <Tooltip
+                                arrow
+                                title="Receipts, password resets, etc. — always sends, even to unsubscribed recipients, and carries no unsubscribe link."
+                            >
+                                <Typography sx={{ fontSize: "0.78rem", color: TEXT_60, cursor: "help", borderBottom: "1px dotted rgba(245,245,244,0.3)" }}>
+                                    what's this?
+                                </Typography>
+                            </Tooltip>
+                        </Stack>
                     </Box>
 
                     {/* Editor body — scrolls. Extra left padding keeps BlockNote's

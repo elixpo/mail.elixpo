@@ -38,6 +38,7 @@ export interface TemplateSummary {
     subject: string;
     variables: string[];
     sender_id: string | null;
+    transactional: boolean;
     status: string;
     updated_at: string;
 }
@@ -69,6 +70,7 @@ export function toSummary(row: TemplateRow): TemplateSummary {
         subject: row.subject,
         variables: parseJson<string[]>(row.variables_json, []),
         sender_id: row.sender_id,
+        transactional: row.transactional === 1,
         status: row.status,
         updated_at: row.updated_at,
     };
@@ -112,6 +114,7 @@ export interface TemplateInput {
     contentHtml?: string | null;
     senderId?: string | null;
     bgColor?: string | null;
+    transactional?: boolean;
 }
 
 export async function createTemplate(
@@ -128,8 +131,8 @@ export async function createTemplate(
     await db
         .prepare(
             `INSERT INTO templates
-                (id, tenant_id, product_id, slug, name, kind, subject, content_json, content_html, variables_json, sender_id, bg_color)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                (id, tenant_id, product_id, slug, name, kind, subject, content_json, content_html, variables_json, sender_id, bg_color, transactional)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .bind(
             id,
@@ -144,6 +147,7 @@ export async function createTemplate(
             JSON.stringify(variables),
             input.senderId || null,
             input.bgColor || null,
+            input.transactional ? 1 : 0,
         )
         .run();
 
@@ -161,6 +165,7 @@ export interface TemplateUpdate {
     contentHtml?: string | null;
     senderId?: string | null;
     bgColor?: string | null;
+    transactional?: boolean;
     status?: string;
 }
 
@@ -195,6 +200,10 @@ export async function updateTemplate(
     if (update.bgColor !== undefined) {
         sets.push("bg_color = ?");
         vals.push(update.bgColor);
+    }
+    if (update.transactional !== undefined) {
+        sets.push("transactional = ?");
+        vals.push(update.transactional ? 1 : 0);
     }
     if (update.status !== undefined) {
         sets.push("status = ?");

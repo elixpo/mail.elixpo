@@ -102,7 +102,7 @@ export async function sendMail(opts) {
         await send("DATA");
         expect(await read(), 354);
 
-        const message = buildMessage({ from, fromName, to, subject, html, text, attachments: opts.attachments });
+        const message = buildMessage({ from, fromName, to, subject, html, text, attachments: opts.attachments, listUnsubscribe: opts.listUnsubscribe });
         await writer.write(enc.encode(message + "\r\n.\r\n"));
         transcript.push("C: <message body> + .");
         const queued = await read();
@@ -142,7 +142,7 @@ function completeReply(s) {
     }
 }
 
-function buildMessage({ from, fromName, to, subject, html, text, attachments }) {
+function buildMessage({ from, fromName, to, subject, html, text, attachments, listUnsubscribe }) {
     const date = new Date().toUTCString();
     const fromHeader = fromName ? `${encodeHeaderWord(fromName)} <${from}>` : `<${from}>`;
     const headers = [
@@ -152,6 +152,13 @@ function buildMessage({ from, fromName, to, subject, html, text, attachments }) 
         `Date: ${date}`,
         `MIME-Version: 1.0`,
     ];
+
+    // RFC 8058 one-click unsubscribe.
+    if (listUnsubscribe) {
+        const url = String(listUnsubscribe).replace(/[\r\n<>]/g, "");
+        headers.push(`List-Unsubscribe: <${url}>`);
+        headers.push(`List-Unsubscribe-Post: List-Unsubscribe=One-Click`);
+    }
 
     const files = Array.isArray(attachments) ? attachments.filter((a) => a && a.contentBase64) : [];
 

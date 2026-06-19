@@ -52,6 +52,7 @@ export default {
                 html: body.html,
                 text: body.text,
                 attachments: Array.isArray(body.attachments) ? body.attachments : [],
+                listUnsubscribe: body.listUnsubscribe || null,
             });
             return json(result, 200);
         } catch (err) {

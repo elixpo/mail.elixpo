@@ -64,6 +64,7 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
             contentHtml: typeof body?.contentHtml === "string" ? body.contentHtml : undefined,
             senderId: body?.senderId !== undefined ? (typeof body.senderId === "string" ? body.senderId : null) : undefined,
             bgColor: body?.bgColor !== undefined ? (typeof body.bgColor === "string" ? body.bgColor : null) : undefined,
+            transactional: typeof body?.transactional === "boolean" ? body.transactional : undefined,
             status: body?.status === "active" || body?.status === "archived" ? body.status : undefined,
         });
         // When the body changed, delete images that are no longer referenced

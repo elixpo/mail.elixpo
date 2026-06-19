@@ -141,7 +141,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         subject: result.subject,
         ...(result.ok ? {} : { error: result.error }),
     };
-    // 200 when the mail was accepted by the SMTP server; 502 when the downstream
-    // send failed (the attempt is still logged either way).
-    return json(payload, result.ok ? 200 : 502);
+    // 200 when accepted by SMTP, or skipped because the recipient unsubscribed
+    // (a successful no-op, not an error). 502 only on a real downstream failure.
+    const status = result.ok || result.status === "suppressed" ? 200 : 502;
+    return json(payload, status);
 }

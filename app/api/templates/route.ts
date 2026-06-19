@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
             contentHtml: typeof body?.contentHtml === "string" ? body.contentHtml : "",
             senderId: typeof body?.senderId === "string" ? body.senderId : null,
             bgColor: typeof body?.bgColor === "string" ? body.bgColor : null,
+            transactional: body?.transactional === true,
         });
         // Drop any images uploaded this session that didn't make it into the
         // saved content (upload-then-remove).

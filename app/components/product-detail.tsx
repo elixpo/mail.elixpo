@@ -10,6 +10,7 @@ import InventoryIcon from "@mui/icons-material/Inventory2";
 import LanguageIcon from "@mui/icons-material/Language";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import UnsubscribeIcon from "@mui/icons-material/Unsubscribe";
 import WebhookIcon from "@mui/icons-material/Webhook";
 import {
     Avatar,
@@ -382,6 +383,8 @@ export default function ProductDetail({ id }: { id: string }) {
                 onToast={setToast}
             />
 
+            <SuppressionsSection productId={id} onToast={setToast} />
+
             {editOpen && (
                 <EditDialog
                     product={product}
@@ -632,6 +635,118 @@ function WebhooksSection({
                         setRenaming(null);
                     }}
                 />
+            )}
+        </GlassCard>
+    );
+}
+
+// ── Suppressions ─────────────────────────────────────────────────────────────
+
+interface Suppression {
+    id: string;
+    email: string;
+    reason: string | null;
+    created_at: string;
+}
+
+function SuppressionsSection({ productId, onToast }: { productId: string; onToast: (m: string) => void }) {
+    const [items, setItems] = useState<Suppression[] | null>(null);
+    const [email, setEmail] = useState("");
+    const [busy, setBusy] = useState(false);
+
+    const load = useCallback(async () => {
+        try {
+            const d: any = await fetch(`/api/products/${productId}/suppressions`).then((r) => r.json());
+            setItems(d?.ok ? (d.suppressions as Suppression[]) : []);
+        } catch {
+            setItems([]);
+        }
+    }, [productId]);
+    useEffect(() => {
+        load();
+    }, [load]);
+
+    async function add() {
+        const e = email.trim();
+        if (!e || busy) return;
+        setBusy(true);
+        try {
+            const r = await fetch(`/api/products/${productId}/suppressions`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: e }),
+            });
+            const d: any = await r.json().catch(() => ({}));
+            if (r.ok && d?.ok) {
+                setEmail("");
+                load();
+                onToast("Suppressed");
+            } else onToast(d?.message || "Could not suppress.");
+        } finally {
+            setBusy(false);
+        }
+    }
+    async function remove(em: string) {
+        await fetch(`/api/products/${productId}/suppressions?email=${encodeURIComponent(em)}`, { method: "DELETE" });
+        load();
+        onToast("Re-subscribed");
+    }
+
+    return (
+        <GlassCard sx={{ mt: 2.5 }}>
+            <Stack direction="row" spacing={1} alignItems="center">
+                <UnsubscribeIcon sx={{ fontSize: 19, color: ACCENT }} />
+                <Typography sx={{ fontWeight: 700, fontSize: "1rem", color: TEXT }}>
+                    Suppressions{items && items.length ? ` (${items.length})` : ""}
+                </Typography>
+            </Stack>
+            <Typography sx={{ color: TEXT_55, fontSize: "0.85rem", mt: 0.4, mb: 1.8 }}>
+                Unsubscribed (or manually blocked) recipients — skipped on every non-transactional send.
+            </Typography>
+
+            <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+                <TextField
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && add()}
+                    placeholder="name@example.com"
+                    size="small"
+                    sx={{ ...darkField, flex: 1, maxWidth: 360 }}
+                />
+                <Button onClick={add} disabled={!email.trim() || busy} sx={{ ...GHOST_BTN, py: 0.7 }}>
+                    Suppress
+                </Button>
+            </Stack>
+
+            {items === null ? (
+                <Box sx={{ display: "flex", justifyContent: "center", py: 2 }}>
+                    <CircularProgress size={20} sx={{ color: ACCENT }} />
+                </Box>
+            ) : items.length === 0 ? (
+                <Typography sx={{ color: TEXT_55, fontSize: "0.88rem" }}>No suppressions yet.</Typography>
+            ) : (
+                <Stack divider={<Box sx={{ borderBottom: `1px solid ${BORDER}` }} />}>
+                    {items.map((s) => (
+                        <Stack key={s.id} direction="row" alignItems="center" justifyContent="space-between" spacing={1} sx={{ py: 1 }}>
+                            <Stack direction="row" alignItems="center" spacing={1.2} sx={{ minWidth: 0 }}>
+                                <Typography sx={{ color: TEXT, fontSize: "0.88rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    {s.email}
+                                </Typography>
+                                <Chip
+                                    label={s.reason || "unsubscribe"}
+                                    size="small"
+                                    sx={{ height: 18, fontSize: "0.62rem", color: TEXT_55, bgcolor: "rgba(255,255,255,0.05)", border: `1px solid ${BORDER}` }}
+                                />
+                                <Typography sx={{ color: "rgba(245,245,244,0.35)", fontSize: "0.76rem", display: { xs: "none", sm: "block" } }}>
+                                    {fmtDate(s.created_at)}
+                                </Typography>
+                            </Stack>
+                            <Button onClick={() => remove(s.email)} sx={{ textTransform: "none", fontSize: "0.8rem", color: ACCENT, "&:hover": { background: "rgba(155,123,247,0.08)" } }}>
+                                Re-subscribe
+                            </Button>
+                        </Stack>
+                    ))}
+                </Stack>
             )}
         </GlassCard>
     );

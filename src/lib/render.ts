@@ -38,6 +38,8 @@ export interface EmailFooter {
     address?: string | null;
     phone?: string | null;
     quote?: string | null;
+    /** Per-recipient unsubscribe link (added at send for non-transactional mail). */
+    unsubscribeUrl?: string | null;
 }
 
 export function renderTemplate(
@@ -115,9 +117,13 @@ function renderFooter(footer?: EmailFooter | null): string {
     const contact = contactBits.length ? `<div style="margin-top:4px;">${contactBits.join(" &nbsp;·&nbsp; ")}</div>` : "";
 
     const brand = logo || name || quote || address || contact;
+    const unsub = f.unsubscribeUrl
+        ? `<div style="margin-top:8px;"><a href="${esc(f.unsubscribeUrl)}" style="color:#9aa0a6;text-decoration:underline;">Unsubscribe</a></div>`
+        : "";
     return `<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;">
 <tr><td style="padding:18px 24px 8px;text-align:center;font-family:Arial,Helvetica,sans-serif;color:#9aa0a6;font-size:12px;line-height:1.6;">
 ${brand}
+${unsub}
 <div style="margin-top:10px;color:#b6bcc4;">Sent with Elixpo Mails</div>
 </td></tr>
 </table>`;
