@@ -28,6 +28,7 @@ import {
     Tooltip,
     Typography,
 } from "@mui/material";
+import Link from "next/link";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { EmptyState, GHOST_BTN, PRIMARY_BTN } from "./dashboard-ui";
@@ -50,6 +51,10 @@ interface ProductSummary {
     has_secret: boolean;
     default_sender_id: string | null;
     status: "active" | "disabled";
+    description: string | null;
+    homepage_url: string | null;
+    support_email: string | null;
+    logo_url: string | null;
     created_at: string;
     updated_at: string;
     template_count: number;
@@ -367,6 +372,10 @@ function CreateDialog({
 }) {
     const [name, setName] = useState("");
     const [defaultSenderId, setDefaultSenderId] = useState("");
+    const [description, setDescription] = useState("");
+    const [homepageUrl, setHomepageUrl] = useState("");
+    const [supportEmail, setSupportEmail] = useState("");
+    const [logoUrl, setLogoUrl] = useState("");
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -374,6 +383,10 @@ function CreateDialog({
         if (!open) return;
         setName("");
         setDefaultSenderId("");
+        setDescription("");
+        setHomepageUrl("");
+        setSupportEmail("");
+        setLogoUrl("");
         setSaving(false);
         setError(null);
     }, [open]);
@@ -391,6 +404,10 @@ function CreateDialog({
                 body: JSON.stringify({
                     name: name.trim(),
                     defaultSenderId: defaultSenderId || undefined,
+                    description: description.trim() || undefined,
+                    homepageUrl: homepageUrl.trim() || undefined,
+                    supportEmail: supportEmail.trim() || undefined,
+                    logoUrl: logoUrl.trim() || undefined,
                 }),
             });
             const data: any = await res.json().catch(() => ({}));
@@ -452,6 +469,57 @@ function CreateDialog({
                         </Select>
                     </Box>
 
+                    <Box>
+                        <FieldLabel>Description</FieldLabel>
+                        <TextField
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="What this product is — shown on its page."
+                            fullWidth
+                            size="small"
+                            multiline
+                            minRows={2}
+                            maxRows={3}
+                            sx={darkField}
+                        />
+                    </Box>
+
+                    <Box>
+                        <FieldLabel>Homepage URL</FieldLabel>
+                        <TextField
+                            value={homepageUrl}
+                            onChange={(e) => setHomepageUrl(e.target.value)}
+                            placeholder="https://yourproduct.com"
+                            fullWidth
+                            size="small"
+                            sx={darkField}
+                        />
+                    </Box>
+
+                    <Box>
+                        <FieldLabel>Support email</FieldLabel>
+                        <TextField
+                            value={supportEmail}
+                            onChange={(e) => setSupportEmail(e.target.value)}
+                            placeholder="support@yourproduct.com"
+                            fullWidth
+                            size="small"
+                            sx={darkField}
+                        />
+                    </Box>
+
+                    <Box>
+                        <FieldLabel>Logo URL</FieldLabel>
+                        <TextField
+                            value={logoUrl}
+                            onChange={(e) => setLogoUrl(e.target.value)}
+                            placeholder="https://…/logo.png"
+                            fullWidth
+                            size="small"
+                            sx={darkField}
+                        />
+                    </Box>
+
                     {error && (
                         <Stack direction="row" spacing={0.8} alignItems="flex-start">
                             <ErrorOutlineIcon sx={{ fontSize: 16, color: RED, mt: 0.2 }} />
@@ -505,6 +573,10 @@ function EditDialog({
     const [name, setName] = useState("");
     const [defaultSenderId, setDefaultSenderId] = useState("");
     const [status, setStatus] = useState<"active" | "disabled">("active");
+    const [description, setDescription] = useState("");
+    const [homepageUrl, setHomepageUrl] = useState("");
+    const [supportEmail, setSupportEmail] = useState("");
+    const [logoUrl, setLogoUrl] = useState("");
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -513,6 +585,10 @@ function EditDialog({
         setName(product.name);
         setDefaultSenderId(product.default_sender_id ?? "");
         setStatus(product.status);
+        setDescription(product.description ?? "");
+        setHomepageUrl(product.homepage_url ?? "");
+        setSupportEmail(product.support_email ?? "");
+        setLogoUrl(product.logo_url ?? "");
         setSaving(false);
         setError(null);
     }, [product]);
@@ -531,6 +607,10 @@ function EditDialog({
                     name: name.trim(),
                     defaultSenderId: defaultSenderId || null,
                     status,
+                    description: description.trim(),
+                    homepageUrl: homepageUrl.trim(),
+                    supportEmail: supportEmail.trim(),
+                    logoUrl: logoUrl.trim(),
                 }),
             });
             const data: any = await res.json().catch(() => ({}));
@@ -604,6 +684,57 @@ function EditDialog({
                             <MenuItem value="active">Active</MenuItem>
                             <MenuItem value="disabled">Disabled</MenuItem>
                         </Select>
+                    </Box>
+
+                    <Box>
+                        <FieldLabel>Description</FieldLabel>
+                        <TextField
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="What this product is — shown on its page."
+                            fullWidth
+                            size="small"
+                            multiline
+                            minRows={2}
+                            maxRows={3}
+                            sx={darkField}
+                        />
+                    </Box>
+
+                    <Box>
+                        <FieldLabel>Homepage URL</FieldLabel>
+                        <TextField
+                            value={homepageUrl}
+                            onChange={(e) => setHomepageUrl(e.target.value)}
+                            placeholder="https://yourproduct.com"
+                            fullWidth
+                            size="small"
+                            sx={darkField}
+                        />
+                    </Box>
+
+                    <Box>
+                        <FieldLabel>Support email</FieldLabel>
+                        <TextField
+                            value={supportEmail}
+                            onChange={(e) => setSupportEmail(e.target.value)}
+                            placeholder="support@yourproduct.com"
+                            fullWidth
+                            size="small"
+                            sx={darkField}
+                        />
+                    </Box>
+
+                    <Box>
+                        <FieldLabel>Logo URL</FieldLabel>
+                        <TextField
+                            value={logoUrl}
+                            onChange={(e) => setLogoUrl(e.target.value)}
+                            placeholder="https://…/logo.png"
+                            fullWidth
+                            size="small"
+                            sx={darkField}
+                        />
                     </Box>
 
                     {error && (
@@ -853,12 +984,16 @@ function ProductCard({
                 <Box sx={{ minWidth: 0, flex: 1 }}>
                     <Stack direction="row" alignItems="center" spacing={1.2} sx={{ flexWrap: "wrap", rowGap: 0.6 }}>
                         <Typography
+                            component={Link}
+                            href={`/dashboard/products/${product.id}`}
                             sx={{
                                 fontWeight: 700,
                                 fontSize: "1.02rem",
                                 color: TEXT,
+                                textDecoration: "none",
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
+                                "&:hover": { color: ACCENT, textDecoration: "underline" },
                             }}
                         >
                             {product.name}

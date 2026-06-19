@@ -20,10 +20,16 @@ export async function GET(request: NextRequest) {
     if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
     const db = await getDatabase();
-    const templateId = request.nextUrl.searchParams.get("templateId");
+    const sp = request.nextUrl.searchParams;
+    const templateId = sp.get("templateId");
+    const productId = sp.get("productId");
     if (templateId) {
         const rows = await listWebhooksByTemplate(db, session.tenantId, templateId);
         return NextResponse.json({ ok: true, webhooks: rows.map(webhookToPublic) });
+    }
+    if (productId) {
+        const webhooks = await listWebhooksByProduct(db, session.tenantId, productId);
+        return NextResponse.json({ ok: true, webhooks });
     }
     const webhooks = await listWebhooks(db, session.tenantId);
     return NextResponse.json({ ok: true, webhooks });
