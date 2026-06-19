@@ -46,7 +46,7 @@ skip_var() {
     # env.ts reads these SERVER-SIDE at runtime via dynamic getEnv(), which Next
     # does NOT inline — so they must exist as runtime Pages vars. Same value
     # local/prod, so push straight from .env.local.
-    NEXT_PUBLIC_ELIXPO_CLIENT_ID|NEXT_PUBLIC_ACCOUNTS_URL)
+    NEXT_PUBLIC_ELIXPO_CLIENT_ID|NEXT_PUBLIC_ACCOUNTS_URL|NEXT_PUBLIC_GOOGLE_CLIENT_ID)
       return 1 ;;
     NEXT_PUBLIC_APP_URL|SMTP_SENDER_URL|SMTP_SENDER_LIVE_URL|\
     NEXT_PUBLIC_*|ENVIRONMENT|NODE_ENV|\
