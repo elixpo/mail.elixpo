@@ -776,7 +776,8 @@ function AliasesSection({
                         Send mail as
                         <OpenInNewIcon sx={{ fontSize: 12 }} />
                     </MuiLink>{" "}
-                    or a Workspace domain) or it may be rewritten or rejected.
+                    or a Workspace domain) or it may be rewritten or rejected. We don&rsquo;t verify
+                    aliases — add it and send a test to confirm it actually delivers.
                 </Typography>
 
                 {loadState === "loading" && (
