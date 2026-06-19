@@ -60,10 +60,13 @@ export async function openDrivePicker(): Promise<PickedFile | null> {
 
     const token = await getAccessToken(clientId);
     const picker = (window as any).google.picker;
+    // The GCP project NUMBER. Recommended for drive.file so a picked file is
+    // shared with the app (and thus downloadable by the server token later).
+    const appId = process.env.NEXT_PUBLIC_GOOGLE_APP_ID;
 
     return new Promise<PickedFile | null>((resolve) => {
         const view = new picker.DocsView(picker.ViewId.DOCS).setIncludeFolders(true).setSelectFolderEnabled(false);
-        const builder = new picker.PickerBuilder()
+        let builder = new picker.PickerBuilder()
             .addView(view)
             .setOAuthToken(token)
             .setDeveloperKey(apiKey)
@@ -83,8 +86,8 @@ export async function openDrivePicker(): Promise<PickedFile | null> {
                 } else if (data.action === picker.Action.CANCEL) {
                     resolve(null);
                 }
-            })
-            .build();
-        picker.setVisible ? builder.setVisible(true) : builder.setVisible(true);
+            });
+        if (appId) builder = builder.setAppId(appId);
+        builder.build().setVisible(true);
     });
 }

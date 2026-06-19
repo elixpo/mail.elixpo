@@ -19,11 +19,13 @@ const REVOKE_ENDPOINT = "https://oauth2.googleapis.com/revoke";
 // openid+email identify the connected account; drive.file = picked files only.
 const SCOPE = "openid email https://www.googleapis.com/auth/drive.file";
 
+/** The OAuth client id — server var, or the public one (same value) as fallback. */
+async function googleClientId(): Promise<string | undefined> {
+    return (await getEnv("GOOGLE_CLIENT_ID")) || (await getEnv("NEXT_PUBLIC_GOOGLE_CLIENT_ID"));
+}
+
 export async function driveConfigured(): Promise<boolean> {
-    const [id, secret] = await Promise.all([
-        getEnv("GOOGLE_CLIENT_ID"),
-        getEnv("GOOGLE_CLIENT_SECRET"),
-    ]);
+    const [id, secret] = await Promise.all([googleClientId(), getEnv("GOOGLE_CLIENT_SECRET")]);
     return Boolean(id && secret);
 }
 
@@ -61,7 +63,7 @@ export async function verifyState(token: string | undefined): Promise<string | n
 // ─── OAuth flow ──────────────────────────────────────────────────────────────
 
 export async function buildAuthUrl(tenantId: string): Promise<string> {
-    const clientId = await requireEnv("GOOGLE_CLIENT_ID");
+    const clientId = (await googleClientId()) || (await requireEnv("GOOGLE_CLIENT_ID"));
     const params = new URLSearchParams({
         client_id: clientId,
         redirect_uri: await redirectUri(),
@@ -85,7 +87,7 @@ interface TokenResponse {
 
 export async function exchangeCode(code: string): Promise<TokenResponse> {
     const [clientId, clientSecret] = await Promise.all([
-        requireEnv("GOOGLE_CLIENT_ID"),
+        googleClientId(),
         requireEnv("GOOGLE_CLIENT_SECRET"),
     ]);
     const res = await fetch(TOKEN_ENDPOINT, {
@@ -93,7 +95,7 @@ export async function exchangeCode(code: string): Promise<TokenResponse> {
         headers: { "content-type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
             code,
-            client_id: clientId,
+            client_id: clientId || "",
             client_secret: clientSecret,
             redirect_uri: await redirectUri(),
             grant_type: "authorization_code",
@@ -231,10 +233,7 @@ export async function getAccessToken(db: D1Database, tenantId: string): Promise<
     } catch {
         return null;
     }
-    const [clientId, clientSecret] = await Promise.all([
-        getEnv("GOOGLE_CLIENT_ID"),
-        getEnv("GOOGLE_CLIENT_SECRET"),
-    ]);
+    const [clientId, clientSecret] = await Promise.all([googleClientId(), getEnv("GOOGLE_CLIENT_SECRET")]);
     if (!clientId || !clientSecret) return null;
 
     const res = await fetch(TOKEN_ENDPOINT, {
