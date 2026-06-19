@@ -754,6 +754,26 @@ function EditDialog({
                         <LogoUploader value={logoUrl} onChange={setLogoUrl} />
                         <TextField value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} fullWidth size="small" sx={{ ...darkField, mt: 1 }} placeholder="…or paste an image URL" />
                     </Box>
+
+                    <Box sx={{ pt: 0.5, mt: 0.5, borderTop: `1px solid ${BORDER}` }}>
+                        <Typography sx={{ fontSize: "0.8rem", fontWeight: 700, color: TEXT, mb: 0.3 }}>Email footer</Typography>
+                        <Typography sx={{ color: TEXT_55, fontSize: "0.78rem", mb: 1.5 }}>
+                            Appended to every email this product sends (logo above + the details below).
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <FieldLabel>Address</FieldLabel>
+                        <TextField value={address} onChange={(e) => setAddress(e.target.value)} fullWidth size="small" multiline minRows={2} maxRows={3} sx={darkField} placeholder="123 Main St, City, Country (required for CAN-SPAM)" />
+                    </Box>
+                    <Box>
+                        <FieldLabel>Phone</FieldLabel>
+                        <TextField value={phone} onChange={(e) => setPhone(e.target.value)} fullWidth size="small" sx={darkField} placeholder="+1 555 123 4567" />
+                    </Box>
+                    <Box>
+                        <FieldLabel>Quote / tagline</FieldLabel>
+                        <TextField value={footerNote} onChange={(e) => setFooterNote(e.target.value)} fullWidth size="small" sx={darkField} placeholder="Making email simple." />
+                    </Box>
+
                     <Box>
                         <FieldLabel>Default sender</FieldLabel>
                         <Select value={defaultSenderId} onChange={(e) => setDefaultSenderId(e.target.value)} fullWidth size="small" displayEmpty renderValue={(v) => (v ? senders.find((s) => s.id === v)?.email ?? "Unknown" : "Tenant default")} sx={selectSx} MenuProps={menuProps}>
