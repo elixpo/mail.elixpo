@@ -53,6 +53,9 @@ interface Product {
     homepage_url: string | null;
     support_email: string | null;
     logo_url: string | null;
+    address: string | null;
+    phone: string | null;
+    footer_note: string | null;
     status: string;
     created_at: string;
     updated_at: string;
@@ -703,6 +706,9 @@ function EditDialog({
     const [homepageUrl, setHomepageUrl] = useState(product.homepage_url ?? "");
     const [supportEmail, setSupportEmail] = useState(product.support_email ?? "");
     const [logoUrl, setLogoUrl] = useState(product.logo_url ?? "");
+    const [address, setAddress] = useState(product.address ?? "");
+    const [phone, setPhone] = useState(product.phone ?? "");
+    const [footerNote, setFooterNote] = useState(product.footer_note ?? "");
     const [defaultSenderId, setDefaultSenderId] = useState(product.default_sender_id ?? "");
     const [status, setStatus] = useState(product.status);
     const [saving, setSaving] = useState(false);
@@ -714,7 +720,7 @@ function EditDialog({
             const d: any = await fetch(`/api/products/${product.id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, description, homepageUrl, supportEmail, logoUrl, defaultSenderId: defaultSenderId || null, status }),
+                body: JSON.stringify({ name, description, homepageUrl, supportEmail, logoUrl, address, phone, footerNote, defaultSenderId: defaultSenderId || null, status }),
             }).then((r) => r.json());
             if (d?.ok && d.product) onSaved(d.product as Product);
         } finally {

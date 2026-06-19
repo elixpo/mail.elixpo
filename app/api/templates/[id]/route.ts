@@ -10,7 +10,7 @@ import {
 } from "@/lib/attachments";
 import { cleanupOrphanImages } from "@/lib/cloudinary";
 import { getDatabase } from "@/lib/d1-client";
-import { slugify } from "@/lib/products";
+import { getProduct, productToFooter, slugify } from "@/lib/products";
 import { getSession } from "@/lib/session";
 import { deleteTemplate, getTemplate, toPublic, updateTemplate } from "@/lib/templates";
 
@@ -26,9 +26,14 @@ export async function GET(request: NextRequest, { params }: Ctx) {
     const row = await getTemplate(db, session.tenantId, id);
     if (!row) return NextResponse.json({ error: "not_found" }, { status: 404 });
     const attachments = await listAttachments(db, session.tenantId, id);
+    const product = await getProduct(db, session.tenantId, row.product_id);
     return NextResponse.json({
         ok: true,
-        template: { ...toPublic(row), attachments: attachments.map(attachmentToPublic) },
+        template: {
+            ...toPublic(row),
+            attachments: attachments.map(attachmentToPublic),
+            footer: product ? productToFooter(product) : null,
+        },
     });
 }
 

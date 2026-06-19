@@ -10,7 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DEFAULT_BG_COLOR, wrapEmailHtml } from "@/lib/render";
+import { DEFAULT_BG_COLOR, type EmailFooter, wrapEmailHtml } from "@/lib/render";
 import { extractVariables } from "@/lib/template-vars";
 import { GHOST_BTN } from "./dashboard-ui";
 import { GlassCard } from "./glass-card";
@@ -111,6 +111,7 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
     const [showPreview, setShowPreview] = useState(true);
     const [previewHtml, setPreviewHtml] = useState("");
     const [attachments, setAttachments] = useState<Attachment[]>([]);
+    const [footer, setFooter] = useState<EmailFooter | null>(null);
     const [toast, setToast] = useState<string | null>(null);
 
     useEffect(() => {
@@ -127,6 +128,7 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                     setSubject(t.subject || "");
                     setBgColor(t.bg_color || DEFAULT_BG_COLOR);
                     setAttachments(Array.isArray(t.attachments) ? (t.attachments as Attachment[]) : []);
+                    setFooter((t.footer as EmailFooter | null) ?? null);
                     setInitialContent(Array.isArray(t.content) ? t.content : undefined);
                     setBlocks(Array.isArray(t.content) ? t.content : []);
                 } else {
@@ -159,13 +161,13 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
         const id = setTimeout(() => {
             try {
                 const html = apiRef.current ? apiRef.current.getHTML() : "";
-                setPreviewHtml(wrapEmailHtml(html, bgColor));
+                setPreviewHtml(wrapEmailHtml(html, bgColor, footer));
             } catch {
                 /* editor not mounted yet */
             }
         }, 350);
         return () => clearTimeout(id);
-    }, [blocks, bgColor, showPreview]);
+    }, [blocks, bgColor, showPreview, footer]);
 
     async function save() {
         if (saving) return;

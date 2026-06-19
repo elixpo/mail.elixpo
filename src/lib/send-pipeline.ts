@@ -12,7 +12,7 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { listAttachments, resolveAttachments } from "./attachments";
 import { createDelivery, markDeliveryFailed, markDeliverySent } from "./deliveries";
 import { decryptSecret } from "./encryption";
-import type { ProductRow } from "./products";
+import { type ProductRow, productToFooter } from "./products";
 import { renderTemplate } from "./render";
 import { type SenderRow, getSender } from "./senders";
 import { relayViaSender } from "./smtp-sender";
@@ -85,6 +85,7 @@ export async function deliverTemplate(
             background_color: template.bg_color,
         },
         vars,
+        product ? productToFooter(product) : null,
     );
     const subject = rendered.subject || "(no subject)";
 

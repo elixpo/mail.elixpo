@@ -9,6 +9,7 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { base64url, sha256Hex } from "./crypto";
 import { decryptSecret, encryptSecret } from "./encryption";
 import { isoDaysFromNow, newId, nowIso } from "./ids";
+import type { EmailFooter } from "./render";
 
 export interface ProductRow {
     id: string;
@@ -25,6 +26,9 @@ export interface ProductRow {
     homepage_url: string | null;
     support_email: string | null;
     logo_url: string | null;
+    address: string | null;
+    phone: string | null;
+    footer_note: string | null;
     status: string;
     created_at: string;
     updated_at: string;
@@ -86,6 +90,9 @@ export interface ProductPublic {
     homepage_url: string | null;
     support_email: string | null;
     logo_url: string | null;
+    address: string | null;
+    phone: string | null;
+    footer_note: string | null;
     status: string;
     created_at: string;
     updated_at: string;
@@ -107,6 +114,9 @@ export function productToPublic(row: ProductRow): ProductPublic {
         homepage_url: row.homepage_url,
         support_email: row.support_email,
         logo_url: row.logo_url,
+        address: row.address,
+        phone: row.phone,
+        footer_note: row.footer_note,
         status: row.status,
         created_at: row.created_at,
         updated_at: row.updated_at,
@@ -141,6 +151,22 @@ export interface ProductCommercial {
     homepageUrl?: string | null;
     supportEmail?: string | null;
     logoUrl?: string | null;
+    address?: string | null;
+    phone?: string | null;
+    footerNote?: string | null;
+}
+
+/** Build the email footer (brand block) from a product. */
+export function productToFooter(p: ProductRow | ProductPublic): EmailFooter {
+    return {
+        name: p.name,
+        logoUrl: p.logo_url,
+        homepageUrl: p.homepage_url,
+        supportEmail: p.support_email,
+        address: p.address,
+        phone: p.phone,
+        quote: p.footer_note,
+    };
 }
 
 /** Create a product with a client_id + shared secret (returned once). */
@@ -160,8 +186,8 @@ export async function createProduct(
     await db
         .prepare(
             `INSERT INTO products
-                (id, tenant_id, name, client_id, secret_hash, secret_enc, default_sender_id, description, homepage_url, support_email, logo_url)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                (id, tenant_id, name, client_id, secret_hash, secret_enc, default_sender_id, description, homepage_url, support_email, logo_url, address, phone, footer_note)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         )
         .bind(
             id,
@@ -175,6 +201,9 @@ export async function createProduct(
             commercial?.homepageUrl?.trim() || null,
             commercial?.supportEmail?.trim() || null,
             commercial?.logoUrl?.trim() || null,
+            commercial?.address?.trim() || null,
+            commercial?.phone?.trim() || null,
+            commercial?.footerNote?.trim() || null,
         )
         .run();
 
@@ -253,6 +282,9 @@ export interface ProductUpdate {
     homepageUrl?: string | null;
     supportEmail?: string | null;
     logoUrl?: string | null;
+    address?: string | null;
+    phone?: string | null;
+    footerNote?: string | null;
 }
 
 export async function updateProduct(
@@ -290,6 +322,18 @@ export async function updateProduct(
     if (update.logoUrl !== undefined) {
         sets.push("logo_url = ?");
         vals.push(update.logoUrl?.trim() || null);
+    }
+    if (update.address !== undefined) {
+        sets.push("address = ?");
+        vals.push(update.address?.trim() || null);
+    }
+    if (update.phone !== undefined) {
+        sets.push("phone = ?");
+        vals.push(update.phone?.trim() || null);
+    }
+    if (update.footerNote !== undefined) {
+        sets.push("footer_note = ?");
+        vals.push(update.footerNote?.trim() || null);
     }
     if (sets.length === 0) return getProduct(db, tenantId, id);
     sets.push("updated_at = datetime('now')");

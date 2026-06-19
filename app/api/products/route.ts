@@ -47,6 +47,9 @@ export async function POST(request: NextRequest) {
             homepageUrl: str(body?.homepageUrl),
             supportEmail: str(body?.supportEmail),
             logoUrl: str(body?.logoUrl),
+            address: str(body?.address),
+            phone: str(body?.phone),
+            footerNote: str(body?.footerNote),
         },
     );
     // `secret` is returned exactly once — never retrievable again.

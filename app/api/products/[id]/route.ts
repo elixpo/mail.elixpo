@@ -57,6 +57,9 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
         homepageUrl: optStr(body?.homepageUrl),
         supportEmail: optStr(body?.supportEmail),
         logoUrl: optStr(body?.logoUrl),
+        address: optStr(body?.address),
+        phone: optStr(body?.phone),
+        footerNote: optStr(body?.footerNote),
     });
 
     // If the logo was replaced or removed, free the old asset.

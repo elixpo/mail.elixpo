@@ -3,6 +3,7 @@ export const runtime = "edge";
 import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
 import { decryptSecret } from "@/lib/encryption";
+import { getProduct, productToFooter } from "@/lib/products";
 import { renderTemplate } from "@/lib/render";
 import { getAlias, getSender } from "@/lib/senders";
 import { getSession } from "@/lib/session";
@@ -58,7 +59,12 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const contentHtml = typeof body?.contentHtml === "string" ? body.contentHtml : tmpl.content_html;
     const bgColor = typeof body?.bgColor === "string" ? body.bgColor : tmpl.bg_color;
     const vars = body?.vars && typeof body.vars === "object" ? body.vars : {};
-    const rendered = renderTemplate({ subject, content_html: contentHtml, background_color: bgColor }, vars);
+    const product = await getProduct(db, session.tenantId, tmpl.product_id);
+    const rendered = renderTemplate(
+        { subject, content_html: contentHtml, background_color: bgColor },
+        vars,
+        product ? productToFooter(product) : null,
+    );
 
     let pass: string;
     try {
