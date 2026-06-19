@@ -5,7 +5,7 @@ import DataObjectIcon from "@mui/icons-material/DataObject";
 import SaveIcon from "@mui/icons-material/Save";
 import SendIcon from "@mui/icons-material/Send";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { Box, Button, Chip, CircularProgress, Stack, TextField, Tooltip, Typography } from "@mui/material";
+import { Box, Button, Chip, CircularProgress, Snackbar, Stack, TextField, Tooltip, Typography } from "@mui/material";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
@@ -14,6 +14,7 @@ import { DEFAULT_BG_COLOR, wrapEmailHtml } from "@/lib/render";
 import { extractVariables } from "@/lib/template-vars";
 import { GHOST_BTN } from "./dashboard-ui";
 import { GlassCard } from "./glass-card";
+import AttachmentsStrip, { type Attachment } from "./attachments-strip";
 import ComposerToolbar from "./composer-toolbar";
 import LixEditor from "./lix-editor";
 import TemplateTestDialog from "./template-test-dialog";
@@ -109,6 +110,8 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
     const [bgColor, setBgColor] = useState(DEFAULT_BG_COLOR);
     const [showPreview, setShowPreview] = useState(true);
     const [previewHtml, setPreviewHtml] = useState("");
+    const [attachments, setAttachments] = useState<Attachment[]>([]);
+    const [toast, setToast] = useState<string | null>(null);
 
     useEffect(() => {
         if (!templateId) return;
