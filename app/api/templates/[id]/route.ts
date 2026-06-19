@@ -1,6 +1,13 @@
 export const runtime = "edge";
 
 import { type NextRequest, NextResponse } from "next/server";
+import {
+    attachmentToPublic,
+    deleteAllForTemplate,
+    listAttachments,
+    parseAttachmentInputs,
+    replaceAttachments,
+} from "@/lib/attachments";
 import { cleanupOrphanImages } from "@/lib/cloudinary";
 import { getDatabase } from "@/lib/d1-client";
 import { slugify } from "@/lib/products";
@@ -18,7 +25,11 @@ export async function GET(request: NextRequest, { params }: Ctx) {
     const db = await getDatabase();
     const row = await getTemplate(db, session.tenantId, id);
     if (!row) return NextResponse.json({ error: "not_found" }, { status: 404 });
-    return NextResponse.json({ ok: true, template: toPublic(row) });
+    const attachments = await listAttachments(db, session.tenantId, id);
+    return NextResponse.json({
+        ok: true,
+        template: { ...toPublic(row), attachments: attachments.map(attachmentToPublic) },
+    });
 }
 
 /** PATCH /api/templates/:id — update content/metadata. */
@@ -63,6 +74,9 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
                 keepTemplateId: id,
             }).catch(() => {});
         }
+        if (body?.attachments !== undefined) {
+            await replaceAttachments(db, session.tenantId, id, parseAttachmentInputs(body.attachments));
+        }
         return NextResponse.json({ ok: true, template: row ? toPublic(row) : null });
     } catch (e: any) {
         if (String(e?.message || "").includes("UNIQUE")) {
@@ -92,6 +106,7 @@ export async function DELETE(request: NextRequest, { params }: Ctx) {
         newHtml: "",
         keepTemplateId: id,
     }).catch(() => {});
+    await deleteAllForTemplate(db, session.tenantId, id);
     await deleteTemplate(db, session.tenantId, id);
     return NextResponse.json({ ok: true });
 }

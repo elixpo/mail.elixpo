@@ -51,6 +51,7 @@ export default {
                 subject: body.subject,
                 html: body.html,
                 text: body.text,
+                attachments: Array.isArray(body.attachments) ? body.attachments : [],
             });
             return json(result, 200);
         } catch (err) {

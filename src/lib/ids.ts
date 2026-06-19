@@ -10,6 +10,7 @@ const PREFIXES = {
     template: "tmpl",
     webhook: "whk", // named inbound trigger on a template (1:many); public endpoint
     delivery: "dlv", // a delivery log row
+    attachment: "att", // a template attachment pointer (drive/url/variable)
 } as const;
 
 export type IdKind = keyof typeof PREFIXES;

@@ -7,6 +7,12 @@
 
 import { getEnv } from "./env";
 
+export interface RelayAttachment {
+    filename: string;
+    contentType: string;
+    contentBase64: string;
+}
+
 export interface RelayRequest {
     host: string;
     port: number;
@@ -19,6 +25,7 @@ export interface RelayRequest {
     subject?: string;
     html?: string;
     text?: string;
+    attachments?: RelayAttachment[];
 }
 
 export interface RelayResult {

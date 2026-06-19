@@ -9,6 +9,7 @@
  */
 
 import type { D1Database } from "@cloudflare/workers-types";
+import { listAttachments, resolveAttachments } from "./attachments";
 import { createDelivery, markDeliveryFailed, markDeliverySent } from "./deliveries";
 import { decryptSecret } from "./encryption";
 import type { ProductRow } from "./products";
@@ -120,6 +121,15 @@ export async function deliverTemplate(
         return { ok: false, deliveryId, status: "failed", subject, error };
     }
 
+    // Resolve attachments (substitute vars, download from Drive/URL, base64).
+    let attachments: Array<{ filename: string; contentType: string; contentBase64: string }> = [];
+    try {
+        const rows = await listAttachments(db, tenantId, template.id);
+        if (rows.length) attachments = await resolveAttachments(db, tenantId, rows, vars);
+    } catch {
+        attachments = [];
+    }
+
     const result = await relayViaSender({
         host: sender.smtp_host,
         port: sender.smtp_port,
@@ -132,6 +142,7 @@ export async function deliverTemplate(
         subject,
         html: rendered.html,
         text: rendered.text,
+        attachments,
     });
 
     if (result.ok) {

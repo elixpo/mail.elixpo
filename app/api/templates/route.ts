@@ -1,6 +1,7 @@
 export const runtime = "edge";
 
 import { type NextRequest, NextResponse } from "next/server";
+import { parseAttachmentInputs, replaceAttachments } from "@/lib/attachments";
 import { cleanupOrphanImages } from "@/lib/cloudinary";
 import { getDatabase } from "@/lib/d1-client";
 import { getOrCreateDefaultProduct, getProduct, slugify } from "@/lib/products";
@@ -79,6 +80,9 @@ export async function POST(request: NextRequest) {
             sessionUrls: sessionUrls(body),
             keepTemplateId: row.id,
         }).catch(() => {});
+        if (body?.attachments !== undefined) {
+            await replaceAttachments(db, session.tenantId, row.id, parseAttachmentInputs(body.attachments));
+        }
         const { toPublic } = await import("@/lib/templates");
         return NextResponse.json({ ok: true, template: toPublic(row) }, { status: 201 });
     } catch (e: any) {

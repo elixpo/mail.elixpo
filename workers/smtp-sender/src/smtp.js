@@ -102,7 +102,7 @@ export async function sendMail(opts) {
         await send("DATA");
         expect(await read(), 354);
 
-        const message = buildMessage({ from, fromName, to, subject, html, text });
+        const message = buildMessage({ from, fromName, to, subject, html, text, attachments: opts.attachments });
         await writer.write(enc.encode(message + "\r\n.\r\n"));
         transcript.push("C: <message body> + .");
         const queued = await read();
@@ -142,7 +142,7 @@ function completeReply(s) {
     }
 }
 
-function buildMessage({ from, fromName, to, subject, html, text }) {
+function buildMessage({ from, fromName, to, subject, html, text, attachments }) {
     const date = new Date().toUTCString();
     const fromHeader = fromName ? `${encodeHeaderWord(fromName)} <${from}>` : `<${from}>`;
     const headers = [
@@ -153,30 +153,62 @@ function buildMessage({ from, fromName, to, subject, html, text }) {
         `MIME-Version: 1.0`,
     ];
 
-    let body;
-    if (html && text) {
-        const boundary = `=_mailelixpo_${randomToken()}`;
-        headers.push(`Content-Type: multipart/alternative; boundary="${boundary}"`);
-        body = [
-            `--${boundary}`,
-            `Content-Type: text/plain; charset=utf-8`,
-            ``,
-            dotStuff(text),
-            `--${boundary}`,
-            `Content-Type: text/html; charset=utf-8`,
-            ``,
-            dotStuff(html),
-            `--${boundary}--`,
-        ].join("\r\n");
-    } else if (html) {
-        headers.push(`Content-Type: text/html; charset=utf-8`);
-        body = dotStuff(html);
-    } else {
-        headers.push(`Content-Type: text/plain; charset=utf-8`);
-        body = dotStuff(text || "");
+    const files = Array.isArray(attachments) ? attachments.filter((a) => a && a.contentBase64) : [];
+
+    // The body (text/html) as a self-contained content block — multipart/
+    // alternative when we have both, else a single text/html or text/plain.
+    function contentBlock() {
+        if (html && text) {
+            const b = `=_alt_${randomToken()}`;
+            return {
+                header: `Content-Type: multipart/alternative; boundary="${b}"`,
+                body: [
+                    `--${b}`,
+                    `Content-Type: text/plain; charset=utf-8`,
+                    ``,
+                    dotStuff(text),
+                    `--${b}`,
+                    `Content-Type: text/html; charset=utf-8`,
+                    ``,
+                    dotStuff(html),
+                    `--${b}--`,
+                ].join("\r\n"),
+            };
+        }
+        if (html) return { header: `Content-Type: text/html; charset=utf-8`, body: dotStuff(html) };
+        return { header: `Content-Type: text/plain; charset=utf-8`, body: dotStuff(text || "") };
     }
 
-    return headers.join("\r\n") + "\r\n\r\n" + body;
+    if (files.length === 0) {
+        const c = contentBlock();
+        headers.push(c.header);
+        return headers.join("\r\n") + "\r\n\r\n" + c.body;
+    }
+
+    // multipart/mixed: the content block, then one part per attachment.
+    const mixed = `=_mixed_${randomToken()}`;
+    headers.push(`Content-Type: multipart/mixed; boundary="${mixed}"`);
+    const c = contentBlock();
+    const parts = [`--${mixed}`, c.header, ``, c.body];
+    for (const a of files) {
+        const name = encodeHeaderWord(a.filename || "attachment");
+        const type = (a.contentType || "application/octet-stream").replace(/[\r\n"]/g, "");
+        parts.push(
+            `--${mixed}`,
+            `Content-Type: ${type}; name="${name}"`,
+            `Content-Transfer-Encoding: base64`,
+            `Content-Disposition: attachment; filename="${name}"`,
+            ``,
+            wrap76(String(a.contentBase64).replace(/[^A-Za-z0-9+/=]/g, "")),
+        );
+    }
+    parts.push(`--${mixed}--`);
+    return headers.join("\r\n") + "\r\n\r\n" + parts.join("\r\n");
+}
+
+// Base64 bodies must be wrapped to <=76 chars per line (RFC 2045).
+function wrap76(b64) {
+    return b64.replace(/.{1,76}/g, "$&\r\n").trimEnd();
 }
 
 // RFC 5321 dot-stuffing: a line starting with "." must be escaped to "..".
