@@ -4,14 +4,70 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import DescriptionIcon from "@mui/icons-material/Description";
 import EditIcon from "@mui/icons-material/Edit";
-import { Box, Button, Chip, CircularProgress, Stack, Typography } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import {
+    Box,
+    Button,
+    Chip,
+    CircularProgress,
+    InputAdornment,
+    MenuItem,
+    Select,
+    Stack,
+    TextField,
+    Typography,
+} from "@mui/material";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EmptyState } from "./dashboard-ui";
+import { BORDER, SURFACE } from "./glass-card";
 import { GlassCard } from "./glass-card";
 
 const ACCENT = "#9b7bf7";
 const TEXT_60 = "rgba(245,245,244,0.6)";
+const TEXT_40 = "rgba(245,245,244,0.4)";
+
+// Shared dark field / select styling (matches webhooks/products managers).
+const darkField = {
+    "& .MuiOutlinedInput-root": {
+        color: "#f5f5f4",
+        borderRadius: "10px",
+        background: "rgba(255,255,255,0.02)",
+        "& fieldset": { borderColor: "rgba(255,255,255,0.12)" },
+        "&:hover fieldset": { borderColor: "rgba(155,123,247,0.4)" },
+        "&.Mui-focused fieldset": { borderColor: ACCENT },
+    },
+    "& .MuiInputBase-input": { fontSize: "0.92rem", py: 1.05 },
+    "& .MuiInputBase-input::placeholder": { color: "rgba(245,245,244,0.35)", opacity: 1 },
+};
+
+const darkSelect = {
+    color: "#f5f5f4",
+    borderRadius: "10px",
+    background: "rgba(255,255,255,0.02)",
+    minWidth: 150,
+    "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.12)" },
+    "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(155,123,247,0.4)" },
+    "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: ACCENT },
+    "& .MuiSelect-icon": { color: TEXT_40 },
+    "& .MuiSelect-select": { fontSize: "0.9rem", py: 1.05 },
+};
+
+const darkMenuProps = {
+    slotProps: {
+        paper: {
+            sx: {
+                background: SURFACE,
+                border: `1px solid ${BORDER}`,
+                backgroundImage: "none",
+                "& .MuiMenuItem-root": { color: "#f5f5f4", fontSize: "0.9rem" },
+                "& .MuiMenuItem-root.Mui-selected": { background: "rgba(155,123,247,0.12)" },
+            },
+        },
+    },
+};
+
+type SortKey = "recent" | "oldest" | "name";
 
 interface TemplateSummary {
     id: string;
@@ -51,6 +107,29 @@ export default function TemplatesList() {
     const [templates, setTemplates] = useState<TemplateSummary[] | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [deleting, setDeleting] = useState<string | null>(null);
+    const [query, setQuery] = useState("");
+    const [sort, setSort] = useState<SortKey>("recent");
+
+    // Filter by name / slug / subject, then sort.
+    const visible = useMemo(() => {
+        const list = templates ?? [];
+        const q = query.trim().toLowerCase();
+        const filtered = q
+            ? list.filter(
+                  (t) =>
+                      t.name.toLowerCase().includes(q) ||
+                      t.slug.toLowerCase().includes(q) ||
+                      (t.subject ?? "").toLowerCase().includes(q),
+              )
+            : list;
+        const ts = (iso: string) =>
+            Date.parse(iso?.includes("T") ? iso : `${iso}`.replace(" ", "T") + "Z") || 0;
+        return [...filtered].sort((a, b) => {
+            if (sort === "name") return a.name.localeCompare(b.name);
+            if (sort === "oldest") return ts(a.updated_at) - ts(b.updated_at);
+            return ts(b.updated_at) - ts(a.updated_at); // recent
+        });
+    }, [templates, query, sort]);
 
     async function load() {
         setError(null);
