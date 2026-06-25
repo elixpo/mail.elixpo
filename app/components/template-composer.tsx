@@ -27,8 +27,8 @@ import AttachmentsStrip, { type Attachment } from "./attachments-strip";
 import ComposerToolbar from "./composer-toolbar";
 import { GHOST_BTN } from "./dashboard-ui";
 import { GlassCard } from "./glass-card";
-import { useRole } from "./role-provider";
 import LixEditor from "./lix-editor";
+import { useRole } from "./role-provider";
 import TemplateSendDialog from "./template-send-dialog";
 import TemplateTestDialog from "./template-test-dialog";
 
@@ -347,79 +347,83 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                         </Typography>
                     )}
                     {canWrite && (
-                    <>
-                    <Tooltip
-                        title={templateId ? "" : "Save the template first"}
-                        arrow
-                        disableHoverListener={Boolean(templateId)}
-                    >
-                        <span>
-                            <Button
-                                onClick={() => setTestOpen(true)}
-                                disabled={!templateId}
-                                startIcon={<SendIcon sx={{ fontSize: "1.05rem !important" }} />}
-                                sx={{
-                                    ...GHOST_BTN,
-                                    fontSize: "0.9rem",
-                                    "&.Mui-disabled": {
-                                        color: "rgba(245,245,244,0.4)",
-                                        borderColor: "rgba(255,255,255,0.07)",
-                                    },
-                                }}
+                        <>
+                            <Tooltip
+                                title={templateId ? "" : "Save the template first"}
+                                arrow
+                                disableHoverListener={Boolean(templateId)}
                             >
-                                Test send
-                            </Button>
-                        </span>
-                    </Tooltip>
-                    <Tooltip
-                        title={templateId ? "" : "Save the template first"}
-                        arrow
-                        disableHoverListener={Boolean(templateId)}
-                    >
-                        <span>
-                            <Button
-                                onClick={() => setSendOpen(true)}
-                                disabled={!templateId}
-                                startIcon={<SendIcon sx={{ fontSize: "1.05rem !important" }} />}
-                                sx={{
-                                    ...GHOST_BTN,
-                                    fontSize: "0.9rem",
-                                    "&.Mui-disabled": {
-                                        color: "rgba(245,245,244,0.4)",
-                                        borderColor: "rgba(255,255,255,0.07)",
-                                    },
-                                }}
+                                <span>
+                                    <Button
+                                        onClick={() => setTestOpen(true)}
+                                        disabled={!templateId}
+                                        startIcon={
+                                            <SendIcon sx={{ fontSize: "1.05rem !important" }} />
+                                        }
+                                        sx={{
+                                            ...GHOST_BTN,
+                                            fontSize: "0.9rem",
+                                            "&.Mui-disabled": {
+                                                color: "rgba(245,245,244,0.4)",
+                                                borderColor: "rgba(255,255,255,0.07)",
+                                            },
+                                        }}
+                                    >
+                                        Test send
+                                    </Button>
+                                </span>
+                            </Tooltip>
+                            <Tooltip
+                                title={templateId ? "" : "Save the template first"}
+                                arrow
+                                disableHoverListener={Boolean(templateId)}
                             >
-                                Send now
-                            </Button>
-                        </span>
-                    </Tooltip>
-                    <Tooltip
-                        title={canSave ? "" : "Add a name, subject, and some body content"}
-                        arrow
-                        disableHoverListener={canSave}
-                    >
-                        <span>
-                            <Button
-                                onClick={save}
-                                disabled={saving || !canSave}
-                                startIcon={
-                                    saving ? (
-                                        <CircularProgress
-                                            size={16}
-                                            sx={{ color: "rgba(245,245,244,0.6)" }}
-                                        />
-                                    ) : (
-                                        <SaveIcon sx={{ fontSize: "1.1rem !important" }} />
-                                    )
-                                }
-                                sx={SAVE_BTN_SX}
+                                <span>
+                                    <Button
+                                        onClick={() => setSendOpen(true)}
+                                        disabled={!templateId}
+                                        startIcon={
+                                            <SendIcon sx={{ fontSize: "1.05rem !important" }} />
+                                        }
+                                        sx={{
+                                            ...GHOST_BTN,
+                                            fontSize: "0.9rem",
+                                            "&.Mui-disabled": {
+                                                color: "rgba(245,245,244,0.4)",
+                                                borderColor: "rgba(255,255,255,0.07)",
+                                            },
+                                        }}
+                                    >
+                                        Send now
+                                    </Button>
+                                </span>
+                            </Tooltip>
+                            <Tooltip
+                                title={canSave ? "" : "Add a name, subject, and some body content"}
+                                arrow
+                                disableHoverListener={canSave}
                             >
-                                {templateId ? "Save changes" : "Create template"}
-                            </Button>
-                        </span>
-                    </Tooltip>
-                    </>
+                                <span>
+                                    <Button
+                                        onClick={save}
+                                        disabled={saving || !canSave}
+                                        startIcon={
+                                            saving ? (
+                                                <CircularProgress
+                                                    size={16}
+                                                    sx={{ color: "rgba(245,245,244,0.6)" }}
+                                                />
+                                            ) : (
+                                                <SaveIcon sx={{ fontSize: "1.1rem !important" }} />
+                                            )
+                                        }
+                                        sx={SAVE_BTN_SX}
+                                    >
+                                        {templateId ? "Save changes" : "Create template"}
+                                    </Button>
+                                </span>
+                            </Tooltip>
+                        </>
                     )}
                 </Stack>
             </Stack>

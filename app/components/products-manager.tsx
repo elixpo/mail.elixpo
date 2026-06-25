@@ -1096,75 +1096,79 @@ function ProductCard({
                 <Stack direction="row" spacing={1} alignItems="center" sx={{ flexShrink: 0 }}>
                     {!canWrite && <ReadOnlyChip />}
                     {canWrite && (
-                    <>
-                    <Button
-                        onClick={onEdit}
-                        startIcon={<EditOutlinedIcon sx={{ fontSize: "1rem !important" }} />}
-                        sx={{ ...GHOST_BTN, fontSize: "0.84rem" }}
-                    >
-                        Edit
-                    </Button>
-                    <Button
-                        onClick={onRotate}
-                        startIcon={<VpnKeyOutlinedIcon sx={{ fontSize: "1rem !important" }} />}
-                        sx={{ ...GHOST_BTN, fontSize: "0.84rem" }}
-                    >
-                        Rotate secret
-                    </Button>
+                        <>
+                            <Button
+                                onClick={onEdit}
+                                startIcon={
+                                    <EditOutlinedIcon sx={{ fontSize: "1rem !important" }} />
+                                }
+                                sx={{ ...GHOST_BTN, fontSize: "0.84rem" }}
+                            >
+                                Edit
+                            </Button>
+                            <Button
+                                onClick={onRotate}
+                                startIcon={
+                                    <VpnKeyOutlinedIcon sx={{ fontSize: "1rem !important" }} />
+                                }
+                                sx={{ ...GHOST_BTN, fontSize: "0.84rem" }}
+                            >
+                                Rotate secret
+                            </Button>
 
-                    <IconButton
-                        onClick={(e) => setMenuAnchor(e.currentTarget)}
-                        size="small"
-                        sx={{
-                            color: TEXT_55,
-                            border: "1px solid rgba(255,255,255,0.16)",
-                            borderRadius: "10px",
-                            "&:hover": {
-                                borderColor: "rgba(155,123,247,0.5)",
-                                background: "rgba(155,123,247,0.06)",
-                            },
-                        }}
-                        aria-label="More actions"
-                    >
-                        <MoreVertIcon sx={{ fontSize: 19 }} />
-                    </IconButton>
-
-                    <Menu
-                        anchorEl={menuAnchor}
-                        open={!!menuAnchor}
-                        onClose={() => setMenuAnchor(null)}
-                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                        transformOrigin={{ vertical: "top", horizontal: "right" }}
-                        slotProps={{
-                            paper: {
-                                sx: {
-                                    background: SURFACE,
-                                    border: `1px solid ${BORDER}`,
-                                    borderRadius: "12px",
-                                    backgroundImage: "none",
-                                    minWidth: 160,
-                                    "& .MuiMenuItem-root": {
-                                        fontSize: "0.86rem",
-                                        color: TEXT,
-                                        gap: 1.2,
-                                        py: 1,
+                            <IconButton
+                                onClick={(e) => setMenuAnchor(e.currentTarget)}
+                                size="small"
+                                sx={{
+                                    color: TEXT_55,
+                                    border: "1px solid rgba(255,255,255,0.16)",
+                                    borderRadius: "10px",
+                                    "&:hover": {
+                                        borderColor: "rgba(155,123,247,0.5)",
+                                        background: "rgba(155,123,247,0.06)",
                                     },
-                                },
-                            },
-                        }}
-                    >
-                        <MenuItem
-                            onClick={() => {
-                                setMenuAnchor(null);
-                                onDelete();
-                            }}
-                            sx={{ color: `${RED} !important` }}
-                        >
-                            <DeleteOutlineIcon sx={{ fontSize: 18, color: RED }} />
-                            Delete
-                        </MenuItem>
-                    </Menu>
-                    </>
+                                }}
+                                aria-label="More actions"
+                            >
+                                <MoreVertIcon sx={{ fontSize: 19 }} />
+                            </IconButton>
+
+                            <Menu
+                                anchorEl={menuAnchor}
+                                open={!!menuAnchor}
+                                onClose={() => setMenuAnchor(null)}
+                                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                                slotProps={{
+                                    paper: {
+                                        sx: {
+                                            background: SURFACE,
+                                            border: `1px solid ${BORDER}`,
+                                            borderRadius: "12px",
+                                            backgroundImage: "none",
+                                            minWidth: 160,
+                                            "& .MuiMenuItem-root": {
+                                                fontSize: "0.86rem",
+                                                color: TEXT,
+                                                gap: 1.2,
+                                                py: 1,
+                                            },
+                                        },
+                                    },
+                                }}
+                            >
+                                <MenuItem
+                                    onClick={() => {
+                                        setMenuAnchor(null);
+                                        onDelete();
+                                    }}
+                                    sx={{ color: `${RED} !important` }}
+                                >
+                                    <DeleteOutlineIcon sx={{ fontSize: 18, color: RED }} />
+                                    Delete
+                                </MenuItem>
+                            </Menu>
+                        </>
                     )}
                 </Stack>
             </Stack>

@@ -912,79 +912,82 @@ function AliasesSection({
 
                                         {canWrite &&
                                             (confirmId === a.id ? (
-                                            <Stack
-                                                direction="row"
-                                                spacing={0.5}
-                                                alignItems="center"
-                                                sx={{ flexShrink: 0 }}
-                                            >
-                                                <Button
-                                                    onClick={() => removeAlias(a.id)}
-                                                    disabled={deletingId === a.id}
-                                                    size="small"
-                                                    sx={{
-                                                        textTransform: "none",
-                                                        minWidth: 0,
-                                                        px: 1.2,
-                                                        py: 0.3,
-                                                        fontSize: "0.74rem",
-                                                        fontWeight: 700,
-                                                        color: RED,
-                                                        "&:hover": {
-                                                            background: "rgba(252,165,165,0.08)",
-                                                        },
-                                                    }}
+                                                <Stack
+                                                    direction="row"
+                                                    spacing={0.5}
+                                                    alignItems="center"
+                                                    sx={{ flexShrink: 0 }}
                                                 >
-                                                    {deletingId === a.id ? (
-                                                        <CircularProgress
-                                                            size={13}
-                                                            sx={{ color: RED }}
-                                                        />
-                                                    ) : (
-                                                        "Remove"
-                                                    )}
-                                                </Button>
-                                                <Button
-                                                    onClick={() => setConfirmId(null)}
-                                                    disabled={deletingId === a.id}
-                                                    size="small"
-                                                    sx={{
-                                                        textTransform: "none",
-                                                        minWidth: 0,
-                                                        px: 1.2,
-                                                        py: 0.3,
-                                                        fontSize: "0.74rem",
-                                                        fontWeight: 600,
-                                                        color: TEXT_55,
-                                                        "&:hover": {
-                                                            background: "rgba(255,255,255,0.05)",
-                                                        },
-                                                    }}
-                                                >
-                                                    Cancel
-                                                </Button>
-                                            </Stack>
-                                        ) : (
-                                            <Tooltip title="Remove alias" arrow>
-                                                <IconButton
-                                                    onClick={() => {
-                                                        setFormError(null);
-                                                        setConfirmId(a.id);
-                                                    }}
-                                                    size="small"
-                                                    sx={{
-                                                        color: TEXT_40,
-                                                        flexShrink: 0,
-                                                        "&:hover": {
+                                                    <Button
+                                                        onClick={() => removeAlias(a.id)}
+                                                        disabled={deletingId === a.id}
+                                                        size="small"
+                                                        sx={{
+                                                            textTransform: "none",
+                                                            minWidth: 0,
+                                                            px: 1.2,
+                                                            py: 0.3,
+                                                            fontSize: "0.74rem",
+                                                            fontWeight: 700,
                                                             color: RED,
-                                                            background: "rgba(252,165,165,0.08)",
-                                                        },
-                                                    }}
-                                                    aria-label={`Remove alias ${a.from_email}`}
-                                                >
-                                                    <DeleteOutlineIcon sx={{ fontSize: 16 }} />
-                                                </IconButton>
-                                            </Tooltip>
+                                                            "&:hover": {
+                                                                background:
+                                                                    "rgba(252,165,165,0.08)",
+                                                            },
+                                                        }}
+                                                    >
+                                                        {deletingId === a.id ? (
+                                                            <CircularProgress
+                                                                size={13}
+                                                                sx={{ color: RED }}
+                                                            />
+                                                        ) : (
+                                                            "Remove"
+                                                        )}
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => setConfirmId(null)}
+                                                        disabled={deletingId === a.id}
+                                                        size="small"
+                                                        sx={{
+                                                            textTransform: "none",
+                                                            minWidth: 0,
+                                                            px: 1.2,
+                                                            py: 0.3,
+                                                            fontSize: "0.74rem",
+                                                            fontWeight: 600,
+                                                            color: TEXT_55,
+                                                            "&:hover": {
+                                                                background:
+                                                                    "rgba(255,255,255,0.05)",
+                                                            },
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                </Stack>
+                                            ) : (
+                                                <Tooltip title="Remove alias" arrow>
+                                                    <IconButton
+                                                        onClick={() => {
+                                                            setFormError(null);
+                                                            setConfirmId(a.id);
+                                                        }}
+                                                        size="small"
+                                                        sx={{
+                                                            color: TEXT_40,
+                                                            flexShrink: 0,
+                                                            "&:hover": {
+                                                                color: RED,
+                                                                background:
+                                                                    "rgba(252,165,165,0.08)",
+                                                            },
+                                                        }}
+                                                        aria-label={`Remove alias ${a.from_email}`}
+                                                    >
+                                                        <DeleteOutlineIcon sx={{ fontSize: 16 }} />
+                                                    </IconButton>
+                                                </Tooltip>
                                             ))}
                                     </Stack>
                                 ))}
@@ -993,71 +996,71 @@ function AliasesSection({
 
                         {/* Add alias inline form */}
                         {canWrite && (
-                        <Box
-                            sx={{
-                                display: "grid",
-                                gap: 1,
-                                gridTemplateColumns: { xs: "1fr", sm: "1.4fr 1fr auto" },
-                                alignItems: "start",
-                            }}
-                        >
-                            <TextField
-                                value={fromEmail}
-                                onChange={(e) => setFromEmail(e.target.value)}
-                                placeholder="support@yourdomain.com"
-                                size="small"
-                                fullWidth
-                                sx={darkField}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        e.preventDefault();
-                                        addAlias();
-                                    }
-                                }}
-                            />
-                            <TextField
-                                value={fromName}
-                                onChange={(e) => setFromName(e.target.value)}
-                                placeholder="Display name (optional)"
-                                size="small"
-                                fullWidth
-                                sx={darkField}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        e.preventDefault();
-                                        addAlias();
-                                    }
-                                }}
-                            />
-                            <Button
-                                onClick={addAlias}
-                                disabled={!canSubmit}
-                                startIcon={
-                                    saving ? undefined : (
-                                        <AddIcon sx={{ fontSize: "1rem !important" }} />
-                                    )
-                                }
+                            <Box
                                 sx={{
-                                    ...GHOST_BTN,
-                                    fontSize: "0.84rem",
-                                    px: 2,
-                                    whiteSpace: "nowrap",
-                                    "&.Mui-disabled": {
-                                        color: "rgba(245,245,244,0.4)",
-                                        borderColor: BORDER,
-                                    },
+                                    display: "grid",
+                                    gap: 1,
+                                    gridTemplateColumns: { xs: "1fr", sm: "1.4fr 1fr auto" },
+                                    alignItems: "start",
                                 }}
                             >
-                                {saving ? (
-                                    <CircularProgress
-                                        size={16}
-                                        sx={{ color: "rgba(245,245,244,0.6)" }}
-                                    />
-                                ) : (
-                                    "Add alias"
-                                )}
-                            </Button>
-                        </Box>
+                                <TextField
+                                    value={fromEmail}
+                                    onChange={(e) => setFromEmail(e.target.value)}
+                                    placeholder="support@yourdomain.com"
+                                    size="small"
+                                    fullWidth
+                                    sx={darkField}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            addAlias();
+                                        }
+                                    }}
+                                />
+                                <TextField
+                                    value={fromName}
+                                    onChange={(e) => setFromName(e.target.value)}
+                                    placeholder="Display name (optional)"
+                                    size="small"
+                                    fullWidth
+                                    sx={darkField}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            addAlias();
+                                        }
+                                    }}
+                                />
+                                <Button
+                                    onClick={addAlias}
+                                    disabled={!canSubmit}
+                                    startIcon={
+                                        saving ? undefined : (
+                                            <AddIcon sx={{ fontSize: "1rem !important" }} />
+                                        )
+                                    }
+                                    sx={{
+                                        ...GHOST_BTN,
+                                        fontSize: "0.84rem",
+                                        px: 2,
+                                        whiteSpace: "nowrap",
+                                        "&.Mui-disabled": {
+                                            color: "rgba(245,245,244,0.4)",
+                                            borderColor: BORDER,
+                                        },
+                                    }}
+                                >
+                                    {saving ? (
+                                        <CircularProgress
+                                            size={16}
+                                            sx={{ color: "rgba(245,245,244,0.6)" }}
+                                        />
+                                    ) : (
+                                        "Add alias"
+                                    )}
+                                </Button>
+                            </Box>
                         )}
 
                         {formError && (
@@ -1329,127 +1332,133 @@ function SenderCard({
                     )}
 
                     {canWrite && (
-                    <>
-                    <Tooltip title={`Sends a verification email to ${sender.email}`} arrow>
-                        <span>
-                            <Button
-                                onClick={sendTest}
-                                disabled={test?.phase === "loading"}
-                                startIcon={
-                                    test?.phase === "loading" ? (
-                                        <CircularProgress
-                                            size={15}
-                                            sx={{ color: "rgba(245,245,244,0.6)" }}
+                        <>
+                            <Tooltip title={`Sends a verification email to ${sender.email}`} arrow>
+                                <span>
+                                    <Button
+                                        onClick={sendTest}
+                                        disabled={test?.phase === "loading"}
+                                        startIcon={
+                                            test?.phase === "loading" ? (
+                                                <CircularProgress
+                                                    size={15}
+                                                    sx={{ color: "rgba(245,245,244,0.6)" }}
+                                                />
+                                            ) : (
+                                                <SendIcon sx={{ fontSize: "1rem !important" }} />
+                                            )
+                                        }
+                                        sx={{
+                                            ...GHOST_BTN,
+                                            fontSize: "0.84rem",
+                                            "&.Mui-disabled": {
+                                                color: "rgba(245,245,244,0.4)",
+                                                borderColor: BORDER,
+                                            },
+                                        }}
+                                    >
+                                        Send test
+                                    </Button>
+                                </span>
+                            </Tooltip>
+
+                            <IconButton
+                                onClick={(e) => setMenuAnchor(e.currentTarget)}
+                                size="small"
+                                sx={{
+                                    color: TEXT_55,
+                                    border: "1px solid rgba(255,255,255,0.16)",
+                                    borderRadius: "10px",
+                                    "&:hover": {
+                                        borderColor: "rgba(155,123,247,0.5)",
+                                        background: "rgba(155,123,247,0.06)",
+                                    },
+                                }}
+                                aria-label="More actions"
+                            >
+                                <MoreVertIcon sx={{ fontSize: 19 }} />
+                            </IconButton>
+
+                            <Menu
+                                anchorEl={menuAnchor}
+                                open={!!menuAnchor}
+                                onClose={() => setMenuAnchor(null)}
+                                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                                slotProps={{
+                                    paper: {
+                                        sx: {
+                                            background: SURFACE,
+                                            border: `1px solid ${BORDER}`,
+                                            borderRadius: "12px",
+                                            backgroundImage: "none",
+                                            minWidth: 180,
+                                            "& .MuiMenuItem-root": {
+                                                fontSize: "0.86rem",
+                                                color: TEXT,
+                                                gap: 1.2,
+                                                py: 1,
+                                            },
+                                        },
+                                    },
+                                }}
+                            >
+                                <MenuItem
+                                    onClick={() => {
+                                        setMenuAnchor(null);
+                                        onEdit();
+                                    }}
+                                >
+                                    <EditOutlinedIcon sx={{ fontSize: 18, color: TEXT_55 }} />
+                                    Edit
+                                </MenuItem>
+                                {!sender.is_default && (
+                                    <MenuItem
+                                        onClick={async () => {
+                                            setMenuAnchor(null);
+                                            setDefaultError(null);
+                                            try {
+                                                await onSetDefault();
+                                            } catch (e: any) {
+                                                setDefaultError(
+                                                    e?.message || "Could not set as default.",
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        <StarBorderIcon sx={{ fontSize: 18, color: ACCENT }} />
+                                        Set as default
+                                    </MenuItem>
+                                )}
+                                <MenuItem
+                                    onClick={() => {
+                                        setMenuAnchor(null);
+                                        onToggleStatus();
+                                    }}
+                                >
+                                    {active ? (
+                                        <PauseCircleOutlineIcon
+                                            sx={{ fontSize: 18, color: TEXT_55 }}
                                         />
                                     ) : (
-                                        <SendIcon sx={{ fontSize: "1rem !important" }} />
-                                    )
-                                }
-                                sx={{
-                                    ...GHOST_BTN,
-                                    fontSize: "0.84rem",
-                                    "&.Mui-disabled": {
-                                        color: "rgba(245,245,244,0.4)",
-                                        borderColor: BORDER,
-                                    },
-                                }}
-                            >
-                                Send test
-                            </Button>
-                        </span>
-                    </Tooltip>
-
-                    <IconButton
-                        onClick={(e) => setMenuAnchor(e.currentTarget)}
-                        size="small"
-                        sx={{
-                            color: TEXT_55,
-                            border: "1px solid rgba(255,255,255,0.16)",
-                            borderRadius: "10px",
-                            "&:hover": {
-                                borderColor: "rgba(155,123,247,0.5)",
-                                background: "rgba(155,123,247,0.06)",
-                            },
-                        }}
-                        aria-label="More actions"
-                    >
-                        <MoreVertIcon sx={{ fontSize: 19 }} />
-                    </IconButton>
-
-                    <Menu
-                        anchorEl={menuAnchor}
-                        open={!!menuAnchor}
-                        onClose={() => setMenuAnchor(null)}
-                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                        transformOrigin={{ vertical: "top", horizontal: "right" }}
-                        slotProps={{
-                            paper: {
-                                sx: {
-                                    background: SURFACE,
-                                    border: `1px solid ${BORDER}`,
-                                    borderRadius: "12px",
-                                    backgroundImage: "none",
-                                    minWidth: 180,
-                                    "& .MuiMenuItem-root": {
-                                        fontSize: "0.86rem",
-                                        color: TEXT,
-                                        gap: 1.2,
-                                        py: 1,
-                                    },
-                                },
-                            },
-                        }}
-                    >
-                        <MenuItem
-                            onClick={() => {
-                                setMenuAnchor(null);
-                                onEdit();
-                            }}
-                        >
-                            <EditOutlinedIcon sx={{ fontSize: 18, color: TEXT_55 }} />
-                            Edit
-                        </MenuItem>
-                        {!sender.is_default && (
-                            <MenuItem
-                                onClick={async () => {
-                                    setMenuAnchor(null);
-                                    setDefaultError(null);
-                                    try {
-                                        await onSetDefault();
-                                    } catch (e: any) {
-                                        setDefaultError(e?.message || "Could not set as default.");
-                                    }
-                                }}
-                            >
-                                <StarBorderIcon sx={{ fontSize: 18, color: ACCENT }} />
-                                Set as default
-                            </MenuItem>
-                        )}
-                        <MenuItem
-                            onClick={() => {
-                                setMenuAnchor(null);
-                                onToggleStatus();
-                            }}
-                        >
-                            {active ? (
-                                <PauseCircleOutlineIcon sx={{ fontSize: 18, color: TEXT_55 }} />
-                            ) : (
-                                <PlayCircleOutlineIcon sx={{ fontSize: 18, color: GREEN }} />
-                            )}
-                            {active ? "Disable" : "Enable"}
-                        </MenuItem>
-                        <MenuItem
-                            onClick={() => {
-                                setMenuAnchor(null);
-                                onDelete();
-                            }}
-                            sx={{ color: `${RED} !important` }}
-                        >
-                            <DeleteOutlineIcon sx={{ fontSize: 18, color: RED }} />
-                            Delete
-                        </MenuItem>
-                    </Menu>
-                    </>
+                                        <PlayCircleOutlineIcon
+                                            sx={{ fontSize: 18, color: GREEN }}
+                                        />
+                                    )}
+                                    {active ? "Disable" : "Enable"}
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        setMenuAnchor(null);
+                                        onDelete();
+                                    }}
+                                    sx={{ color: `${RED} !important` }}
+                                >
+                                    <DeleteOutlineIcon sx={{ fontSize: 18, color: RED }} />
+                                    Delete
+                                </MenuItem>
+                            </Menu>
+                        </>
                     )}
                 </Stack>
             </Stack>

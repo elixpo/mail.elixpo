@@ -903,86 +903,90 @@ function WebhookRow({
                         Usage
                     </Button>
                     {canWrite && (
-                    <>
-                    <IconButton
-                        onClick={(e) => setMenuAnchor(e.currentTarget)}
-                        size="small"
-                        disabled={busy}
-                        sx={{
-                            color: TEXT_55,
-                            border: "1px solid rgba(255,255,255,0.16)",
-                            borderRadius: "10px",
-                            "&:hover": {
-                                borderColor: "rgba(155,123,247,0.5)",
-                                background: "rgba(155,123,247,0.06)",
-                            },
-                        }}
-                        aria-label="More actions"
-                    >
-                        {busy ? (
-                            <CircularProgress size={16} sx={{ color: TEXT_55 }} />
-                        ) : (
-                            <MoreVertIcon sx={{ fontSize: 19 }} />
-                        )}
-                    </IconButton>
-                    <Menu
-                        anchorEl={menuAnchor}
-                        open={!!menuAnchor}
-                        onClose={() => setMenuAnchor(null)}
-                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                        transformOrigin={{ vertical: "top", horizontal: "right" }}
-                        slotProps={{
-                            paper: {
-                                sx: {
-                                    background: SURFACE,
-                                    border: `1px solid ${BORDER}`,
-                                    borderRadius: "12px",
-                                    backgroundImage: "none",
-                                    minWidth: 170,
-                                    "& .MuiMenuItem-root": {
-                                        fontSize: "0.86rem",
-                                        color: TEXT,
-                                        gap: 1.2,
-                                        py: 1,
+                        <>
+                            <IconButton
+                                onClick={(e) => setMenuAnchor(e.currentTarget)}
+                                size="small"
+                                disabled={busy}
+                                sx={{
+                                    color: TEXT_55,
+                                    border: "1px solid rgba(255,255,255,0.16)",
+                                    borderRadius: "10px",
+                                    "&:hover": {
+                                        borderColor: "rgba(155,123,247,0.5)",
+                                        background: "rgba(155,123,247,0.06)",
                                     },
-                                },
-                            },
-                        }}
-                    >
-                        <MenuItem
-                            onClick={() => {
-                                setMenuAnchor(null);
-                                onRename();
-                            }}
-                        >
-                            <EditOutlinedIcon sx={{ fontSize: 18, color: TEXT_55 }} />
-                            Rename
-                        </MenuItem>
-                        <MenuItem
-                            onClick={() => {
-                                setMenuAnchor(null);
-                                onToggleStatus();
-                            }}
-                        >
-                            {disabled ? (
-                                <PlayCircleOutlineIcon sx={{ fontSize: 18, color: GREEN }} />
-                            ) : (
-                                <PauseCircleOutlineIcon sx={{ fontSize: 18, color: TEXT_55 }} />
-                            )}
-                            {disabled ? "Enable" : "Disable"}
-                        </MenuItem>
-                        <MenuItem
-                            onClick={() => {
-                                setMenuAnchor(null);
-                                onDelete();
-                            }}
-                            sx={{ color: `${RED} !important` }}
-                        >
-                            <DeleteOutlineIcon sx={{ fontSize: 18, color: RED }} />
-                            Delete
-                        </MenuItem>
-                    </Menu>
-                    </>
+                                }}
+                                aria-label="More actions"
+                            >
+                                {busy ? (
+                                    <CircularProgress size={16} sx={{ color: TEXT_55 }} />
+                                ) : (
+                                    <MoreVertIcon sx={{ fontSize: 19 }} />
+                                )}
+                            </IconButton>
+                            <Menu
+                                anchorEl={menuAnchor}
+                                open={!!menuAnchor}
+                                onClose={() => setMenuAnchor(null)}
+                                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                                slotProps={{
+                                    paper: {
+                                        sx: {
+                                            background: SURFACE,
+                                            border: `1px solid ${BORDER}`,
+                                            borderRadius: "12px",
+                                            backgroundImage: "none",
+                                            minWidth: 170,
+                                            "& .MuiMenuItem-root": {
+                                                fontSize: "0.86rem",
+                                                color: TEXT,
+                                                gap: 1.2,
+                                                py: 1,
+                                            },
+                                        },
+                                    },
+                                }}
+                            >
+                                <MenuItem
+                                    onClick={() => {
+                                        setMenuAnchor(null);
+                                        onRename();
+                                    }}
+                                >
+                                    <EditOutlinedIcon sx={{ fontSize: 18, color: TEXT_55 }} />
+                                    Rename
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        setMenuAnchor(null);
+                                        onToggleStatus();
+                                    }}
+                                >
+                                    {disabled ? (
+                                        <PlayCircleOutlineIcon
+                                            sx={{ fontSize: 18, color: GREEN }}
+                                        />
+                                    ) : (
+                                        <PauseCircleOutlineIcon
+                                            sx={{ fontSize: 18, color: TEXT_55 }}
+                                        />
+                                    )}
+                                    {disabled ? "Enable" : "Disable"}
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        setMenuAnchor(null);
+                                        onDelete();
+                                    }}
+                                    sx={{ color: `${RED} !important` }}
+                                >
+                                    <DeleteOutlineIcon sx={{ fontSize: 18, color: RED }} />
+                                    Delete
+                                </MenuItem>
+                            </Menu>
+                        </>
                     )}
                 </Stack>
             </Stack>

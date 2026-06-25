@@ -173,33 +173,33 @@ export default function DriveConnectionCard() {
                 >
                     {!canWrite && <ReadOnlyChip />}
                     {canWrite && (
-                    <Button
-                        component="a"
-                        href="/api/drive/connect"
-                        startIcon={<CloudIcon />}
-                        disabled={!status.configured}
-                        sx={{
-                            textTransform: "none",
-                            fontWeight: 700,
-                            fontSize: "0.9rem",
-                            color: "#fff",
-                            px: 2.6,
-                            py: 1,
-                            borderRadius: "11px",
-                            background: `linear-gradient(135deg, ${ACCENT} 0%, #7c5cff 100%)`,
-                            boxShadow: "0 8px 24px rgba(124,92,255,0.35)",
-                            "&:hover": {
-                                background: "linear-gradient(135deg, #b094ff 0%, #8a6dff 100%)",
-                            },
-                            "&.Mui-disabled": {
-                                background: "rgba(255,255,255,0.06)",
-                                color: "rgba(245,245,244,0.4)",
-                                boxShadow: "none",
-                            },
-                        }}
-                    >
-                        Connect Google Drive
-                    </Button>
+                        <Button
+                            component="a"
+                            href="/api/drive/connect"
+                            startIcon={<CloudIcon />}
+                            disabled={!status.configured}
+                            sx={{
+                                textTransform: "none",
+                                fontWeight: 700,
+                                fontSize: "0.9rem",
+                                color: "#fff",
+                                px: 2.6,
+                                py: 1,
+                                borderRadius: "11px",
+                                background: `linear-gradient(135deg, ${ACCENT} 0%, #7c5cff 100%)`,
+                                boxShadow: "0 8px 24px rgba(124,92,255,0.35)",
+                                "&:hover": {
+                                    background: "linear-gradient(135deg, #b094ff 0%, #8a6dff 100%)",
+                                },
+                                "&.Mui-disabled": {
+                                    background: "rgba(255,255,255,0.06)",
+                                    color: "rgba(245,245,244,0.4)",
+                                    boxShadow: "none",
+                                },
+                            }}
+                        >
+                            Connect Google Drive
+                        </Button>
                     )}
                     {!status.configured && (
                         <Typography sx={{ color: "rgba(245,245,244,0.4)", fontSize: "0.8rem" }}>

@@ -23,6 +23,7 @@ import { useState } from "react";
 import { GHOST_BTN, PRIMARY_BTN } from "./dashboard-ui";
 import { openDrivePicker } from "./drive-picker";
 import { BORDER, SURFACE } from "./glass-card";
+import { useRole } from "./role-provider";
 
 const ACCENT = "#9b7bf7";
 const TEXT_55 = "rgba(245,245,244,0.55)";
@@ -78,6 +79,7 @@ export default function AttachmentsStrip({
     onChange: (next: Attachment[]) => void;
     onToast: (m: string) => void;
 }) {
+    const { canWrite } = useRole();
     const [menuEl, setMenuEl] = useState<HTMLElement | null>(null);
     const [urlOpen, setUrlOpen] = useState(false);
     const [varOpen, setVarOpen] = useState(false);
@@ -124,13 +126,15 @@ export default function AttachmentsStrip({
     return (
         <Box sx={{ px: 1.5, py: 1, borderTop: `1px solid rgba(255,255,255,0.07)` }}>
             <Stack direction="row" alignItems="center" sx={{ flexWrap: "wrap", gap: 0.8 }}>
-                <Button
-                    onClick={(e) => setMenuEl(e.currentTarget)}
-                    startIcon={<AttachFileIcon sx={{ fontSize: "1rem !important" }} />}
-                    sx={{ ...GHOST_BTN, py: 0.5, px: 1.4, fontSize: "0.8rem" }}
-                >
-                    Attach
-                </Button>
+                {canWrite && (
+                    <Button
+                        onClick={(e) => setMenuEl(e.currentTarget)}
+                        startIcon={<AttachFileIcon sx={{ fontSize: "1rem !important" }} />}
+                        sx={{ ...GHOST_BTN, py: 0.5, px: 1.4, fontSize: "0.8rem" }}
+                    >
+                        Attach
+                    </Button>
+                )}
 
                 {attachments.length === 0 ? (
                     <Typography sx={{ color: TEXT_55, fontSize: "0.78rem", ml: 0.5 }}>
@@ -162,8 +166,12 @@ export default function AttachmentsStrip({
                                 )
                             }
                             label={chipLabel(a)}
-                            onDelete={() => remove(i)}
-                            deleteIcon={<CloseIcon sx={{ fontSize: "16px !important" }} />}
+                            onDelete={canWrite ? () => remove(i) : undefined}
+                            deleteIcon={
+                                canWrite ? (
+                                    <CloseIcon sx={{ fontSize: "16px !important" }} />
+                                ) : undefined
+                            }
                             size="small"
                             sx={{
                                 maxWidth: 240,
