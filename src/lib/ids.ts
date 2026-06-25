@@ -12,6 +12,8 @@ const PREFIXES = {
     delivery: "dlv", // a delivery log row
     attachment: "att", // a template attachment pointer (drive/url/variable)
     suppression: "sup", // an unsubscribed/suppressed recipient (per product)
+    member: "wm", // a workspace member (user ↔ workspace with a role)
+    invite: "inv", // a workspace invite link
 } as const;
 
 export type IdKind = keyof typeof PREFIXES;
