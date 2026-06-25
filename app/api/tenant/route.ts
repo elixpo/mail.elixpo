@@ -32,7 +32,7 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
-    const denied = requireAdminRole(session);
+    const denied = await requireAdminRole(session);
     if (denied) return denied;
 
     let body: any;

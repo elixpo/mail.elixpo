@@ -25,7 +25,7 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
     const session = await getSession(request);
     if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-    const denied = requireWriteRole(session);
+    const denied = await requireWriteRole(session);
     if (denied) return denied;
     const { id } = await params;
 
@@ -52,7 +52,7 @@ export async function DELETE(request: NextRequest, { params }: Ctx) {
     const session = await getSession(request);
     if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-    const denied = requireWriteRole(session);
+    const denied = await requireWriteRole(session);
     if (denied) return denied;
     const { id } = await params;
 

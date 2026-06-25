@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const session = await getSession(request);
     if (!session) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-    const denied = requireWriteRole(session);
+    const denied = await requireWriteRole(session);
     if (denied) return denied;
 
     const db = await getDatabase();

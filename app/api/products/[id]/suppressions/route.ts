@@ -34,7 +34,7 @@ export async function POST(request: NextRequest, { params }: Ctx) {
     const ctx = await ownedProduct(request, id);
     if (ctx.error) return ctx.error;
 
-    const denied = requireWriteRole(ctx.session);
+    const denied = await requireWriteRole(ctx.session);
     if (denied) return denied;
 
     let body: any;
@@ -60,7 +60,7 @@ export async function DELETE(request: NextRequest, { params }: Ctx) {
     const ctx = await ownedProduct(request, id);
     if (ctx.error) return ctx.error;
 
-    const denied = requireWriteRole(ctx.session);
+    const denied = await requireWriteRole(ctx.session);
     if (denied) return denied;
     const email = request.nextUrl.searchParams.get("email");
     if (!email) return NextResponse.json({ error: "missing_email" }, { status: 400 });
