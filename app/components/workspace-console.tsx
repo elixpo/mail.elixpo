@@ -4,20 +4,14 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import {
     Avatar,
     Box,
     Button,
     Chip,
     CircularProgress,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
     FormControl,
     IconButton,
-    InputLabel,
     MenuItem,
     Select,
     Stack,
@@ -45,18 +39,17 @@ interface Member {
     id: string;
     email: string;
     name: string | null;
+    avatar: string | null;
     role: string;
     status: string;
     created_at: string;
 }
 
-interface Invite {
+interface InviteLink {
     id: string;
-    email: string | null;
     role: string;
     token: string;
-    status: string;
-    expires_at: string | null;
+    url: string;
     created_at: string;
 }
 
@@ -72,7 +65,7 @@ interface WorkspaceResponse {
     role: string;
     workspace: WorkspaceInfo;
     members: Member[];
-    invites: Invite[];
+    invite: InviteLink | null;
 }
 
 interface MeWorkspace {
@@ -194,13 +187,6 @@ function roleChipColor(role: string): string {
         default:
             return MUTED;
     }
-}
-
-function formatDate(value: string | null): string {
-    if (!value) return "—";
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return "—";
-    return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
 function initialOf(member: Member): string {
@@ -360,7 +346,7 @@ export default function WorkspaceConsole(props: WorkspaceConsoleProps) {
 
             <MembersCard members={visibleMembers} isAdmin={isAdmin} onRefresh={refresh} />
 
-            {isAdmin && <InvitesCard invites={data.invites} onRefresh={refresh} />}
+            {isAdmin && <InviteLinkCard invite={data.invite} onRefresh={refresh} />}
         </Stack>
     );
 }
@@ -697,6 +683,8 @@ function MembersCard({
                             sx={{ py: 1.6 }}
                         >
                             <Avatar
+                                src={m.avatar ?? undefined}
+                                imgProps={{ referrerPolicy: "no-referrer" }}
                                 sx={{
                                     width: 38,
                                     height: 38,
@@ -864,350 +852,235 @@ function MembersCard({
 /* 4. Invites                                                          */
 /* ================================================================== */
 
-function InvitesCard({
-    invites,
+function InviteLinkCard({
+    invite,
     onRefresh,
 }: {
-    invites: Invite[];
+    invite: InviteLink | null;
     onRefresh: () => Promise<void>;
 }) {
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [email, setEmail] = useState("");
-    const [inviteRole, setInviteRole] = useState<AssignableRole>("viewer");
-    const [creating, setCreating] = useState(false);
-    const [createdUrl, setCreatedUrl] = useState<string | null>(null);
-    const [copied, setCopied] = useState<string | null>(null);
-    const [busyId, setBusyId] = useState<string | null>(null);
+    const [role, setRole] = useState<AssignableRole>(
+        invite && ASSIGNABLE_ROLES.includes(invite.role as AssignableRole)
+            ? (invite.role as AssignableRole)
+            : "viewer",
+    );
+    const [busy, setBusy] = useState(false);
+    const [copied, setCopied] = useState(false);
     const [msg, setMsg] = useState<Msg | null>(null);
 
-    function inviteUrl(token: string): string {
-        const origin = typeof window !== "undefined" ? window.location.origin : "";
-        return `${origin}/join/${token}`;
-    }
-
-    async function copy(value: string, key: string) {
-        try {
-            await navigator.clipboard.writeText(value);
-            setCopied(key);
-            window.setTimeout(() => setCopied((c) => (c === key ? null : c)), 1500);
-        } catch {
-            setMsg({ type: "err", text: "Couldn't copy to clipboard." });
+    // Keep the role selector in sync when the link changes underneath us.
+    useEffect(() => {
+        if (invite && ASSIGNABLE_ROLES.includes(invite.role as AssignableRole)) {
+            setRole(invite.role as AssignableRole);
         }
-    }
+    }, [invite]);
 
-    function openDialog() {
-        setEmail("");
-        setInviteRole("viewer");
-        setCreatedUrl(null);
-        setMsg(null);
-        setDialogOpen(true);
-    }
-
-    async function createInvite() {
-        if (creating) return;
-        setCreating(true);
+    async function call(body: Record<string, unknown>, okText: string, fail: string) {
+        setBusy(true);
         setMsg(null);
         try {
-            const res = await fetch("/api/workspace/invites", {
+            const res = await fetch("/api/workspace/invite", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: email.trim() || null, role: inviteRole }),
+                body: JSON.stringify(body),
             });
             const json = (await res.json().catch(() => null)) as {
-                invite?: { url?: string };
                 error?: string;
                 message?: string;
             } | null;
-            if (!res.ok || !json?.invite) {
-                throw new Error(friendlyApiError(json, "Could not create invite."));
-            }
-            setCreatedUrl(json.invite.url ?? null);
-            setMsg({ type: "ok", text: "Invite created." });
+            if (!res.ok) throw new Error(friendlyApiError(json, fail));
             await onRefresh();
+            setMsg({ type: "ok", text: okText });
         } catch (e) {
-            setMsg({
-                type: "err",
-                text: e instanceof Error ? e.message : "Could not create invite.",
-            });
+            setMsg({ type: "err", text: e instanceof Error ? e.message : fail });
         } finally {
-            setCreating(false);
+            setBusy(false);
         }
     }
 
-    async function revoke(id: string) {
-        setBusyId(id);
+    function generate() {
+        void call({ role }, "Invite link generated.", "Could not generate the link.");
+    }
+
+    function rotate() {
+        if (
+            !window.confirm(
+                "Rotate the invite link? The current link will stop working immediately.",
+            )
+        )
+            return;
+        void call(
+            { role, rotate: true },
+            "Link rotated — the old one no longer works.",
+            "Could not rotate the link.",
+        );
+    }
+
+    function changeRole(next: AssignableRole) {
+        setRole(next);
+        if (invite) void call({ role: next }, "Link role updated.", "Could not update the role.");
+    }
+
+    async function disable() {
+        if (!window.confirm("Disable the invite link? It will stop working immediately.")) return;
+        setBusy(true);
         setMsg(null);
         try {
-            const res = await fetch(`/api/workspace/invites/${id}`, { method: "DELETE" });
+            const res = await fetch("/api/workspace/invite", { method: "DELETE" });
             if (!res.ok) {
                 const json = (await res.json().catch(() => null)) as {
                     error?: string;
                     message?: string;
                 } | null;
-                throw new Error(friendlyApiError(json, "Could not revoke invite."));
+                throw new Error(friendlyApiError(json, "Could not disable the link."));
             }
             await onRefresh();
+            setMsg({ type: "ok", text: "Invite link disabled." });
         } catch (e) {
             setMsg({
                 type: "err",
-                text: e instanceof Error ? e.message : "Could not revoke invite.",
+                text: e instanceof Error ? e.message : "Could not disable the link.",
             });
         } finally {
-            setBusyId(null);
+            setBusy(false);
+        }
+    }
+
+    async function copy() {
+        if (!invite) return;
+        try {
+            await navigator.clipboard.writeText(invite.url);
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1500);
+        } catch {
+            setMsg({ type: "err", text: "Couldn't copy to clipboard." });
         }
     }
 
     return (
         <GlassCard>
-            <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-                sx={{ mb: 0.4 }}
-            >
-                <Typography sx={sectionTitleSx}>Invites</Typography>
-                <Button
-                    onClick={openDialog}
-                    sx={{ ...gradientButtonSx, px: 2, py: 0.7, fontSize: "0.82rem" }}
-                >
-                    New invite
-                </Button>
-            </Stack>
+            <Typography sx={{ ...sectionTitleSx, mb: 0.4 }}>Invite link</Typography>
             <Typography sx={{ color: MUTED, fontSize: "0.85rem", mb: 2 }}>
-                Share a link or invite by email.
+                One shared link per workspace. Anyone who opens it can request to join — you approve
+                them above. Rotating the link disables the previous one immediately.
             </Typography>
 
-            <Stack divider={<Box sx={{ borderBottom: `1px solid ${BORDER}` }} />}>
-                {invites.map((inv) => {
-                    const url = inviteUrl(inv.token);
-                    const busy = busyId === inv.id;
-                    return (
-                        <Stack
-                            key={inv.id}
-                            direction={{ xs: "column", sm: "row" }}
-                            spacing={1.2}
-                            alignItems={{ xs: "flex-start", sm: "center" }}
-                            sx={{ py: 1.5 }}
-                        >
-                            <Box sx={{ flex: 1, minWidth: 0 }}>
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    {inv.email ? (
-                                        <Typography
-                                            sx={{
-                                                color: TEXT,
-                                                fontWeight: 600,
-                                                fontSize: "0.92rem",
-                                                wordBreak: "break-word",
-                                            }}
-                                        >
-                                            {inv.email}
-                                        </Typography>
-                                    ) : (
-                                        <Stack direction="row" spacing={0.6} alignItems="center">
-                                            <OpenInNewIcon sx={{ fontSize: 15, color: MUTED }} />
-                                            <Typography
-                                                sx={{
-                                                    color: TEXT,
-                                                    fontWeight: 600,
-                                                    fontSize: "0.92rem",
-                                                }}
-                                            >
-                                                Open link
-                                            </Typography>
-                                        </Stack>
-                                    )}
-                                    <Chip
-                                        label={inv.role}
-                                        size="small"
-                                        sx={{
-                                            height: 20,
-                                            fontSize: "0.68rem",
-                                            fontWeight: 600,
-                                            color: roleChipColor(inv.role),
-                                            background: "rgba(255,255,255,0.04)",
-                                            border: `1px solid ${BORDER}`,
-                                        }}
-                                    />
-                                </Stack>
-                                <Typography sx={{ color: MUTED, fontSize: "0.78rem", mt: 0.3 }}>
-                                    Expires {formatDate(inv.expires_at)}
-                                </Typography>
-                            </Box>
-
-                            <Stack
-                                direction="row"
-                                spacing={0.8}
-                                alignItems="center"
-                                sx={{ flexShrink: 0 }}
-                            >
-                                <Button
-                                    onClick={() => copy(url, inv.id)}
-                                    startIcon={
-                                        copied === inv.id ? (
-                                            <CheckCircleIcon sx={{ fontSize: 16 }} />
-                                        ) : (
-                                            <ContentCopyIcon sx={{ fontSize: 16 }} />
-                                        )
-                                    }
-                                    sx={ghostButtonSx}
-                                >
-                                    {copied === inv.id ? "Copied" : "Copy link"}
-                                </Button>
-                                <Button
-                                    onClick={() => revoke(inv.id)}
-                                    disabled={busy}
-                                    sx={{
-                                        ...ghostButtonSx,
-                                        color: "#fca5a5",
-                                        borderColor: "rgba(252,165,165,0.3)",
-                                        "&:hover": {
-                                            background: "rgba(252,165,165,0.1)",
-                                            borderColor: "rgba(252,165,165,0.5)",
-                                        },
-                                    }}
-                                >
-                                    {busy ? (
-                                        <CircularProgress size={15} sx={{ color: "#fca5a5" }} />
-                                    ) : (
-                                        "Revoke"
-                                    )}
-                                </Button>
-                            </Stack>
-                        </Stack>
-                    );
-                })}
-
-                {invites.length === 0 && (
-                    <Typography sx={{ color: MUTED, fontSize: "0.88rem", py: 2 }}>
-                        No pending invites.
-                    </Typography>
-                )}
+            {/* Role the link grants */}
+            <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={1.5}
+                alignItems={{ sm: "center" }}
+                sx={{ mb: invite ? 2 : 0 }}
+            >
+                <Typography sx={{ color: MUTED, fontSize: "0.82rem" }}>
+                    Joiners get the role
+                </Typography>
+                <FormControl size="small" sx={{ minWidth: 130 }}>
+                    <Select
+                        value={role}
+                        disabled={busy}
+                        onChange={(e: SelectChangeEvent) =>
+                            changeRole(e.target.value as AssignableRole)
+                        }
+                        sx={selectSx}
+                        MenuProps={selectMenuProps}
+                    >
+                        {ASSIGNABLE_ROLES.map((r) => (
+                            <MenuItem key={r} value={r}>
+                                {r.charAt(0).toUpperCase() + r.slice(1)}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
             </Stack>
 
-            {msg && !dialogOpen && <MessageLine msg={msg} />}
-
-            {/* New invite dialog */}
-            <Dialog
-                open={dialogOpen}
-                onClose={() => setDialogOpen(false)}
-                fullWidth
-                maxWidth="xs"
-                PaperProps={{
-                    sx: {
-                        background: "#13161d",
-                        border: `1px solid ${BORDER}`,
-                        borderRadius: "14px",
-                        color: TEXT,
-                        backgroundImage: "none",
-                    },
-                }}
-            >
-                <DialogTitle sx={{ color: TEXT, fontWeight: 700, fontSize: "1.05rem" }}>
-                    New invite
-                </DialogTitle>
-                <DialogContent>
-                    <Stack spacing={2} sx={{ mt: 0.5 }}>
-                        <TextField
-                            label="Email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="teammate@company.com"
-                            helperText="Leave blank for an open link anyone can request to join"
-                            fullWidth
-                            size="small"
-                            sx={fieldSx}
-                            FormHelperTextProps={{ sx: { color: MUTED, ml: 0.5 } }}
-                        />
-                        <FormControl size="small" fullWidth>
-                            <InputLabel sx={{ color: MUTED, "&.Mui-focused": { color: ACCENT } }}>
-                                Role
-                            </InputLabel>
-                            <Select
-                                label="Role"
-                                value={inviteRole}
-                                onChange={(e: SelectChangeEvent) =>
-                                    setInviteRole(e.target.value as AssignableRole)
-                                }
-                                sx={selectSx}
-                                MenuProps={selectMenuProps}
-                            >
-                                {ASSIGNABLE_ROLES.map((r) => (
-                                    <MenuItem key={r} value={r}>
-                                        {r.charAt(0).toUpperCase() + r.slice(1)}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-
-                        {createdUrl && (
-                            <Box
+            {invite ? (
+                <>
+                    <Box
+                        sx={{
+                            p: 1.4,
+                            borderRadius: "10px",
+                            background: "rgba(155,123,247,0.08)",
+                            border: "1px solid rgba(155,123,247,0.25)",
+                        }}
+                    >
+                        <Typography
+                            sx={{ color: MUTED, fontSize: "0.72rem", mb: 0.6, fontWeight: 600 }}
+                        >
+                            INVITE LINK
+                        </Typography>
+                        <Stack
+                            direction={{ xs: "column", sm: "row" }}
+                            spacing={1}
+                            alignItems={{ sm: "center" }}
+                        >
+                            <Typography
                                 sx={{
-                                    p: 1.4,
-                                    borderRadius: "10px",
-                                    background: "rgba(155,123,247,0.08)",
-                                    border: "1px solid rgba(155,123,247,0.25)",
+                                    flex: 1,
+                                    color: TEXT,
+                                    fontSize: "0.8rem",
+                                    wordBreak: "break-all",
+                                    fontFamily: "monospace",
                                 }}
                             >
-                                <Typography
-                                    sx={{
-                                        color: MUTED,
-                                        fontSize: "0.72rem",
-                                        mb: 0.6,
-                                        fontWeight: 600,
-                                    }}
-                                >
-                                    INVITE LINK
-                                </Typography>
-                                <Stack direction="row" spacing={1} alignItems="center">
-                                    <Typography
-                                        sx={{
-                                            flex: 1,
-                                            color: TEXT,
-                                            fontSize: "0.8rem",
-                                            wordBreak: "break-all",
-                                            fontFamily: "monospace",
-                                        }}
-                                    >
-                                        {createdUrl}
-                                    </Typography>
-                                    <Button
-                                        onClick={() => copy(createdUrl, "dialog")}
-                                        startIcon={
-                                            copied === "dialog" ? (
-                                                <CheckCircleIcon sx={{ fontSize: 16 }} />
-                                            ) : (
-                                                <ContentCopyIcon sx={{ fontSize: 16 }} />
-                                            )
-                                        }
-                                        sx={ghostButtonSx}
-                                    >
-                                        {copied === "dialog" ? "Copied" : "Copy"}
-                                    </Button>
-                                </Stack>
-                            </Box>
-                        )}
+                                {invite.url}
+                            </Typography>
+                            <Button
+                                onClick={copy}
+                                startIcon={
+                                    copied ? (
+                                        <CheckCircleIcon sx={{ fontSize: 16 }} />
+                                    ) : (
+                                        <ContentCopyIcon sx={{ fontSize: 16 }} />
+                                    )
+                                }
+                                sx={ghostButtonSx}
+                            >
+                                {copied ? "Copied" : "Copy"}
+                            </Button>
+                        </Stack>
+                    </Box>
 
-                        {msg && dialogOpen && <MessageLine msg={msg} sx={{ mt: 0 }} />}
+                    <Stack direction="row" spacing={1} sx={{ mt: 1.6 }}>
+                        <Button onClick={rotate} disabled={busy} sx={ghostButtonSx}>
+                            {busy ? (
+                                <CircularProgress size={15} sx={{ color: MUTED }} />
+                            ) : (
+                                "Rotate link"
+                            )}
+                        </Button>
+                        <Button
+                            onClick={disable}
+                            disabled={busy}
+                            sx={{
+                                ...ghostButtonSx,
+                                color: "#fca5a5",
+                                borderColor: "rgba(252,165,165,0.3)",
+                                "&:hover": {
+                                    background: "rgba(252,165,165,0.1)",
+                                    borderColor: "rgba(252,165,165,0.5)",
+                                },
+                            }}
+                        >
+                            Disable
+                        </Button>
                     </Stack>
-                </DialogContent>
-                <DialogActions sx={{ px: 3, pb: 2.4 }}>
-                    <Button onClick={() => setDialogOpen(false)} sx={ghostButtonSx}>
-                        {createdUrl ? "Done" : "Cancel"}
-                    </Button>
-                    <Button
-                        onClick={createInvite}
-                        disabled={creating}
-                        sx={{ ...gradientButtonSx, minWidth: 120 }}
-                    >
-                        {creating ? (
-                            <CircularProgress size={18} sx={{ color: "#fff" }} />
-                        ) : (
-                            "Create invite"
-                        )}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                </>
+            ) : (
+                <Button
+                    onClick={generate}
+                    disabled={busy}
+                    sx={{ ...gradientButtonSx, mt: 2, minWidth: 170 }}
+                >
+                    {busy ? (
+                        <CircularProgress size={18} sx={{ color: "#fff" }} />
+                    ) : (
+                        "Generate invite link"
+                    )}
+                </Button>
+            )}
+
+            {msg && <MessageLine msg={msg} />}
         </GlassCard>
     );
 }

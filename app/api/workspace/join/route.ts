@@ -26,7 +26,14 @@ export async function POST(request: NextRequest) {
     if (!token) return NextResponse.json({ error: "missing_token" }, { status: 400 });
 
     const db = await getDatabase();
-    const result = await acceptInvite(db, token, session.uid, session.email, session.name);
+    const result = await acceptInvite(
+        db,
+        token,
+        session.uid,
+        session.email,
+        session.name,
+        session.avatar ?? null,
+    );
     if (!result.ok) {
         return NextResponse.json({ error: result.error || "invalid" }, { status: 400 });
     }

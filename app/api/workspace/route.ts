@@ -3,18 +3,19 @@ export const runtime = "edge";
 import { getDatabase } from "@/lib/d1-client";
 import {
     getWorkspaceInfo,
+    getWorkspaceLink,
     inviteToPublic,
-    listInvites,
     listMembers,
     memberToPublic,
     slugifyWorkspace,
+    syncMemberIdentity,
     uniqueSlug,
     updateWorkspace,
 } from "@/lib/workspace";
 import { guard } from "@/lib/workspace-guard";
 import { type NextRequest, NextResponse } from "next/server";
 
-/** GET /api/workspace — overview for the settings page (info + members; invites if admin). */
+/** GET /api/workspace — overview for the settings page (info + members; link if admin). */
 export async function GET(request: NextRequest) {
     const g = await guard(request, "viewer");
     if (!g.ok) return g.response;
@@ -23,9 +24,22 @@ export async function GET(request: NextRequest) {
     const info = await getWorkspaceInfo(db, g.session.tenantId);
     if (!info) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
+    // Keep the viewer's own cached name/avatar fresh from their live session.
+    await syncMemberIdentity(
+        db,
+        g.session.tenantId,
+        g.session.uid,
+        g.session.email,
+        g.session.name,
+        g.session.avatar ?? null,
+    ).catch(() => {});
+
     const members = (await listMembers(db, g.session.tenantId)).map(memberToPublic);
     const isAdmin = g.role === "owner" || g.role === "admin";
-    const invites = isAdmin ? (await listInvites(db, g.session.tenantId)).map(inviteToPublic) : [];
+    const link = isAdmin ? await getWorkspaceLink(db, g.session.tenantId) : null;
+    const invite = link
+        ? { ...inviteToPublic(link), url: `${request.nextUrl.origin}/join/${link.token}` }
+        : null;
 
     return NextResponse.json({
         role: g.role,
@@ -37,7 +51,7 @@ export async function GET(request: NextRequest) {
             logoUrl: info.logo_url,
         },
         members,
-        invites,
+        invite,
     });
 }
 

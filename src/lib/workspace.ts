@@ -47,6 +47,7 @@ export interface MemberRow {
     user_uid: string | null;
     email: string;
     name: string | null;
+    avatar: string | null;
     role: string;
     status: string; // active | pending | removed
     invited_by: string | null;
@@ -58,6 +59,7 @@ export interface MemberPublic {
     id: string;
     email: string;
     name: string | null;
+    avatar: string | null;
     role: string;
     status: string;
     created_at: string;
@@ -68,10 +70,37 @@ export function memberToPublic(row: MemberRow): MemberPublic {
         id: row.id,
         email: row.email,
         name: row.name,
+        avatar: row.avatar ?? null,
         role: row.role,
         status: row.status,
         created_at: row.created_at,
     };
+}
+
+/**
+ * Refresh a member's cached identity (name + avatar from Elixpo Accounts) from
+ * a live session. Idempotent; called on login and on workspace view so the
+ * members list shows a real name + photo, not just the email.
+ */
+export async function syncMemberIdentity(
+    db: D1Database,
+    tenantId: string,
+    uid: string,
+    email: string,
+    name?: string | null,
+    avatar?: string | null,
+): Promise<void> {
+    await db
+        .prepare(
+            `UPDATE workspace_members
+             SET name = COALESCE(?, name),
+                 avatar = COALESCE(?, avatar),
+                 user_uid = COALESCE(user_uid, ?),
+                 updated_at = datetime('now')
+             WHERE tenant_id = ? AND (user_uid = ? OR email = ?)`,
+        )
+        .bind(name || null, avatar || null, uid, tenantId, uid, lc(email))
+        .run();
 }
 
 export async function listMembers(db: D1Database, tenantId: string): Promise<MemberRow[]> {
@@ -149,6 +178,7 @@ export interface AddMemberInput {
     status?: "active" | "pending";
     userUid?: string | null;
     name?: string | null;
+    avatar?: string | null;
     invitedBy?: string | null;
 }
 
@@ -160,13 +190,14 @@ export async function addMember(
     const id = newId("member");
     await db
         .prepare(
-            `INSERT INTO workspace_members (id, tenant_id, user_uid, email, name, role, status, invited_by)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `INSERT INTO workspace_members (id, tenant_id, user_uid, email, name, avatar, role, status, invited_by)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
              ON CONFLICT(tenant_id, email) DO UPDATE SET
                 role = excluded.role,
                 status = excluded.status,
                 user_uid = COALESCE(excluded.user_uid, workspace_members.user_uid),
                 name = COALESCE(excluded.name, workspace_members.name),
+                avatar = COALESCE(excluded.avatar, workspace_members.avatar),
                 updated_at = datetime('now')`,
         )
         .bind(
@@ -175,6 +206,7 @@ export async function addMember(
             input.userUid || null,
             lc(input.email),
             input.name || null,
+            input.avatar || null,
             input.role,
             input.status || "active",
             input.invitedBy || null,
@@ -201,18 +233,27 @@ export async function linkMemberUid(
         .run();
 }
 
-/** On login, attach the signed-in uid to any membership rows keyed by email. */
+/**
+ * On login, attach the signed-in uid to membership rows keyed by email AND
+ * refresh the cached name/avatar across every workspace this user belongs to.
+ */
 export async function linkUserToMemberships(
     db: D1Database,
     uid: string,
     email: string,
     name?: string | null,
+    avatar?: string | null,
 ): Promise<void> {
     await db
         .prepare(
-            "UPDATE workspace_members SET user_uid = ?, name = COALESCE(name, ?), updated_at = datetime('now') WHERE email = ? AND (user_uid IS NULL OR user_uid = '')",
+            `UPDATE workspace_members
+             SET user_uid = ?,
+                 name = COALESCE(?, name),
+                 avatar = COALESCE(?, avatar),
+                 updated_at = datetime('now')
+             WHERE email = ? OR user_uid = ?`,
         )
-        .bind(uid, name || null, lc(email))
+        .bind(uid, name || null, avatar || null, lc(email), uid)
         .run();
 }
 
@@ -298,7 +339,7 @@ export interface CreateInviteInput {
     email?: string | null; // null/empty = open link
     role: Role;
     invitedBy?: string | null;
-    expiresDays?: number; // default 14
+    expiresDays?: number | null; // null = never expires (default 14 days)
 }
 
 export async function createInvite(
@@ -308,6 +349,7 @@ export async function createInvite(
 ): Promise<InviteRow> {
     const id = newId("invite");
     const token = newInviteToken();
+    const expiresAt = input.expiresDays === null ? null : isoDaysFromNow(input.expiresDays ?? 14);
     await db
         .prepare(
             "INSERT INTO workspace_invites (id, tenant_id, email, role, token, invited_by, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -319,7 +361,7 @@ export async function createInvite(
             input.role,
             token,
             input.invitedBy || null,
-            isoDaysFromNow(input.expiresDays ?? 14),
+            expiresAt,
         )
         .run();
     const row = (await db
@@ -330,16 +372,6 @@ export async function createInvite(
     return row;
 }
 
-export async function listInvites(db: D1Database, tenantId: string): Promise<InviteRow[]> {
-    const res = await db
-        .prepare(
-            "SELECT * FROM workspace_invites WHERE tenant_id = ? AND status = 'pending' ORDER BY created_at DESC",
-        )
-        .bind(tenantId)
-        .all();
-    return (res.results || []) as unknown as InviteRow[];
-}
-
 export async function getInviteByToken(db: D1Database, token: string): Promise<InviteRow | null> {
     return (await db
         .prepare("SELECT * FROM workspace_invites WHERE token = ?")
@@ -347,10 +379,67 @@ export async function getInviteByToken(db: D1Database, token: string): Promise<I
         .first()) as InviteRow | null;
 }
 
-export async function revokeInvite(db: D1Database, tenantId: string, id: string): Promise<void> {
+// ─── Single shared workspace invite link ─────────────────────────────────────
+// Each workspace has at most ONE active invite link (a non-expiring open link).
+// Rotating it revokes the previous token immediately, so the old URL dies.
+
+/** The workspace's current active invite link, or null if none. */
+export async function getWorkspaceLink(
+    db: D1Database,
+    tenantId: string,
+): Promise<InviteRow | null> {
+    return (await db
+        .prepare(
+            "SELECT * FROM workspace_invites WHERE tenant_id = ? AND status = 'pending' AND email IS NULL ORDER BY created_at DESC LIMIT 1",
+        )
+        .bind(tenantId)
+        .first()) as InviteRow | null;
+}
+
+/** Revoke every pending invite for a workspace — old links stop working at once. */
+export async function revokeWorkspaceLinks(db: D1Database, tenantId: string): Promise<void> {
     await db
-        .prepare("UPDATE workspace_invites SET status = 'revoked' WHERE id = ? AND tenant_id = ?")
-        .bind(id, tenantId)
+        .prepare(
+            "UPDATE workspace_invites SET status = 'revoked' WHERE tenant_id = ? AND status = 'pending'",
+        )
+        .bind(tenantId)
+        .run();
+}
+
+/** Generate a fresh link, invalidating any previous one. */
+export async function rotateWorkspaceLink(
+    db: D1Database,
+    tenantId: string,
+    role: Role,
+    invitedBy?: string | null,
+): Promise<InviteRow> {
+    await revokeWorkspaceLinks(db, tenantId);
+    return createInvite(db, tenantId, { email: null, role, invitedBy, expiresDays: null });
+}
+
+/** Return the active link, creating one (with the given role) if none exists. */
+export async function ensureWorkspaceLink(
+    db: D1Database,
+    tenantId: string,
+    role: Role,
+    invitedBy?: string | null,
+): Promise<InviteRow> {
+    const existing = await getWorkspaceLink(db, tenantId);
+    if (existing) return existing;
+    return createInvite(db, tenantId, { email: null, role, invitedBy, expiresDays: null });
+}
+
+/** Change the role granted by the active link, keeping the same token. */
+export async function setWorkspaceLinkRole(
+    db: D1Database,
+    tenantId: string,
+    role: Role,
+): Promise<void> {
+    await db
+        .prepare(
+            "UPDATE workspace_invites SET role = ? WHERE tenant_id = ? AND status = 'pending' AND email IS NULL",
+        )
+        .bind(role, tenantId)
         .run();
 }
 
@@ -372,6 +461,7 @@ export async function acceptInvite(
     uid: string,
     email: string,
     name?: string | null,
+    avatar?: string | null,
 ): Promise<AcceptResult> {
     const inv = await getInviteByToken(db, token);
     if (!inv) return { ok: false, error: "invalid" };
@@ -394,6 +484,7 @@ export async function acceptInvite(
         status: direct ? "active" : "pending",
         userUid: uid,
         name: name || null,
+        avatar: avatar || null,
         invitedBy: inv.invited_by,
     });
     // Email-specific invites are single-use.

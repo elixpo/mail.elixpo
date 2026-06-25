@@ -45,12 +45,14 @@ export async function GET(request: NextRequest) {
         );
 
         // Attach this uid to any membership rows that were keyed only by email
-        // (e.g. accepted email invites), then resolve the active-workspace role.
+        // (e.g. accepted invites) and refresh the cached name/avatar, then
+        // resolve the active-workspace role.
         await linkUserToMemberships(
             db,
             user.id,
             user.email,
             user.displayName || user.username || undefined,
+            user.avatar ?? null,
         );
         const membership = await getMembership(db, tenant.id, user.id, user.email);
 
