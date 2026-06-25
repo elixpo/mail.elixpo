@@ -539,13 +539,16 @@ export async function updateWorkspace(
 }
 
 export function slugifyWorkspace(s: string): string {
-    return (
-        s
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-+|-+$/g, "")
-            .slice(0, 40) || "workspace"
-    );
+    // Collapse every run of non-alphanumerics into a single dash.
+    const collapsed = s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    // Trim leading/trailing dashes with a linear scan rather than a regex like
+    // /^-+|-+$/ — the `-+$` branch backtracks quadratically on long dash runs
+    // (CodeQL: polynomial regex on uncontrolled data).
+    let start = 0;
+    let end = collapsed.length;
+    while (start < end && collapsed.charCodeAt(start) === 45 /* '-' */) start++;
+    while (end > start && collapsed.charCodeAt(end - 1) === 45) end--;
+    return collapsed.slice(start, end).slice(0, 40) || "workspace";
 }
 
 export interface WorkspaceInfo {

@@ -35,13 +35,15 @@ export interface ProductRow {
 }
 
 export function slugify(s: string): string {
-    return (
-        s
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-+|-+$/g, "")
-            .slice(0, 40) || "product"
-    );
+    // Collapse runs of non-alphanumerics to a single dash, then trim leading/
+    // trailing dashes with a linear scan (avoids the /^-+|-+$/ polynomial
+    // backtracking CodeQL flags on long dash runs).
+    const collapsed = s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    let start = 0;
+    let end = collapsed.length;
+    while (start < end && collapsed.charCodeAt(start) === 45 /* '-' */) start++;
+    while (end > start && collapsed.charCodeAt(end - 1) === 45) end--;
+    return collapsed.slice(start, end).slice(0, 40) || "product";
 }
 
 export async function listProducts(db: D1Database, tenantId: string): Promise<ProductRow[]> {
