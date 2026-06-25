@@ -1,10 +1,10 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { buildAuthUrl, driveConfigured } from "@/lib/drive";
 import { appUrl } from "@/lib/env";
 import { getSession } from "@/lib/session";
 import { requireWriteRole } from "@/lib/workspace-guard";
+import { type NextRequest, NextResponse } from "next/server";
 
 /** GET /api/drive/connect — kick off Google Drive OAuth (redirects to Google). */
 export async function GET(request: NextRequest) {

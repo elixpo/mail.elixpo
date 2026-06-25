@@ -1,9 +1,9 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
 import { getSession, sessionRole } from "@/lib/session";
 import { listWorkspacesForUser } from "@/lib/workspace";
+import { type NextRequest, NextResponse } from "next/server";
 
 /** GET /api/auth/me — lightweight session probe for the navbar/client. */
 export async function GET(request: NextRequest) {
@@ -12,7 +12,13 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ authenticated: false }, { status: 200 });
     }
 
-    let workspaces: Array<{ tenantId: string; name: string; slug: string | null; role: string; active: boolean }> = [];
+    let workspaces: Array<{
+        tenantId: string;
+        name: string;
+        slug: string | null;
+        role: string;
+        active: boolean;
+    }> = [];
     try {
         const db = await getDatabase();
         const rows = await listWorkspacesForUser(db, session.uid, session.email);

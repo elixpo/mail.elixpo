@@ -1,9 +1,9 @@
 export const runtime = "edge";
 
+import { requireDashboardSession } from "@/lib/dashboard-session";
 import { Box, Container } from "@mui/material";
 import DashboardTopbar, { type DashboardUser } from "../../components/dashboard-topbar";
 import WorkspaceConsole from "../../components/workspace-console";
-import { requireDashboardSession } from "@/lib/dashboard-session";
 
 export default async function WorkspacePage({ params }: { params: Promise<{ slug: string }> }) {
     const session = await requireDashboardSession();

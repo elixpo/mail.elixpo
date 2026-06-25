@@ -84,7 +84,11 @@ export async function listMembers(db: D1Database, tenantId: string): Promise<Mem
     return (res.results || []) as unknown as MemberRow[];
 }
 
-export async function getMember(db: D1Database, tenantId: string, id: string): Promise<MemberRow | null> {
+export async function getMember(
+    db: D1Database,
+    tenantId: string,
+    id: string,
+): Promise<MemberRow | null> {
     return (await db
         .prepare("SELECT * FROM workspace_members WHERE id = ? AND tenant_id = ?")
         .bind(id, tenantId)
@@ -219,7 +223,9 @@ export async function updateMemberRole(
     role: Role,
 ): Promise<void> {
     await db
-        .prepare("UPDATE workspace_members SET role = ?, updated_at = datetime('now') WHERE id = ? AND tenant_id = ? AND role != 'owner'")
+        .prepare(
+            "UPDATE workspace_members SET role = ?, updated_at = datetime('now') WHERE id = ? AND tenant_id = ? AND role != 'owner'",
+        )
         .bind(role, id, tenantId)
         .run();
 }
@@ -231,14 +237,18 @@ export async function setMemberStatus(
     status: "active" | "removed",
 ): Promise<void> {
     await db
-        .prepare("UPDATE workspace_members SET status = ?, updated_at = datetime('now') WHERE id = ? AND tenant_id = ? AND role != 'owner'")
+        .prepare(
+            "UPDATE workspace_members SET status = ?, updated_at = datetime('now') WHERE id = ? AND tenant_id = ? AND role != 'owner'",
+        )
         .bind(status, id, tenantId)
         .run();
 }
 
 export async function countActiveAdmins(db: D1Database, tenantId: string): Promise<number> {
     const r = (await db
-        .prepare("SELECT COUNT(*) AS n FROM workspace_members WHERE tenant_id = ? AND status = 'active' AND role IN ('owner','admin')")
+        .prepare(
+            "SELECT COUNT(*) AS n FROM workspace_members WHERE tenant_id = ? AND status = 'active' AND role IN ('owner','admin')",
+        )
         .bind(tenantId)
         .first()) as { n: number } | null;
     return r?.n ?? 0;
@@ -312,21 +322,29 @@ export async function createInvite(
             isoDaysFromNow(input.expiresDays ?? 14),
         )
         .run();
-    const row = (await db.prepare("SELECT * FROM workspace_invites WHERE id = ?").bind(id).first()) as InviteRow | null;
+    const row = (await db
+        .prepare("SELECT * FROM workspace_invites WHERE id = ?")
+        .bind(id)
+        .first()) as InviteRow | null;
     if (!row) throw new Error("invite insert failed");
     return row;
 }
 
 export async function listInvites(db: D1Database, tenantId: string): Promise<InviteRow[]> {
     const res = await db
-        .prepare("SELECT * FROM workspace_invites WHERE tenant_id = ? AND status = 'pending' ORDER BY created_at DESC")
+        .prepare(
+            "SELECT * FROM workspace_invites WHERE tenant_id = ? AND status = 'pending' ORDER BY created_at DESC",
+        )
         .bind(tenantId)
         .all();
     return (res.results || []) as unknown as InviteRow[];
 }
 
 export async function getInviteByToken(db: D1Database, token: string): Promise<InviteRow | null> {
-    return (await db.prepare("SELECT * FROM workspace_invites WHERE token = ?").bind(token).first()) as InviteRow | null;
+    return (await db
+        .prepare("SELECT * FROM workspace_invites WHERE token = ?")
+        .bind(token)
+        .first()) as InviteRow | null;
 }
 
 export async function revokeInvite(db: D1Database, tenantId: string, id: string): Promise<void> {
@@ -358,7 +376,10 @@ export async function acceptInvite(
     const inv = await getInviteByToken(db, token);
     if (!inv) return { ok: false, error: "invalid" };
     if (inv.status !== "pending") return { ok: false, error: "revoked" };
-    if (inv.expires_at && inv.expires_at < new Date().toISOString().replace("T", " ").slice(0, 19)) {
+    if (
+        inv.expires_at &&
+        inv.expires_at < new Date().toISOString().replace("T", " ").slice(0, 19)
+    ) {
         return { ok: false, error: "expired" };
     }
     if (inv.email && inv.email !== lc(email)) {
@@ -377,7 +398,10 @@ export async function acceptInvite(
     });
     // Email-specific invites are single-use.
     if (inv.email) {
-        await db.prepare("UPDATE workspace_invites SET status = 'accepted' WHERE id = ?").bind(inv.id).run();
+        await db
+            .prepare("UPDATE workspace_invites SET status = 'accepted' WHERE id = ?")
+            .bind(inv.id)
+            .run();
     }
     return { ok: true, tenantId: inv.tenant_id, pending: !direct };
 }
@@ -417,7 +441,10 @@ export async function updateWorkspace(
     if (sets.length === 0) return;
     sets.push("updated_at = datetime('now')");
     vals.push(tenantId);
-    await db.prepare(`UPDATE tenants SET ${sets.join(", ")} WHERE id = ?`).bind(...vals).run();
+    await db
+        .prepare(`UPDATE tenants SET ${sets.join(", ")} WHERE id = ?`)
+        .bind(...vals)
+        .run();
 }
 
 export function slugifyWorkspace(s: string): string {
@@ -439,22 +466,37 @@ export interface WorkspaceInfo {
     owner_uid: string | null;
 }
 
-export async function getWorkspaceInfo(db: D1Database, tenantId: string): Promise<WorkspaceInfo | null> {
+export async function getWorkspaceInfo(
+    db: D1Database,
+    tenantId: string,
+): Promise<WorkspaceInfo | null> {
     return (await db
-        .prepare("SELECT id, name, slug, description, logo_url, owner_uid FROM tenants WHERE id = ?")
+        .prepare(
+            "SELECT id, name, slug, description, logo_url, owner_uid FROM tenants WHERE id = ?",
+        )
         .bind(tenantId)
         .first()) as WorkspaceInfo | null;
 }
 
-export async function getWorkspaceBySlug(db: D1Database, slug: string): Promise<WorkspaceInfo | null> {
+export async function getWorkspaceBySlug(
+    db: D1Database,
+    slug: string,
+): Promise<WorkspaceInfo | null> {
     return (await db
-        .prepare("SELECT id, name, slug, description, logo_url, owner_uid FROM tenants WHERE slug = ?")
+        .prepare(
+            "SELECT id, name, slug, description, logo_url, owner_uid FROM tenants WHERE slug = ?",
+        )
         .bind(slug)
         .first()) as WorkspaceInfo | null;
 }
 
-export async function getTenantBySlug(db: D1Database, slug: string): Promise<{ id: string } | null> {
-    return (await db.prepare("SELECT id FROM tenants WHERE slug = ?").bind(slug).first()) as { id: string } | null;
+export async function getTenantBySlug(
+    db: D1Database,
+    slug: string,
+): Promise<{ id: string } | null> {
+    return (await db.prepare("SELECT id FROM tenants WHERE slug = ?").bind(slug).first()) as {
+        id: string;
+    } | null;
 }
 
 /** A workspace slug unique across tenants. */

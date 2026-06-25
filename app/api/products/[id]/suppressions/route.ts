@@ -1,11 +1,11 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
 import { getProduct } from "@/lib/products";
 import { getSession } from "@/lib/session";
-import { requireWriteRole } from "@/lib/workspace-guard";
 import { listSuppressions, suppress, suppressionToPublic, unsuppress } from "@/lib/suppressions";
+import { requireWriteRole } from "@/lib/workspace-guard";
+import { type NextRequest, NextResponse } from "next/server";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type Ctx = { params: Promise<{ id: string }> };
@@ -45,7 +45,10 @@ export async function POST(request: NextRequest, { params }: Ctx) {
     }
     const email = typeof body?.email === "string" ? body.email.trim() : "";
     if (!EMAIL_RE.test(email)) {
-        return NextResponse.json({ error: "invalid_email", message: "Enter a valid email." }, { status: 400 });
+        return NextResponse.json(
+            { error: "invalid_email", message: "Enter a valid email." },
+            { status: 400 },
+        );
     }
     await suppress(ctx.db, id, email, "manual");
     return NextResponse.json({ ok: true });

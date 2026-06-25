@@ -1,9 +1,9 @@
 export const runtime = "edge";
 
+import { requireDashboardSession } from "@/lib/dashboard-session";
 import { Box, Container } from "@mui/material";
 import type React from "react";
 import DashboardTopbar, { type DashboardUser } from "../components/dashboard-topbar";
-import { requireDashboardSession } from "@/lib/dashboard-session";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
     const session = await requireDashboardSession();

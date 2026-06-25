@@ -1,8 +1,6 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
-import { guard } from "@/lib/workspace-guard";
 import {
     type Role,
     countActiveAdmins,
@@ -11,6 +9,8 @@ import {
     setMemberStatus,
     updateMemberRole,
 } from "@/lib/workspace";
+import { guard } from "@/lib/workspace-guard";
+import { type NextRequest, NextResponse } from "next/server";
 
 /**
  * PATCH /api/workspace/members/[id] — admin actions on a member.
@@ -66,7 +66,11 @@ export async function DELETE(request: NextRequest, ctx: { params: Promise<{ id: 
         return NextResponse.json({ error: "owner_immutable" }, { status: 400 });
     }
     // Don't strip the last admin/owner of management rights.
-    if (member.role === "admin" && member.status === "active" && (await countActiveAdmins(db, g.session.tenantId)) <= 1) {
+    if (
+        member.role === "admin" &&
+        member.status === "active" &&
+        (await countActiveAdmins(db, g.session.tenantId)) <= 1
+    ) {
         return NextResponse.json({ error: "last_admin" }, { status: 400 });
     }
 

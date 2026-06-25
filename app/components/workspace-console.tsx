@@ -216,7 +216,9 @@ function MessageLine({ msg, sx }: { msg: Msg; sx?: object }) {
             ) : (
                 <ErrorOutlineIcon sx={{ fontSize: 16, color: "#fca5a5" }} />
             )}
-            <Typography sx={{ fontSize: "0.82rem", color: msg.type === "ok" ? "#86efac" : "#fca5a5" }}>
+            <Typography
+                sx={{ fontSize: "0.82rem", color: msg.type === "ok" ? "#86efac" : "#fca5a5" }}
+            >
                 {msg.text}
             </Typography>
         </Stack>
@@ -224,7 +226,10 @@ function MessageLine({ msg, sx }: { msg: Msg; sx?: object }) {
 }
 
 /** Map a known API error code to a friendly message. */
-function friendlyApiError(data: { error?: string; message?: string } | null, fallback: string): string {
+function friendlyApiError(
+    data: { error?: string; message?: string } | null,
+    fallback: string,
+): string {
     const code = data?.error;
     if (code === "last_admin") return "Can't remove the last admin.";
     if (code === "owner_immutable") return "The owner can't be changed.";
@@ -264,8 +269,12 @@ export default function WorkspaceConsole(props: WorkspaceConsoleProps) {
 
         (async () => {
             try {
-                const meRes = await fetch("/api/auth/me", { headers: { Accept: "application/json" } });
-                const me = (await meRes.json().catch(() => null)) as { workspaces?: MeWorkspace[] } | null;
+                const meRes = await fetch("/api/auth/me", {
+                    headers: { Accept: "application/json" },
+                });
+                const me = (await meRes.json().catch(() => null)) as {
+                    workspaces?: MeWorkspace[];
+                } | null;
                 const workspaces = me?.workspaces ?? [];
                 const found = workspaces.find((w) => w.slug === slug);
 
@@ -392,7 +401,14 @@ function HeaderCard({
                         {workspace.name.charAt(0).toUpperCase()}
                     </Avatar>
                     <Box>
-                        <Typography sx={{ fontSize: "1.45rem", fontWeight: 800, color: TEXT, lineHeight: 1.1 }}>
+                        <Typography
+                            sx={{
+                                fontSize: "1.45rem",
+                                fontWeight: 800,
+                                color: TEXT,
+                                lineHeight: 1.1,
+                            }}
+                        >
                             {workspace.name}
                         </Typography>
                         <Chip
@@ -464,9 +480,11 @@ function CosmeticsCard({
                     logoUrl: logoUrl.trim(),
                 }),
             });
-            const json = (await res.json().catch(() => null)) as
-                | { workspace?: WorkspaceInfo; error?: string; message?: string }
-                | null;
+            const json = (await res.json().catch(() => null)) as {
+                workspace?: WorkspaceInfo;
+                error?: string;
+                message?: string;
+            } | null;
             if (!res.ok || !json?.workspace) {
                 throw new Error(friendlyApiError(json, "Could not save changes."));
             }
@@ -477,7 +495,10 @@ function CosmeticsCard({
             setLogoUrl(json.workspace.logoUrl ?? "");
             setMsg({ type: "ok", text: "Workspace identity updated." });
         } catch (e) {
-            setMsg({ type: "err", text: e instanceof Error ? e.message : "Could not save changes." });
+            setMsg({
+                type: "err",
+                text: e instanceof Error ? e.message : "Could not save changes.",
+            });
         } finally {
             setSaving(false);
         }
@@ -544,8 +565,19 @@ function CosmeticsCard({
                     </Stack>
 
                     <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mt: 2 }}>
-                        <Button onClick={save} disabled={!dirty || !nameValid || saving} sx={{ ...gradientButtonSx, minWidth: 110 }}>
-                            {saving ? <CircularProgress size={18} sx={{ color: "rgba(245,245,244,0.6)" }} /> : "Save"}
+                        <Button
+                            onClick={save}
+                            disabled={!dirty || !nameValid || saving}
+                            sx={{ ...gradientButtonSx, minWidth: 110 }}
+                        >
+                            {saving ? (
+                                <CircularProgress
+                                    size={18}
+                                    sx={{ color: "rgba(245,245,244,0.6)" }}
+                                />
+                            ) : (
+                                "Save"
+                            )}
                         </Button>
                         {msg && <MessageLine msg={msg} sx={{ mt: 0 }} />}
                     </Stack>
@@ -570,7 +602,9 @@ function ReadOnlyField({ label, value }: { label: string; value: string | null }
             >
                 {label}
             </Typography>
-            <Typography sx={{ color: value ? TEXT : MUTED, fontSize: "0.92rem", wordBreak: "break-word" }}>
+            <Typography
+                sx={{ color: value ? TEXT : MUTED, fontSize: "0.92rem", wordBreak: "break-word" }}
+            >
                 {value || "—"}
             </Typography>
         </Box>
@@ -599,9 +633,10 @@ function MembersCard({
             setMsg(null);
             try {
                 const res = await fetch(`/api/workspace/members/${id}`, init);
-                const json = (await res.json().catch(() => null)) as
-                    | { error?: string; message?: string }
-                    | null;
+                const json = (await res.json().catch(() => null)) as {
+                    error?: string;
+                    message?: string;
+                } | null;
                 if (!res.ok) {
                     throw new Error(friendlyApiError(json, "Action failed."));
                 }
@@ -675,10 +710,18 @@ function MembersCard({
                             </Avatar>
 
                             <Box sx={{ flex: 1, minWidth: 0 }}>
-                                <Typography sx={{ color: TEXT, fontWeight: 600, fontSize: "0.95rem" }}>
+                                <Typography
+                                    sx={{ color: TEXT, fontWeight: 600, fontSize: "0.95rem" }}
+                                >
                                     {m.name || m.email}
                                 </Typography>
-                                <Typography sx={{ color: MUTED, fontSize: "0.82rem", wordBreak: "break-word" }}>
+                                <Typography
+                                    sx={{
+                                        color: MUTED,
+                                        fontSize: "0.82rem",
+                                        wordBreak: "break-word",
+                                    }}
+                                >
                                     {m.email}
                                 </Typography>
                             </Box>
@@ -708,9 +751,18 @@ function MembersCard({
                                     <Button
                                         onClick={() => approve(m.id)}
                                         disabled={busy}
-                                        sx={{ ...gradientButtonSx, px: 1.8, py: 0.6, fontSize: "0.8rem" }}
+                                        sx={{
+                                            ...gradientButtonSx,
+                                            px: 1.8,
+                                            py: 0.6,
+                                            fontSize: "0.8rem",
+                                        }}
                                     >
-                                        {busy ? <CircularProgress size={16} sx={{ color: "#fff" }} /> : "Approve"}
+                                        {busy ? (
+                                            <CircularProgress size={16} sx={{ color: "#fff" }} />
+                                        ) : (
+                                            "Approve"
+                                        )}
                                     </Button>
                                 )}
 
@@ -733,10 +785,19 @@ function MembersCard({
                                     <>
                                         <FormControl size="small" sx={{ minWidth: 116 }}>
                                             <Select
-                                                value={ASSIGNABLE_ROLES.includes(m.role as AssignableRole) ? m.role : "viewer"}
+                                                value={
+                                                    ASSIGNABLE_ROLES.includes(
+                                                        m.role as AssignableRole,
+                                                    )
+                                                        ? m.role
+                                                        : "viewer"
+                                                }
                                                 disabled={busy}
                                                 onChange={(e: SelectChangeEvent) =>
-                                                    changeRole(m.id, e.target.value as AssignableRole)
+                                                    changeRole(
+                                                        m.id,
+                                                        e.target.value as AssignableRole,
+                                                    )
                                                 }
                                                 sx={selectSx}
                                                 MenuProps={selectMenuProps}
@@ -754,7 +815,12 @@ function MembersCard({
                                                     onClick={() => remove(m.id)}
                                                     disabled={busy}
                                                     size="small"
-                                                    sx={{ color: "#fca5a5", "&:hover": { background: "rgba(252,165,165,0.12)" } }}
+                                                    sx={{
+                                                        color: "#fca5a5",
+                                                        "&:hover": {
+                                                            background: "rgba(252,165,165,0.12)",
+                                                        },
+                                                    }}
                                                 >
                                                     <DeleteOutlineIcon fontSize="small" />
                                                 </IconButton>
@@ -847,9 +913,11 @@ function InvitesCard({
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: email.trim() || null, role: inviteRole }),
             });
-            const json = (await res.json().catch(() => null)) as
-                | { invite?: { url?: string }; error?: string; message?: string }
-                | null;
+            const json = (await res.json().catch(() => null)) as {
+                invite?: { url?: string };
+                error?: string;
+                message?: string;
+            } | null;
             if (!res.ok || !json?.invite) {
                 throw new Error(friendlyApiError(json, "Could not create invite."));
             }
@@ -857,7 +925,10 @@ function InvitesCard({
             setMsg({ type: "ok", text: "Invite created." });
             await onRefresh();
         } catch (e) {
-            setMsg({ type: "err", text: e instanceof Error ? e.message : "Could not create invite." });
+            setMsg({
+                type: "err",
+                text: e instanceof Error ? e.message : "Could not create invite.",
+            });
         } finally {
             setCreating(false);
         }
@@ -869,12 +940,18 @@ function InvitesCard({
         try {
             const res = await fetch(`/api/workspace/invites/${id}`, { method: "DELETE" });
             if (!res.ok) {
-                const json = (await res.json().catch(() => null)) as { error?: string; message?: string } | null;
+                const json = (await res.json().catch(() => null)) as {
+                    error?: string;
+                    message?: string;
+                } | null;
                 throw new Error(friendlyApiError(json, "Could not revoke invite."));
             }
             await onRefresh();
         } catch (e) {
-            setMsg({ type: "err", text: e instanceof Error ? e.message : "Could not revoke invite." });
+            setMsg({
+                type: "err",
+                text: e instanceof Error ? e.message : "Could not revoke invite.",
+            });
         } finally {
             setBusyId(null);
         }
@@ -882,9 +959,17 @@ function InvitesCard({
 
     return (
         <GlassCard>
-            <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.4 }}>
+            <Stack
+                direction="row"
+                alignItems="center"
+                justifyContent="space-between"
+                sx={{ mb: 0.4 }}
+            >
                 <Typography sx={sectionTitleSx}>Invites</Typography>
-                <Button onClick={openDialog} sx={{ ...gradientButtonSx, px: 2, py: 0.7, fontSize: "0.82rem" }}>
+                <Button
+                    onClick={openDialog}
+                    sx={{ ...gradientButtonSx, px: 2, py: 0.7, fontSize: "0.82rem" }}
+                >
                     New invite
                 </Button>
             </Stack>
@@ -907,13 +992,26 @@ function InvitesCard({
                             <Box sx={{ flex: 1, minWidth: 0 }}>
                                 <Stack direction="row" spacing={1} alignItems="center">
                                     {inv.email ? (
-                                        <Typography sx={{ color: TEXT, fontWeight: 600, fontSize: "0.92rem", wordBreak: "break-word" }}>
+                                        <Typography
+                                            sx={{
+                                                color: TEXT,
+                                                fontWeight: 600,
+                                                fontSize: "0.92rem",
+                                                wordBreak: "break-word",
+                                            }}
+                                        >
                                             {inv.email}
                                         </Typography>
                                     ) : (
                                         <Stack direction="row" spacing={0.6} alignItems="center">
                                             <OpenInNewIcon sx={{ fontSize: 15, color: MUTED }} />
-                                            <Typography sx={{ color: TEXT, fontWeight: 600, fontSize: "0.92rem" }}>
+                                            <Typography
+                                                sx={{
+                                                    color: TEXT,
+                                                    fontWeight: 600,
+                                                    fontSize: "0.92rem",
+                                                }}
+                                            >
                                                 Open link
                                             </Typography>
                                         </Stack>
@@ -936,7 +1034,12 @@ function InvitesCard({
                                 </Typography>
                             </Box>
 
-                            <Stack direction="row" spacing={0.8} alignItems="center" sx={{ flexShrink: 0 }}>
+                            <Stack
+                                direction="row"
+                                spacing={0.8}
+                                alignItems="center"
+                                sx={{ flexShrink: 0 }}
+                            >
                                 <Button
                                     onClick={() => copy(url, inv.id)}
                                     startIcon={
@@ -957,10 +1060,17 @@ function InvitesCard({
                                         ...ghostButtonSx,
                                         color: "#fca5a5",
                                         borderColor: "rgba(252,165,165,0.3)",
-                                        "&:hover": { background: "rgba(252,165,165,0.1)", borderColor: "rgba(252,165,165,0.5)" },
+                                        "&:hover": {
+                                            background: "rgba(252,165,165,0.1)",
+                                            borderColor: "rgba(252,165,165,0.5)",
+                                        },
                                     }}
                                 >
-                                    {busy ? <CircularProgress size={15} sx={{ color: "#fca5a5" }} /> : "Revoke"}
+                                    {busy ? (
+                                        <CircularProgress size={15} sx={{ color: "#fca5a5" }} />
+                                    ) : (
+                                        "Revoke"
+                                    )}
                                 </Button>
                             </Stack>
                         </Stack>
@@ -992,7 +1102,9 @@ function InvitesCard({
                     },
                 }}
             >
-                <DialogTitle sx={{ color: TEXT, fontWeight: 700, fontSize: "1.05rem" }}>New invite</DialogTitle>
+                <DialogTitle sx={{ color: TEXT, fontWeight: 700, fontSize: "1.05rem" }}>
+                    New invite
+                </DialogTitle>
                 <DialogContent>
                     <Stack spacing={2} sx={{ mt: 0.5 }}>
                         <TextField
@@ -1008,11 +1120,15 @@ function InvitesCard({
                             FormHelperTextProps={{ sx: { color: MUTED, ml: 0.5 } }}
                         />
                         <FormControl size="small" fullWidth>
-                            <InputLabel sx={{ color: MUTED, "&.Mui-focused": { color: ACCENT } }}>Role</InputLabel>
+                            <InputLabel sx={{ color: MUTED, "&.Mui-focused": { color: ACCENT } }}>
+                                Role
+                            </InputLabel>
                             <Select
                                 label="Role"
                                 value={inviteRole}
-                                onChange={(e: SelectChangeEvent) => setInviteRole(e.target.value as AssignableRole)}
+                                onChange={(e: SelectChangeEvent) =>
+                                    setInviteRole(e.target.value as AssignableRole)
+                                }
                                 sx={selectSx}
                                 MenuProps={selectMenuProps}
                             >
@@ -1033,7 +1149,14 @@ function InvitesCard({
                                     border: "1px solid rgba(155,123,247,0.25)",
                                 }}
                             >
-                                <Typography sx={{ color: MUTED, fontSize: "0.72rem", mb: 0.6, fontWeight: 600 }}>
+                                <Typography
+                                    sx={{
+                                        color: MUTED,
+                                        fontSize: "0.72rem",
+                                        mb: 0.6,
+                                        fontWeight: 600,
+                                    }}
+                                >
                                     INVITE LINK
                                 </Typography>
                                 <Stack direction="row" spacing={1} alignItems="center">
@@ -1072,8 +1195,16 @@ function InvitesCard({
                     <Button onClick={() => setDialogOpen(false)} sx={ghostButtonSx}>
                         {createdUrl ? "Done" : "Cancel"}
                     </Button>
-                    <Button onClick={createInvite} disabled={creating} sx={{ ...gradientButtonSx, minWidth: 120 }}>
-                        {creating ? <CircularProgress size={18} sx={{ color: "#fff" }} /> : "Create invite"}
+                    <Button
+                        onClick={createInvite}
+                        disabled={creating}
+                        sx={{ ...gradientButtonSx, minWidth: 120 }}
+                    >
+                        {creating ? (
+                            <CircularProgress size={18} sx={{ color: "#fff" }} />
+                        ) : (
+                            "Create invite"
+                        )}
                     </Button>
                 </DialogActions>
             </Dialog>

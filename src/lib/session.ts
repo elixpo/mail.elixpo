@@ -40,9 +40,7 @@ export async function signSession(
     return `${body}.${sig}`;
 }
 
-export async function verifySession(
-    token: string | undefined,
-): Promise<SessionData | null> {
+export async function verifySession(token: string | undefined): Promise<SessionData | null> {
     if (!token) return null;
     const secret = await getEnv("ELIXPO_MAIL_SESSION_SECRET");
     if (!secret) return null;

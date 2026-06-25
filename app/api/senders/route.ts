@@ -1,10 +1,10 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
+import { createSender, listSenders, toPublic } from "@/lib/senders";
 import { getSession } from "@/lib/session";
 import { requireWriteRole } from "@/lib/workspace-guard";
-import { createSender, listSenders, toPublic } from "@/lib/senders";
+import { type NextRequest, NextResponse } from "next/server";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

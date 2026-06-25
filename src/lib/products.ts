@@ -359,8 +359,14 @@ export async function countProductTemplates(
 
 /** Delete a product (caller must ensure it has no templates). Drops its webhooks. */
 export async function deleteProduct(db: D1Database, tenantId: string, id: string): Promise<void> {
-    await db.prepare("DELETE FROM webhooks WHERE product_id = ? AND tenant_id = ?").bind(id, tenantId).run();
-    await db.prepare("DELETE FROM products WHERE id = ? AND tenant_id = ?").bind(id, tenantId).run();
+    await db
+        .prepare("DELETE FROM webhooks WHERE product_id = ? AND tenant_id = ?")
+        .bind(id, tenantId)
+        .run();
+    await db
+        .prepare("DELETE FROM products WHERE id = ? AND tenant_id = ?")
+        .bind(id, tenantId)
+        .run();
 }
 
 /** List products with template + webhook counts for the dashboard. */

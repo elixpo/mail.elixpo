@@ -77,10 +77,10 @@ export async function uploadImage(
     form.append("public_id", publicId);
     form.append("signature", signature);
 
-    const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${cfg.cloudName}/image/upload`,
-        { method: "POST", body: form },
-    );
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cfg.cloudName}/image/upload`, {
+        method: "POST",
+        body: form,
+    });
     const data = (await res.json().catch(() => ({}))) as any;
     if (!res.ok || !data?.secure_url) {
         throw new Error(data?.error?.message || `cloudinary upload failed (${res.status})`);
@@ -141,10 +141,10 @@ export async function destroyImage(cfg: CloudinaryConfig, publicId: string): Pro
     form.append("timestamp", String(timestamp));
     form.append("api_key", cfg.apiKey);
     form.append("signature", signature);
-    const res = await fetch(
-        `https://api.cloudinary.com/v1_1/${cfg.cloudName}/image/destroy`,
-        { method: "POST", body: form },
-    );
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${cfg.cloudName}/image/destroy`, {
+        method: "POST",
+        body: form,
+    });
     const data = (await res.json().catch(() => ({}))) as any;
     return data?.result === "ok" || data?.result === "not found";
 }
@@ -209,7 +209,10 @@ export async function cleanupOrphanImages(
         const binds = opts.keepTemplateId
             ? [tenantId, opts.keepTemplateId, `%${id}%`]
             : [tenantId, `%${id}%`];
-        const ref = await db.prepare(sql).bind(...binds).first();
+        const ref = await db
+            .prepare(sql)
+            .bind(...binds)
+            .first();
         if (ref) continue;
         try {
             if (await destroyImage(cfg, id)) deleted++;

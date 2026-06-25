@@ -13,8 +13,8 @@ import {
     DialogActions,
     DialogContent,
     DialogTitle,
-    Link as MuiLink,
     MenuItem,
+    Link as MuiLink,
     Select,
     Snackbar,
     Stack,
@@ -144,10 +144,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
     );
 }
 
-type PreviewState =
-    | { phase: "idle" }
-    | { phase: "loading" }
-    | { phase: "err"; text: string };
+type PreviewState = { phase: "idle" } | { phase: "loading" } | { phase: "err"; text: string };
 
 type SendState =
     | { phase: "idle" }
@@ -482,12 +479,22 @@ export default function TemplateSendDialog({
                                         border: "1px solid rgba(95,182,255,0.22)",
                                     }}
                                 >
-                                    <Typography sx={{ fontSize: "0.82rem", color: "rgba(245,245,244,0.7)", lineHeight: 1.6 }}>
+                                    <Typography
+                                        sx={{
+                                            fontSize: "0.82rem",
+                                            color: "rgba(245,245,244,0.7)",
+                                            lineHeight: 1.6,
+                                        }}
+                                    >
                                         {sendersError ? `${sendersError} ` : ""}
                                         <MuiLink
                                             component={NextLink}
                                             href="/dashboard/senders"
-                                            sx={{ color: "#5fb6ff", fontWeight: 600, textDecorationColor: "rgba(95,182,255,0.4)" }}
+                                            sx={{
+                                                color: "#5fb6ff",
+                                                fontWeight: 600,
+                                                textDecorationColor: "rgba(95,182,255,0.4)",
+                                            }}
                                         >
                                             Add a sender first
                                         </MuiLink>{" "}
@@ -540,7 +547,10 @@ export default function TemplateSendDialog({
                                             <TextField
                                                 value={vars[name] ?? ""}
                                                 onChange={(e) =>
-                                                    setVars((m) => ({ ...m, [name]: e.target.value }))
+                                                    setVars((m) => ({
+                                                        ...m,
+                                                        [name]: e.target.value,
+                                                    }))
                                                 }
                                                 placeholder={`Value for ${name}`}
                                                 fullWidth
@@ -579,7 +589,10 @@ export default function TemplateSendDialog({
                                     fontSize: "0.8rem",
                                     px: 1,
                                     minWidth: 0,
-                                    "&:hover": { background: "rgba(155,123,247,0.06)", color: TEXT },
+                                    "&:hover": {
+                                        background: "rgba(155,123,247,0.06)",
+                                        color: TEXT,
+                                    },
                                     "&.Mui-disabled": { color: TEXT_40 },
                                 }}
                             >
@@ -597,7 +610,9 @@ export default function TemplateSendDialog({
                                     border: "1px solid rgba(239,68,68,0.3)",
                                 }}
                             >
-                                <Typography sx={{ fontSize: "0.82rem", color: RED, lineHeight: 1.5 }}>
+                                <Typography
+                                    sx={{ fontSize: "0.82rem", color: RED, lineHeight: 1.5 }}
+                                >
                                     {previewState.text}
                                 </Typography>
                             </Box>
@@ -696,13 +711,19 @@ export default function TemplateSendDialog({
                                         alignItems="flex-start"
                                     >
                                         {r.status === "sent" ? (
-                                            <CheckCircleIcon sx={{ fontSize: 16, color: GREEN, mt: 0.2 }} />
+                                            <CheckCircleIcon
+                                                sx={{ fontSize: 16, color: GREEN, mt: 0.2 }}
+                                            />
                                         ) : r.status === "suppressed" ? (
                                             <Tooltip title="Recipient is unsubscribed">
-                                                <WarningAmberIcon sx={{ fontSize: 16, color: AMBER, mt: 0.2 }} />
+                                                <WarningAmberIcon
+                                                    sx={{ fontSize: 16, color: AMBER, mt: 0.2 }}
+                                                />
                                             </Tooltip>
                                         ) : (
-                                            <ErrorOutlineIcon sx={{ fontSize: 16, color: RED, mt: 0.2 }} />
+                                            <ErrorOutlineIcon
+                                                sx={{ fontSize: 16, color: RED, mt: 0.2 }}
+                                            />
                                         )}
                                         <Box sx={{ minWidth: 0 }}>
                                             <Typography

@@ -1,9 +1,9 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
-import { guard } from "@/lib/workspace-guard";
 import { type Role, createInvite, inviteToPublic, normalizeRole } from "@/lib/workspace";
+import { guard } from "@/lib/workspace-guard";
+import { type NextRequest, NextResponse } from "next/server";
 
 /**
  * POST /api/workspace/invites — create an invite link (admin+).

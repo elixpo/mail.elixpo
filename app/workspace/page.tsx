@@ -1,9 +1,9 @@
 export const runtime = "edge";
 
-import { redirect } from "next/navigation";
 import { getDatabase } from "@/lib/d1-client";
 import { requireDashboardSession } from "@/lib/dashboard-session";
 import { getWorkspaceInfo } from "@/lib/workspace";
+import { redirect } from "next/navigation";
 
 /** /workspace — redirect to the active workspace's slugged page. */
 export default async function WorkspaceIndex() {

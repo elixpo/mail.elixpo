@@ -1,10 +1,10 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
 import { getSession } from "@/lib/session";
-import { requireWriteRole } from "@/lib/workspace-guard";
 import { deleteWebhook, getWebhook, updateWebhook, webhookToPublic } from "@/lib/webhooks";
+import { requireWriteRole } from "@/lib/workspace-guard";
+import { type NextRequest, NextResponse } from "next/server";
 
 type Ctx = { params: Promise<{ id: string }> };
 

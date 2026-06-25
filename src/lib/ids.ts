@@ -30,8 +30,5 @@ export function nowIso(): string {
 
 /** ISO timestamp `days` days from now (UTC, second precision). */
 export function isoDaysFromNow(days: number): string {
-    return new Date(Date.now() + days * 86_400_000)
-        .toISOString()
-        .replace("T", " ")
-        .slice(0, 19);
+    return new Date(Date.now() + days * 86_400_000).toISOString().replace("T", " ").slice(0, 19);
 }

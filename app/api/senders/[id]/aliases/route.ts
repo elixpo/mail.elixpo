@@ -1,10 +1,10 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
+import { addAlias, aliasToPublic, getSender, listAliases } from "@/lib/senders";
 import { getSession } from "@/lib/session";
 import { requireWriteRole } from "@/lib/workspace-guard";
-import { addAlias, aliasToPublic, getSender, listAliases } from "@/lib/senders";
+import { type NextRequest, NextResponse } from "next/server";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 type Ctx = { params: Promise<{ id: string }> };
@@ -63,7 +63,10 @@ export async function POST(request: NextRequest, { params }: Ctx) {
     } catch (e: any) {
         if (String(e?.message || "").includes("UNIQUE")) {
             return NextResponse.json(
-                { error: "duplicate", message: "That From address is already an alias on this sender." },
+                {
+                    error: "duplicate",
+                    message: "That From address is already an alias on this sender.",
+                },
                 { status: 409 },
             );
         }

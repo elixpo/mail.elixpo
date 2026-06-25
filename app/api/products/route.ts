@@ -1,10 +1,10 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
 import { createProduct, listProductsWithCounts, productToPublic } from "@/lib/products";
 import { getSession } from "@/lib/session";
 import { requireWriteRole } from "@/lib/workspace-guard";
+import { type NextRequest, NextResponse } from "next/server";
 
 /** GET /api/products — list the tenant's products (with template/webhook counts). */
 export async function GET(request: NextRequest) {
@@ -57,5 +57,8 @@ export async function POST(request: NextRequest) {
         },
     );
     // `secret` is returned exactly once — never retrievable again.
-    return NextResponse.json({ ok: true, product: productToPublic(product), secret }, { status: 201 });
+    return NextResponse.json(
+        { ok: true, product: productToPublic(product), secret },
+        { status: 201 },
+    );
 }

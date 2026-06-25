@@ -1,10 +1,10 @@
 export const runtime = "edge";
 
-import { cookies } from "next/headers";
-import { Box } from "@mui/material";
-import { SESSION_COOKIE, verifySession } from "@/lib/session";
 import { getDatabase } from "@/lib/d1-client";
+import { SESSION_COOKIE, verifySession } from "@/lib/session";
 import { getInviteByToken, getWorkspaceInfo } from "@/lib/workspace";
+import { Box } from "@mui/material";
+import { cookies } from "next/headers";
 import { JoinInviteClient } from "../../components/join-invite-client";
 
 export default async function JoinInvitePage({

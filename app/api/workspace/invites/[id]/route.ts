@@ -1,9 +1,9 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
-import { guard } from "@/lib/workspace-guard";
 import { revokeInvite } from "@/lib/workspace";
+import { guard } from "@/lib/workspace-guard";
+import { type NextRequest, NextResponse } from "next/server";
 
 /** DELETE /api/workspace/invites/[id] — revoke a pending invite (admin+). */
 export async function DELETE(request: NextRequest, ctx: { params: Promise<{ id: string }> }) {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Avatar, Box, Button, CircularProgress, Typography } from "@mui/material";
+import { useState } from "react";
 import { GlassCard } from "./glass-card";
 
 const TEXT = "#f5f5f4";
@@ -69,16 +69,8 @@ const secondaryButtonSx = {
 };
 
 export function JoinInviteClient(props: JoinInviteClientProps) {
-    const {
-        token,
-        signedIn,
-        valid,
-        workspaceName,
-        workspaceLogo,
-        role,
-        isOpenLink,
-        loginHref,
-    } = props;
+    const { token, signedIn, valid, workspaceName, workspaceLogo, role, isOpenLink, loginHref } =
+        props;
 
     const [loading, setLoading] = useState(false);
     const [view, setView] = useState<View>("form");
@@ -216,9 +208,7 @@ export function JoinInviteClient(props: JoinInviteClientProps) {
                     )}
 
                     {errorMsg && (
-                        <Typography
-                            sx={{ color: "#ff8d8d", fontSize: 13, mt: 1.75 }}
-                        >
+                        <Typography sx={{ color: "#ff8d8d", fontSize: 13, mt: 1.75 }}>
                             {errorMsg}
                         </Typography>
                     )}
@@ -236,12 +226,7 @@ export function JoinInviteClient(props: JoinInviteClientProps) {
                     <Typography sx={{ color: MUTED, fontSize: 14, mb: 2.5 }}>
                         An admin will review your request to join.
                     </Typography>
-                    <Button
-                        variant="outlined"
-                        fullWidth
-                        href="/dashboard"
-                        sx={secondaryButtonSx}
-                    >
+                    <Button variant="outlined" fullWidth href="/dashboard" sx={secondaryButtonSx}>
                         Go to dashboard
                     </Button>
                 </>

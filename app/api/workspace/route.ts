@@ -1,8 +1,6 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
-import { guard } from "@/lib/workspace-guard";
 import {
     getWorkspaceInfo,
     inviteToPublic,
@@ -10,9 +8,11 @@ import {
     listMembers,
     memberToPublic,
     slugifyWorkspace,
-    updateWorkspace,
     uniqueSlug,
+    updateWorkspace,
 } from "@/lib/workspace";
+import { guard } from "@/lib/workspace-guard";
+import { type NextRequest, NextResponse } from "next/server";
 
 /** GET /api/workspace — overview for the settings page (info + members; invites if admin). */
 export async function GET(request: NextRequest) {
@@ -46,7 +46,12 @@ export async function PATCH(request: NextRequest) {
     const g = await guard(request, "admin");
     if (!g.ok) return g.response;
 
-    let body: { name?: string; slug?: string; description?: string | null; logoUrl?: string | null };
+    let body: {
+        name?: string;
+        slug?: string;
+        description?: string | null;
+        logoUrl?: string | null;
+    };
     try {
         body = (await request.json()) as typeof body;
     } catch {

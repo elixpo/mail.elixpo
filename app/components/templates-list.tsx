@@ -210,13 +210,29 @@ export default function TemplatesList() {
                         </Select>
                     </>
                 )}
-                <Button component={Link} href="/dashboard/templates/new" startIcon={<AddIcon sx={{ fontSize: "1.1rem !important" }} />} sx={NEW_BTN}>
+                <Button
+                    component={Link}
+                    href="/dashboard/templates/new"
+                    startIcon={<AddIcon sx={{ fontSize: "1.1rem !important" }} />}
+                    sx={NEW_BTN}
+                >
                     New template
                 </Button>
             </Stack>
 
             {error && (
-                <Box sx={{ mb: 2, px: 2, py: 1.2, borderRadius: "10px", background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5", fontSize: "0.85rem" }}>
+                <Box
+                    sx={{
+                        mb: 2,
+                        px: 2,
+                        py: 1.2,
+                        borderRadius: "10px",
+                        background: "rgba(239,68,68,0.1)",
+                        border: "1px solid rgba(239,68,68,0.3)",
+                        color: "#fca5a5",
+                        fontSize: "0.85rem",
+                    }}
+                >
                     {error}
                 </Box>
             )}
@@ -227,13 +243,20 @@ export default function TemplatesList() {
                     headline="No templates yet"
                     subtext="Design your first email in the visual editor — add {{variables}} for the parts that change per recipient."
                     cta={
-                        <Button component={Link} href="/dashboard/templates/new" startIcon={<AddIcon sx={{ fontSize: "1.1rem !important" }} />} sx={NEW_BTN}>
+                        <Button
+                            component={Link}
+                            href="/dashboard/templates/new"
+                            startIcon={<AddIcon sx={{ fontSize: "1.1rem !important" }} />}
+                            sx={NEW_BTN}
+                        >
                             Create a template
                         </Button>
                     }
                 />
             ) : visible.length === 0 ? (
-                <Typography sx={{ fontSize: "0.88rem", color: TEXT_60, textAlign: "center", py: 4 }}>
+                <Typography
+                    sx={{ fontSize: "0.88rem", color: TEXT_60, textAlign: "center", py: 4 }}
+                >
                     No templates match &ldquo;{query.trim()}&rdquo;
                 </Typography>
             ) : (
@@ -255,30 +278,119 @@ export default function TemplatesList() {
                                         "&:hover .t-name": { color: ACCENT },
                                     }}
                                 >
-                                    <Box sx={{ width: 40, height: 40, borderRadius: "11px", display: "grid", placeItems: "center", background: "rgba(155,123,247,0.12)", border: "1px solid rgba(155,123,247,0.28)", flexShrink: 0 }}>
+                                    <Box
+                                        sx={{
+                                            width: 40,
+                                            height: 40,
+                                            borderRadius: "11px",
+                                            display: "grid",
+                                            placeItems: "center",
+                                            background: "rgba(155,123,247,0.12)",
+                                            border: "1px solid rgba(155,123,247,0.28)",
+                                            flexShrink: 0,
+                                        }}
+                                    >
                                         <DescriptionIcon sx={{ fontSize: 20, color: ACCENT }} />
                                     </Box>
                                     <Box sx={{ minWidth: 0, flex: 1 }}>
                                         <Stack direction="row" alignItems="center" spacing={1}>
-                                            <Typography className="t-name" sx={{ fontWeight: 700, fontSize: "1rem", color: "#f5f5f4", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", transition: "color 0.15s ease" }}>
+                                            <Typography
+                                                className="t-name"
+                                                sx={{
+                                                    fontWeight: 700,
+                                                    fontSize: "1rem",
+                                                    color: "#f5f5f4",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                    whiteSpace: "nowrap",
+                                                    transition: "color 0.15s ease",
+                                                }}
+                                            >
                                                 {t.name}
                                             </Typography>
-                                        <Chip label={t.slug} size="small" sx={{ height: 20, fontFamily: "var(--font-geist-mono)", fontSize: "0.68rem", color: "rgba(245,245,244,0.6)", bgcolor: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }} />
-                                        {t.variables.length > 0 && (
-                                            <Chip label={`${t.variables.length} var${t.variables.length > 1 ? "s" : ""}`} size="small" sx={{ height: 20, fontSize: "0.68rem", color: "#c4b5fd", bgcolor: "rgba(155,123,247,0.12)", border: "1px solid rgba(155,123,247,0.3)" }} />
-                                        )}
-                                    </Stack>
-                                        <Typography sx={{ color: TEXT_60, fontSize: "0.85rem", mt: 0.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                            {t.subject || "No subject"} · updated {relativeTime(t.updated_at)}
+                                            <Chip
+                                                label={t.slug}
+                                                size="small"
+                                                sx={{
+                                                    height: 20,
+                                                    fontFamily: "var(--font-geist-mono)",
+                                                    fontSize: "0.68rem",
+                                                    color: "rgba(245,245,244,0.6)",
+                                                    bgcolor: "rgba(255,255,255,0.05)",
+                                                    border: "1px solid rgba(255,255,255,0.08)",
+                                                }}
+                                            />
+                                            {t.variables.length > 0 && (
+                                                <Chip
+                                                    label={`${t.variables.length} var${t.variables.length > 1 ? "s" : ""}`}
+                                                    size="small"
+                                                    sx={{
+                                                        height: 20,
+                                                        fontSize: "0.68rem",
+                                                        color: "#c4b5fd",
+                                                        bgcolor: "rgba(155,123,247,0.12)",
+                                                        border: "1px solid rgba(155,123,247,0.3)",
+                                                    }}
+                                                />
+                                            )}
+                                        </Stack>
+                                        <Typography
+                                            sx={{
+                                                color: TEXT_60,
+                                                fontSize: "0.85rem",
+                                                mt: 0.3,
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                whiteSpace: "nowrap",
+                                            }}
+                                        >
+                                            {t.subject || "No subject"} · updated{" "}
+                                            {relativeTime(t.updated_at)}
                                         </Typography>
                                     </Box>
                                 </Box>
                                 <Stack direction="row" spacing={0.5} sx={{ flexShrink: 0 }}>
-                                    <Button component={Link} href={`/dashboard/templates/${t.id}`} startIcon={<EditIcon sx={{ fontSize: "1rem !important" }} />} sx={{ textTransform: "none", fontSize: "0.85rem", color: "rgba(245,245,244,0.8)", borderRadius: "9px", "&:hover": { background: "rgba(255,255,255,0.05)", color: "#fff" } }}>
+                                    <Button
+                                        component={Link}
+                                        href={`/dashboard/templates/${t.id}`}
+                                        startIcon={
+                                            <EditIcon sx={{ fontSize: "1rem !important" }} />
+                                        }
+                                        sx={{
+                                            textTransform: "none",
+                                            fontSize: "0.85rem",
+                                            color: "rgba(245,245,244,0.8)",
+                                            borderRadius: "9px",
+                                            "&:hover": {
+                                                background: "rgba(255,255,255,0.05)",
+                                                color: "#fff",
+                                            },
+                                        }}
+                                    >
                                         Edit
                                     </Button>
-                                    <Button onClick={() => remove(t.id)} disabled={deleting === t.id} sx={{ minWidth: 0, p: 1, color: "rgba(245,245,244,0.5)", borderRadius: "9px", "&:hover": { background: "rgba(239,68,68,0.1)", color: "#fca5a5" } }}>
-                                        {deleting === t.id ? <CircularProgress size={16} sx={{ color: "rgba(245,245,244,0.5)" }} /> : <DeleteOutlineIcon sx={{ fontSize: 19 }} />}
+                                    <Button
+                                        onClick={() => remove(t.id)}
+                                        disabled={deleting === t.id}
+                                        sx={{
+                                            minWidth: 0,
+                                            p: 1,
+                                            color: "rgba(245,245,244,0.5)",
+                                            borderRadius: "9px",
+                                            "&:hover": {
+                                                background: "rgba(239,68,68,0.1)",
+                                                color: "#fca5a5",
+                                            },
+                                        }}
+                                    >
+                                        {deleting === t.id ? (
+                                            <CircularProgress
+                                                size={16}
+                                                sx={{ color: "rgba(245,245,244,0.5)" }}
+                                            />
+                                        ) : (
+                                            <DeleteOutlineIcon sx={{ fontSize: 19 }} />
+                                        )}
                                     </Button>
                                 </Stack>
                             </Stack>

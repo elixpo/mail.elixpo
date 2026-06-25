@@ -29,9 +29,9 @@ import {
     DialogTitle,
     IconButton,
     InputAdornment,
-    Link as MuiLink,
     Menu,
     MenuItem,
+    Link as MuiLink,
     Select,
     Stack,
     TextField,
@@ -200,7 +200,9 @@ function GmailHint() {
             }}
         >
             <InfoOutlinedIcon sx={{ fontSize: 18, color: "#5fb6ff", flexShrink: 0, mt: 0.2 }} />
-            <Typography sx={{ fontSize: "0.8rem", color: "rgba(245,245,244,0.7)", lineHeight: 1.6 }}>
+            <Typography
+                sx={{ fontSize: "0.8rem", color: "rgba(245,245,244,0.7)", lineHeight: 1.6 }}
+            >
                 For Gmail you need 2-Step Verification enabled, then a 16-character{" "}
                 <MuiLink
                     href={GMAIL_HELP}
@@ -288,10 +290,7 @@ function SenderDialog({
     }, [open, editing]);
 
     const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
-    const canSubmit =
-        !saving &&
-        (isEdit || emailValid) &&
-        (isEdit || form.appPassword.length >= 4);
+    const canSubmit = !saving && (isEdit || emailValid) && (isEdit || form.appPassword.length >= 4);
 
     async function submit() {
         if (!canSubmit) return;
@@ -366,7 +365,9 @@ function SenderDialog({
                             sx={darkField}
                         />
                         {isEdit && (
-                            <FieldHelp>The email is the unique key and can&rsquo;t be changed.</FieldHelp>
+                            <FieldHelp>
+                                The email is the unique key and can&rsquo;t be changed.
+                            </FieldHelp>
                         )}
                     </Box>
 
@@ -374,7 +375,9 @@ function SenderDialog({
                         <FieldLabel>Display name (optional)</FieldLabel>
                         <TextField
                             value={form.displayName}
-                            onChange={(e) => setForm((f) => ({ ...f, displayName: e.target.value }))}
+                            onChange={(e) =>
+                                setForm((f) => ({ ...f, displayName: e.target.value }))
+                            }
                             placeholder="Acme Notifications"
                             fullWidth
                             size="small"
@@ -388,8 +391,12 @@ function SenderDialog({
                         </FieldLabel>
                         <TextField
                             value={form.appPassword}
-                            onChange={(e) => setForm((f) => ({ ...f, appPassword: e.target.value }))}
-                            placeholder={isEdit ? "Leave blank to keep current" : "16-character app password"}
+                            onChange={(e) =>
+                                setForm((f) => ({ ...f, appPassword: e.target.value }))
+                            }
+                            placeholder={
+                                isEdit ? "Leave blank to keep current" : "16-character app password"
+                            }
                             fullWidth
                             size="small"
                             type={showPass ? "text" : "password"}
@@ -403,7 +410,9 @@ function SenderDialog({
                                             edge="end"
                                             size="small"
                                             sx={{ color: TEXT_40 }}
-                                            aria-label={showPass ? "Hide password" : "Show password"}
+                                            aria-label={
+                                                showPass ? "Hide password" : "Show password"
+                                            }
                                         >
                                             {showPass ? (
                                                 <VisibilityOff sx={{ fontSize: 18 }} />
@@ -442,12 +451,20 @@ function SenderDialog({
                         </Button>
                         <Collapse in={advanced}>
                             <Stack spacing={2} sx={{ pt: 1 }}>
-                                <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", sm: "2fr 1fr" } }}>
+                                <Box
+                                    sx={{
+                                        display: "grid",
+                                        gap: 2,
+                                        gridTemplateColumns: { xs: "1fr", sm: "2fr 1fr" },
+                                    }}
+                                >
                                     <Box>
                                         <FieldLabel>SMTP host</FieldLabel>
                                         <TextField
                                             value={form.smtpHost}
-                                            onChange={(e) => setForm((f) => ({ ...f, smtpHost: e.target.value }))}
+                                            onChange={(e) =>
+                                                setForm((f) => ({ ...f, smtpHost: e.target.value }))
+                                            }
                                             placeholder="smtp.gmail.com"
                                             fullWidth
                                             size="small"
@@ -496,11 +513,20 @@ function SenderDialog({
                                             color: TEXT,
                                             borderRadius: "10px",
                                             background: "rgba(255,255,255,0.02)",
-                                            "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.12)" },
-                                            "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(155,123,247,0.4)" },
-                                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: ACCENT },
+                                            "& .MuiOutlinedInput-notchedOutline": {
+                                                borderColor: "rgba(255,255,255,0.12)",
+                                            },
+                                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                                                borderColor: "rgba(155,123,247,0.4)",
+                                            },
+                                            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                                borderColor: ACCENT,
+                                            },
                                             "& .MuiSelect-icon": { color: TEXT_40 },
-                                            "& .MuiSelect-select": { fontSize: "0.92rem", py: 1.05 },
+                                            "& .MuiSelect-select": {
+                                                fontSize: "0.92rem",
+                                                py: 1.05,
+                                            },
                                         }}
                                         MenuProps={{
                                             slotProps: {
@@ -509,7 +535,10 @@ function SenderDialog({
                                                         background: SURFACE,
                                                         border: `1px solid ${BORDER}`,
                                                         backgroundImage: "none",
-                                                        "& .MuiMenuItem-root": { color: TEXT, fontSize: "0.9rem" },
+                                                        "& .MuiMenuItem-root": {
+                                                            color: TEXT,
+                                                            fontSize: "0.9rem",
+                                                        },
                                                         "& .MuiMenuItem-root.Mui-selected": {
                                                             background: "rgba(155,123,247,0.12)",
                                                         },
@@ -526,7 +555,9 @@ function SenderDialog({
                                     <FieldLabel>Username (optional)</FieldLabel>
                                     <TextField
                                         value={form.username}
-                                        onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))}
+                                        onChange={(e) =>
+                                            setForm((f) => ({ ...f, username: e.target.value }))
+                                        }
                                         placeholder="Defaults to the email"
                                         fullWidth
                                         size="small"
@@ -661,11 +692,21 @@ function DeleteDialog({
                         minWidth: 100,
                         background: "linear-gradient(135deg, #f87171 0%, #ef4444 100%)",
                         boxShadow: "0 8px 24px rgba(239,68,68,0.3)",
-                        "&:hover": { background: "linear-gradient(135deg, #fca5a5 0%, #f87171 100%)" },
-                        "&.Mui-disabled": { background: "rgba(255,255,255,0.06)", color: "rgba(245,245,244,0.35)", boxShadow: "none" },
+                        "&:hover": {
+                            background: "linear-gradient(135deg, #fca5a5 0%, #f87171 100%)",
+                        },
+                        "&.Mui-disabled": {
+                            background: "rgba(255,255,255,0.06)",
+                            color: "rgba(245,245,244,0.35)",
+                            boxShadow: "none",
+                        },
                     }}
                 >
-                    {busy ? <CircularProgress size={18} sx={{ color: "rgba(245,245,244,0.6)" }} /> : "Remove"}
+                    {busy ? (
+                        <CircularProgress size={18} sx={{ color: "rgba(245,245,244,0.6)" }} />
+                    ) : (
+                        "Remove"
+                    )}
                 </Button>
             </DialogActions>
         </Dialog>
@@ -758,8 +799,8 @@ function AliasesSection({
             >
                 {/* Provider caveat hint */}
                 <Typography sx={{ fontSize: "0.76rem", color: TEXT_40, lineHeight: 1.6, mb: 1.6 }}>
-                    Aliases send through this mailbox&rsquo;s auth. The provider must permit sending as
-                    the address (e.g. Gmail{" "}
+                    Aliases send through this mailbox&rsquo;s auth. The provider must permit sending
+                    as the address (e.g. Gmail{" "}
                     <MuiLink
                         href={SEND_AS_HELP}
                         target="_blank"
@@ -820,7 +861,9 @@ function AliasesSection({
                                             border: `1px solid ${BORDER}`,
                                         }}
                                     >
-                                        <AlternateEmailIcon sx={{ fontSize: 15, color: TEXT_40, flexShrink: 0 }} />
+                                        <AlternateEmailIcon
+                                            sx={{ fontSize: 15, color: TEXT_40, flexShrink: 0 }}
+                                        />
                                         <Box sx={{ minWidth: 0, flex: 1 }}>
                                             {a.from_name && (
                                                 <Typography
@@ -851,7 +894,12 @@ function AliasesSection({
                                         </Box>
 
                                         {confirmId === a.id ? (
-                                            <Stack direction="row" spacing={0.5} alignItems="center" sx={{ flexShrink: 0 }}>
+                                            <Stack
+                                                direction="row"
+                                                spacing={0.5}
+                                                alignItems="center"
+                                                sx={{ flexShrink: 0 }}
+                                            >
                                                 <Button
                                                     onClick={() => removeAlias(a.id)}
                                                     disabled={deletingId === a.id}
@@ -864,11 +912,16 @@ function AliasesSection({
                                                         fontSize: "0.74rem",
                                                         fontWeight: 700,
                                                         color: RED,
-                                                        "&:hover": { background: "rgba(252,165,165,0.08)" },
+                                                        "&:hover": {
+                                                            background: "rgba(252,165,165,0.08)",
+                                                        },
                                                     }}
                                                 >
                                                     {deletingId === a.id ? (
-                                                        <CircularProgress size={13} sx={{ color: RED }} />
+                                                        <CircularProgress
+                                                            size={13}
+                                                            sx={{ color: RED }}
+                                                        />
                                                     ) : (
                                                         "Remove"
                                                     )}
@@ -885,7 +938,9 @@ function AliasesSection({
                                                         fontSize: "0.74rem",
                                                         fontWeight: 600,
                                                         color: TEXT_55,
-                                                        "&:hover": { background: "rgba(255,255,255,0.05)" },
+                                                        "&:hover": {
+                                                            background: "rgba(255,255,255,0.05)",
+                                                        },
                                                     }}
                                                 >
                                                     Cancel
@@ -902,7 +957,10 @@ function AliasesSection({
                                                     sx={{
                                                         color: TEXT_40,
                                                         flexShrink: 0,
-                                                        "&:hover": { color: RED, background: "rgba(252,165,165,0.08)" },
+                                                        "&:hover": {
+                                                            color: RED,
+                                                            background: "rgba(252,165,165,0.08)",
+                                                        },
                                                     }}
                                                     aria-label={`Remove alias ${a.from_email}`}
                                                 >
@@ -956,18 +1014,26 @@ function AliasesSection({
                                 onClick={addAlias}
                                 disabled={!canSubmit}
                                 startIcon={
-                                    saving ? undefined : <AddIcon sx={{ fontSize: "1rem !important" }} />
+                                    saving ? undefined : (
+                                        <AddIcon sx={{ fontSize: "1rem !important" }} />
+                                    )
                                 }
                                 sx={{
                                     ...GHOST_BTN,
                                     fontSize: "0.84rem",
                                     px: 2,
                                     whiteSpace: "nowrap",
-                                    "&.Mui-disabled": { color: "rgba(245,245,244,0.4)", borderColor: BORDER },
+                                    "&.Mui-disabled": {
+                                        color: "rgba(245,245,244,0.4)",
+                                        borderColor: BORDER,
+                                    },
                                 }}
                             >
                                 {saving ? (
-                                    <CircularProgress size={16} sx={{ color: "rgba(245,245,244,0.6)" }} />
+                                    <CircularProgress
+                                        size={16}
+                                        sx={{ color: "rgba(245,245,244,0.6)" }}
+                                    />
                                 ) : (
                                     "Add alias"
                                 )}
@@ -975,9 +1041,16 @@ function AliasesSection({
                         </Box>
 
                         {formError && (
-                            <Stack direction="row" spacing={0.8} alignItems="flex-start" sx={{ mt: 1.2 }}>
+                            <Stack
+                                direction="row"
+                                spacing={0.8}
+                                alignItems="flex-start"
+                                sx={{ mt: 1.2 }}
+                            >
                                 <ErrorOutlineIcon sx={{ fontSize: 15, color: RED, mt: 0.2 }} />
-                                <Typography sx={{ fontSize: "0.8rem", color: RED, lineHeight: 1.5 }}>
+                                <Typography
+                                    sx={{ fontSize: "0.8rem", color: RED, lineHeight: 1.5 }}
+                                >
                                     {formError}
                                 </Typography>
                             </Stack>
@@ -990,7 +1063,11 @@ function AliasesSection({
 }
 
 // ── Sender card ─────────────────────────────────────────────────────────────
-type TestState = { phase: "loading" } | { phase: "ok"; text: string } | { phase: "err"; text: string } | null;
+type TestState =
+    | { phase: "loading" }
+    | { phase: "ok"; text: string }
+    | { phase: "err"; text: string }
+    | null;
 
 function SenderCard({
     sender,
@@ -1070,7 +1147,8 @@ function SenderCard({
             if (!res.ok || !data?.ok) {
                 throw new Error(data?.error || data?.message || "Test send failed.");
             }
-            const resp = typeof data.response === "string" && data.response ? ` — ${data.response}` : "";
+            const resp =
+                typeof data.response === "string" && data.response ? ` — ${data.response}` : "";
             setTest({ phase: "ok", text: `Test delivered to ${data.to}${resp}` });
             onTested(); // refresh verified state
         } catch (e: any) {
@@ -1088,7 +1166,12 @@ function SenderCard({
             >
                 {/* Identity + meta */}
                 <Box sx={{ minWidth: 0, flex: 1 }}>
-                    <Stack direction="row" alignItems="center" spacing={1.2} sx={{ flexWrap: "wrap", rowGap: 0.6 }}>
+                    <Stack
+                        direction="row"
+                        alignItems="center"
+                        spacing={1.2}
+                        sx={{ flexWrap: "wrap", rowGap: 0.6 }}
+                    >
                         <Typography
                             sx={{
                                 fontWeight: 700,
@@ -1162,9 +1245,15 @@ function SenderCard({
                                     borderRadius: "11px",
                                     background: "rgba(255,255,255,0.02)",
                                     maxWidth: 200,
-                                    "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.16)" },
-                                    "&:hover .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(155,123,247,0.5)" },
-                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": { borderColor: ACCENT },
+                                    "& .MuiOutlinedInput-notchedOutline": {
+                                        borderColor: "rgba(255,255,255,0.16)",
+                                    },
+                                    "&:hover .MuiOutlinedInput-notchedOutline": {
+                                        borderColor: "rgba(155,123,247,0.5)",
+                                    },
+                                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                                        borderColor: ACCENT,
+                                    },
                                     "& .MuiSelect-icon": { color: TEXT_40 },
                                     "& .MuiSelect-select": {
                                         fontSize: "0.82rem",
@@ -1181,7 +1270,10 @@ function SenderCard({
                                                 border: `1px solid ${BORDER}`,
                                                 backgroundImage: "none",
                                                 maxWidth: 320,
-                                                "& .MuiMenuItem-root": { color: TEXT, fontSize: "0.84rem" },
+                                                "& .MuiMenuItem-root": {
+                                                    color: TEXT,
+                                                    fontSize: "0.84rem",
+                                                },
                                                 "& .MuiMenuItem-root.Mui-selected": {
                                                     background: "rgba(155,123,247,0.12)",
                                                 },
@@ -1221,7 +1313,10 @@ function SenderCard({
                                 disabled={test?.phase === "loading"}
                                 startIcon={
                                     test?.phase === "loading" ? (
-                                        <CircularProgress size={15} sx={{ color: "rgba(245,245,244,0.6)" }} />
+                                        <CircularProgress
+                                            size={15}
+                                            sx={{ color: "rgba(245,245,244,0.6)" }}
+                                        />
                                     ) : (
                                         <SendIcon sx={{ fontSize: "1rem !important" }} />
                                     )
@@ -1229,7 +1324,10 @@ function SenderCard({
                                 sx={{
                                     ...GHOST_BTN,
                                     fontSize: "0.84rem",
-                                    "&.Mui-disabled": { color: "rgba(245,245,244,0.4)", borderColor: BORDER },
+                                    "&.Mui-disabled": {
+                                        color: "rgba(245,245,244,0.4)",
+                                        borderColor: BORDER,
+                                    },
                                 }}
                             >
                                 Send test
@@ -1244,7 +1342,10 @@ function SenderCard({
                             color: TEXT_55,
                             border: "1px solid rgba(255,255,255,0.16)",
                             borderRadius: "10px",
-                            "&:hover": { borderColor: "rgba(155,123,247,0.5)", background: "rgba(155,123,247,0.06)" },
+                            "&:hover": {
+                                borderColor: "rgba(155,123,247,0.5)",
+                                background: "rgba(155,123,247,0.06)",
+                            },
                         }}
                         aria-label="More actions"
                     >
@@ -1470,7 +1571,9 @@ export default function SendersManager() {
             <GlassCard sx={{ py: { xs: 6, md: 8 } }}>
                 <Stack alignItems="center" spacing={2}>
                     <CircularProgress size={28} sx={{ color: ACCENT }} />
-                    <Typography sx={{ color: TEXT_55, fontSize: "0.9rem" }}>Loading senders…</Typography>
+                    <Typography sx={{ color: TEXT_55, fontSize: "0.9rem" }}>
+                        Loading senders…
+                    </Typography>
                 </Stack>
             </GlassCard>
         );
@@ -1479,7 +1582,12 @@ export default function SendersManager() {
     if (loadError) {
         return (
             <GlassCard>
-                <Stack direction="row" spacing={1.2} alignItems="center" justifyContent="space-between">
+                <Stack
+                    direction="row"
+                    spacing={1.2}
+                    alignItems="center"
+                    justifyContent="space-between"
+                >
                     <Stack direction="row" spacing={1} alignItems="center">
                         <ErrorOutlineIcon sx={{ fontSize: 18, color: RED }} />
                         <Typography sx={{ color: RED, fontSize: "0.9rem" }}>{loadError}</Typography>
@@ -1507,7 +1615,11 @@ export default function SendersManager() {
                     headline="No senders yet"
                     subtext="A sender is your own mailbox — the email and app password we relay your mail through, so it sends on your domain and reputation. Connect one to start delivering."
                     cta={
-                        <Button onClick={openCreate} startIcon={<AddIcon sx={{ fontSize: "1.1rem !important" }} />} sx={PRIMARY_BTN}>
+                        <Button
+                            onClick={openCreate}
+                            startIcon={<AddIcon sx={{ fontSize: "1.1rem !important" }} />}
+                            sx={PRIMARY_BTN}
+                        >
                             Connect a sender
                         </Button>
                     }
@@ -1515,7 +1627,11 @@ export default function SendersManager() {
             ) : (
                 <Box>
                     <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
-                        <Button onClick={openCreate} startIcon={<AddIcon sx={{ fontSize: "1.1rem !important" }} />} sx={PRIMARY_BTN}>
+                        <Button
+                            onClick={openCreate}
+                            startIcon={<AddIcon sx={{ fontSize: "1.1rem !important" }} />}
+                            sx={PRIMARY_BTN}
+                        >
                             Connect a sender
                         </Button>
                     </Stack>

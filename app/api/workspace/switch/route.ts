@@ -1,9 +1,9 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
 import { SESSION_COOKIE, getSession, signSession } from "@/lib/session";
 import { getMembership } from "@/lib/workspace";
+import { type NextRequest, NextResponse } from "next/server";
 
 /**
  * POST /api/workspace/switch — make a different workspace active.

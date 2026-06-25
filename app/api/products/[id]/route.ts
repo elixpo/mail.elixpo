@@ -1,8 +1,7 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
-import { getDatabase } from "@/lib/d1-client";
 import { destroyImageByUrl } from "@/lib/cloudinary";
+import { getDatabase } from "@/lib/d1-client";
 import {
     countProductTemplates,
     deleteProduct,
@@ -12,6 +11,7 @@ import {
 } from "@/lib/products";
 import { getSession } from "@/lib/session";
 import { requireWriteRole } from "@/lib/workspace-guard";
+import { type NextRequest, NextResponse } from "next/server";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -47,7 +47,8 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
     const existing = await getProduct(db, session.tenantId, id);
     if (!existing) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
-    const optStr = (v: unknown) => (v !== undefined ? (typeof v === "string" ? v : null) : undefined);
+    const optStr = (v: unknown) =>
+        v !== undefined ? (typeof v === "string" ? v : null) : undefined;
     const product = await updateProduct(db, session.tenantId, id, {
         name: typeof body?.name === "string" ? body.name : undefined,
         defaultSenderId:

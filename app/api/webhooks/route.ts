@@ -1,9 +1,7 @@
 export const runtime = "edge";
 
-import { type NextRequest, NextResponse } from "next/server";
 import { getDatabase } from "@/lib/d1-client";
 import { getSession } from "@/lib/session";
-import { requireWriteRole } from "@/lib/workspace-guard";
 import {
     createWebhook,
     listWebhooks,
@@ -11,6 +9,8 @@ import {
     listWebhooksByTemplate,
     webhookToPublic,
 } from "@/lib/webhooks";
+import { requireWriteRole } from "@/lib/workspace-guard";
+import { type NextRequest, NextResponse } from "next/server";
 
 /**
  * GET /api/webhooks — list the tenant's webhooks (joined with template/product

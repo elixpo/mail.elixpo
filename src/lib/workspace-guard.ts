@@ -41,11 +41,17 @@ export type Guarded =
 export async function guard(request: NextRequest, min: Role): Promise<Guarded> {
     const session = await getSession(request);
     if (!session) {
-        return { ok: false, response: NextResponse.json({ error: "unauthenticated" }, { status: 401 }) };
+        return {
+            ok: false,
+            response: NextResponse.json({ error: "unauthenticated" }, { status: 401 }),
+        };
     }
     const role = sessionRole(session);
     if (!roleAtLeast(role, min)) {
-        return { ok: false, response: NextResponse.json({ error: "forbidden", role }, { status: 403 }) };
+        return {
+            ok: false,
+            response: NextResponse.json({ error: "forbidden", role }, { status: 403 }),
+        };
     }
     return { ok: true, session, role };
 }
