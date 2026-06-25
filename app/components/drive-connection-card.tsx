@@ -5,6 +5,7 @@ import CloudIcon from "@mui/icons-material/Cloud";
 import { Alert, Box, Button, Chip, CircularProgress, Stack, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { GlassCard } from "./glass-card";
+import { useRole } from "./role-provider";
 
 const TEXT = "#f5f5f4";
 const TEXT_55 = "rgba(245,245,244,0.55)";
@@ -23,7 +24,22 @@ const NOTICES: Record<string, { sev: "success" | "error" | "info" | "warning"; m
     not_configured: { sev: "warning", msg: "Google Drive isn't set up on this workspace yet." },
 };
 
+function ReadOnlyChip() {
+    return (
+        <Chip
+            label="Read-only access"
+            size="small"
+            sx={{
+                color: "rgba(245,245,244,0.5)",
+                bgcolor: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.07)",
+            }}
+        />
+    );
+}
+
 export default function DriveConnectionCard() {
+    const { canWrite } = useRole();
     const [status, setStatus] = useState<Status | null>(null);
     const [busy, setBusy] = useState(false);
     const [notice, setNotice] = useState<{
@@ -129,22 +145,24 @@ export default function DriveConnectionCard() {
                             </Typography>
                         </Box>
                     </Stack>
-                    <Button
-                        onClick={disconnect}
-                        disabled={busy}
-                        sx={{
-                            textTransform: "none",
-                            fontWeight: 600,
-                            fontSize: "0.85rem",
-                            color: "#f87171",
-                            borderRadius: "10px",
-                            border: "1px solid rgba(248,113,113,0.3)",
-                            px: 2,
-                            "&:hover": { background: "rgba(248,113,113,0.08)" },
-                        }}
-                    >
-                        {busy ? "Disconnecting…" : "Disconnect"}
-                    </Button>
+                    {canWrite && (
+                        <Button
+                            onClick={disconnect}
+                            disabled={busy}
+                            sx={{
+                                textTransform: "none",
+                                fontWeight: 600,
+                                fontSize: "0.85rem",
+                                color: "#f87171",
+                                borderRadius: "10px",
+                                border: "1px solid rgba(248,113,113,0.3)",
+                                px: 2,
+                                "&:hover": { background: "rgba(248,113,113,0.08)" },
+                            }}
+                        >
+                            {busy ? "Disconnecting…" : "Disconnect"}
+                        </Button>
+                    )}
                 </Stack>
             ) : (
                 <Stack
@@ -153,6 +171,8 @@ export default function DriveConnectionCard() {
                     spacing={1.5}
                     sx={{ flexWrap: "wrap", gap: 1 }}
                 >
+                    {!canWrite && <ReadOnlyChip />}
+                    {canWrite && (
                     <Button
                         component="a"
                         href="/api/drive/connect"
@@ -180,6 +200,7 @@ export default function DriveConnectionCard() {
                     >
                         Connect Google Drive
                     </Button>
+                    )}
                     {!status.configured && (
                         <Typography sx={{ color: "rgba(245,245,244,0.4)", fontSize: "0.8rem" }}>
                             Drive isn&rsquo;t configured on this deployment yet.

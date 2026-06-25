@@ -982,6 +982,8 @@ function WebhookRow({
                             Delete
                         </MenuItem>
                     </Menu>
+                    </>
+                    )}
                 </Stack>
             </Stack>
 
@@ -1121,6 +1123,7 @@ function WebhookRow({
 
 // ── Manager (root) ──────────────────────────────────────────────────────────
 export default function WebhooksManager() {
+    const { canWrite } = useRole();
     const [webhooks, setWebhooks] = useState<WebhookSummary[]>([]);
     const [templates, setTemplates] = useState<TemplateSummary[]>([]);
     const [products, setProducts] = useState<ProductSummary[]>([]);
@@ -1346,7 +1349,7 @@ export default function WebhooksManager() {
                         accent={HOOK_ACCENT}
                         headline="No webhooks yet"
                         subtext="Create a named, signed trigger endpoint on one of your templates, then POST to it from your stack to send the email."
-                        cta={newButton}
+                        cta={canWrite ? newButton : <ReadOnlyChip />}
                     />
                 ) : (
                     <EmptyState
@@ -1363,9 +1366,11 @@ export default function WebhooksManager() {
                 )
             ) : (
                 <Box>
-                    <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
-                        {newButton}
-                    </Stack>
+                    {canWrite && (
+                        <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
+                            {newButton}
+                        </Stack>
+                    )}
                     <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mb: 2 }}>
                         <TextField
                             value={search}
