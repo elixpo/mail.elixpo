@@ -95,12 +95,6 @@ const Navbar = () => {
         background: "var(--accent)",
         color: "var(--accent-contrast)",
         borderRadius: "32px", // Pill
-        px: 2.5,
-        py: 0.9,
-        fontSize: "0.88rem",
-        fontWeight: 600,
-        fontFamily: "var(--font-sans)",
-        textTransform: "none" as const,
         boxShadow: "none",
         transition: "background 0.2s ease",
         "&:hover": {
@@ -156,7 +150,7 @@ const Navbar = () => {
                         }}
                     >
                         Elixpo
-                        <Box component="span" sx={{ color: isDashboard ? ACCENT : "#ff7759" }}>
+                        <Box component="span" sx={{ color: "var(--accent)" }}>
                             {" "}
                             Mails
                         </Box>
@@ -167,13 +161,13 @@ const Navbar = () => {
                             size="small"
                             sx={{
                                 display: { xs: "none", sm: "inline-flex" },
-                                bgcolor: isDashboard ? "var(--accent-tint)" : "rgba(255, 119, 89, 0.08)",
-                                color: isDashboard ? ACCENT : "#ff7759",
+                                bgcolor: "var(--accent-tint)",
+                                color: "var(--accent)",
                                 fontSize: "10px",
                                 height: "22px",
                                 fontWeight: 600,
                                 letterSpacing: "0.04em",
-                                border: isDashboard ? "1px solid var(--accent-border)" : "1px solid rgba(255, 119, 89, 0.3)",
+                                border: "1px solid var(--accent-border)",
                             }}
                         />
                     )}
@@ -225,7 +219,7 @@ const Navbar = () => {
                             height: 38,
                             px: 1.3,
                             gap: 0.9,
-                            borderRadius: isDashboard ? "10px" : "32px",
+                            borderRadius: "32px",
                             border: `1px solid ${githubBorder}`,
                             color: githubTextColor,
                             textDecoration: "none",
@@ -234,7 +228,7 @@ const Navbar = () => {
                             fontFamily: "var(--font-sans)",
                             transition: "all 0.18s ease",
                             "&:hover": {
-                                color: isDashboard ? "#fff" : "#000000",
+                                color: "var(--fg)",
                                 borderColor: githubHoverBorder,
                                 background: githubHoverBg,
                             },
@@ -243,7 +237,7 @@ const Navbar = () => {
                         <GitHubIcon sx={{ fontSize: 19 }} />
                         {stars !== null && (
                             <>
-                                <Box sx={{ width: "1px", height: 16, background: isDashboard ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)" }} />
+                                <Box sx={{ width: "1px", height: 16, background: "var(--border)" }} />
                                 <Stack direction="row" spacing={0.3} alignItems="center">
                                     <StarIcon sx={{ fontSize: 14, color: "#fbbf24" }} />
                                     <Box component="span">{formatStars(stars)}</Box>
@@ -268,18 +262,18 @@ const Navbar = () => {
                                 gap: 1,
                                 textDecoration: "none",
                                 color: "inherit",
-                                border: isDashboard ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.12)",
-                                borderRadius: isDashboard ? "10px" : "32px",
+                                border: "1px solid var(--border)",
+                                borderRadius: "32px",
                                 pl: 0.6,
                                 pr: { xs: 0.6, sm: 1 },
                                 py: 0.5,
                                 transition: "all 0.15s ease",
-                                "&:hover": { borderColor: isDashboard ? "var(--accent)" : "#000000", background: isDashboard ? "var(--accent-tint)" : "rgba(0,0,0,0.02)" },
+                                "&:hover": { borderColor: "var(--accent)", background: "var(--accent-tint)" },
                             }}
                         >
                             <Avatar
                                 src={me.avatar || undefined}
-                                sx={{ width: 28, height: 28, fontSize: "0.85rem", bgcolor: isDashboard ? "var(--accent)" : "#17171c" }}
+                                sx={{ width: 28, height: 28, fontSize: "0.85rem", bgcolor: "var(--accent)" }}
                             >
                                 {(me.name || me.email || "?").charAt(0).toUpperCase()}
                             </Avatar>
@@ -287,11 +281,11 @@ const Navbar = () => {
                                 <Typography sx={{ fontSize: "0.82rem", fontWeight: 600, color: textColor, maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                     {me.name || me.email}
                                 </Typography>
-                                <Typography sx={{ fontSize: "0.7rem", color: isDashboard ? "rgba(245,245,244,0.45)" : "rgba(33,33,33,0.55)", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                <Typography sx={{ fontSize: "0.7rem", color: "var(--fg-faint)", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                     {me.email}
                                 </Typography>
                             </Stack>
-                            <KeyboardArrowDownIcon sx={{ fontSize: 18, color: isDashboard ? "rgba(245,245,244,0.5)" : "rgba(33,33,33,0.4)", display: { xs: "none", sm: "block" } }} />
+                            <KeyboardArrowDownIcon sx={{ fontSize: 18, color: "var(--fg-faint)", display: { xs: "none", sm: "block" } }} />
                         </Box>
                     ) : (
                         <Button
@@ -313,7 +307,7 @@ const Navbar = () => {
                     <IconButton
                         onClick={() => setDrawerOpen(true)}
                         aria-label="Open menu"
-                        sx={{ display: { xs: "inline-flex", md: "none" }, color: isDashboard ? "rgba(244,244,246,0.85)" : "#212121" }}
+                        sx={{ display: { xs: "inline-flex", md: "none" }, color: "var(--fg-muted)" }}
                     >
                         <MenuIcon />
                     </IconButton>
@@ -329,8 +323,8 @@ const Navbar = () => {
                 PaperProps={{
                     sx: {
                         width: 282,
-                        background: isDashboard ? "#0d1016" : "#ffffff",
-                        borderLeft: isDashboard ? "1px solid rgba(255,255,255,0.08)" : "1px solid #e5e7eb",
+                        background: "var(--drawer-bg)",
+                        borderLeft: "1px solid var(--border)",
                         color: "var(--fg)",
                         p: 2,
                     },
@@ -339,15 +333,15 @@ const Navbar = () => {
                 <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2, px: 0.5 }}>
                     <Stack direction="row" alignItems="center" spacing={1.1}>
                         <Box component="img" src="/mark.png" alt="Elixpo Mails" sx={{ height: 26, width: 26, borderRadius: "7px" }} />
-                        <Typography sx={{ fontWeight: 700, fontSize: "1rem", color: isDashboard ? "#fff" : "#000" }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: "1rem", color: "var(--fg)" }}>
                             Elixpo
-                            <Box component="span" sx={{ color: isDashboard ? ACCENT : "#ff7759" }}>
+                            <Box component="span" sx={{ color: "var(--accent)" }}>
                                 {" "}
                                 Mails
                             </Box>
                         </Typography>
                     </Stack>
-                    <IconButton onClick={() => setDrawerOpen(false)} aria-label="Close menu" sx={{ color: isDashboard ? "rgba(245,245,244,0.6)" : "rgba(0,0,0,0.5)" }}>
+                    <IconButton onClick={() => setDrawerOpen(false)} aria-label="Close menu" sx={{ color: "var(--fg-muted)" }}>
                         <CloseIcon />
                     </IconButton>
                 </Stack>
