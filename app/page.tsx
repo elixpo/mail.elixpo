@@ -79,7 +79,7 @@ function SectionHead({
                     fontSize: { xs: "2rem", md: "2.8rem" },
                     letterSpacing: "-0.03em",
                     lineHeight: 1.05,
-                    color: whiteText ? "#ffffff" : "#000000",
+                    color: whiteText ? "#ffffff" : "var(--fg)",
                     maxWidth: 720,
                 }}
             >
@@ -89,7 +89,7 @@ function SectionHead({
                 <Typography
                     sx={{
                         maxWidth: 600,
-                        color: whiteText ? "rgba(255,255,255,0.7)" : SLATE,
+                        color: whiteText ? "rgba(255,255,255,0.7)" : "var(--fg-muted)",
                         fontSize: "1.05rem",
                         lineHeight: 1.6,
                         fontFamily: "var(--font-sans)",
