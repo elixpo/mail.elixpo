@@ -27,8 +27,6 @@ import PixelHero from "./components/pixel-hero";
 
 const CORAL = "#ff7759";
 const ACTION_BLUE = "#1863dc";
-const INK = "#212121";
-const SLATE = "#75758a";
 
 // Cohere primary CTA button styles
 const PRIMARY_BTN = {
@@ -557,7 +555,7 @@ export default function Home() {
                                     <u.icon sx={{ fontSize: 16, color: CORAL }} />
                                     <Typography
                                         sx={{
-                                            color: INK,
+                                            color: "var(--fg)",
                                             fontSize: "0.85rem",
                                             fontWeight: 500,
                                             fontFamily: "var(--font-sans)",
