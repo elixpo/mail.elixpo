@@ -39,7 +39,10 @@ export default function CopyForLlm() {
                 borderRadius: "10px",
                 border: "1px solid var(--accent-border)",
                 background: "var(--accent-tint)",
-                "&:hover": { borderColor: "var(--accent)", background: "var(--accent-tint-strong)" },
+                "&:hover": {
+                    borderColor: "var(--accent)",
+                    background: "var(--accent-tint-strong)",
+                },
             }}
         >
             {copied ? "Copied" : "Copy for LLM"}

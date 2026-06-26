@@ -52,11 +52,26 @@ export function LegalShell({
                     >
                         {title}
                     </Typography>
-                    <Typography sx={{ color: SLATE, fontSize: "0.85rem", mb: intro ? 3.5 : 5, fontFamily: "var(--font-sans)" }}>
+                    <Typography
+                        sx={{
+                            color: SLATE,
+                            fontSize: "0.85rem",
+                            mb: intro ? 3.5 : 5,
+                            fontFamily: "var(--font-sans)",
+                        }}
+                    >
                         Last updated {updated}
                     </Typography>
                     {intro && (
-                        <Typography sx={{ color: INK, fontSize: "1.05rem", lineHeight: 1.65, mb: 5, fontFamily: "var(--font-sans)" }}>
+                        <Typography
+                            sx={{
+                                color: INK,
+                                fontSize: "1.05rem",
+                                lineHeight: 1.65,
+                                mb: 5,
+                                fontFamily: "var(--font-sans)",
+                            }}
+                        >
                             {intro}
                         </Typography>
                     )}
@@ -76,7 +91,11 @@ export function LegalShell({
                         <Box
                             component="a"
                             href="mailto:hello@elixpo.com"
-                            sx={{ color: "#1863dc", textDecoration: "underline", "&:hover": { color: "#003c33" } }}
+                            sx={{
+                                color: "#1863dc",
+                                textDecoration: "underline",
+                                "&:hover": { color: "#003c33" },
+                            }}
                         >
                             hello@elixpo.com
                         </Box>
@@ -89,7 +108,10 @@ export function LegalShell({
 }
 
 /** A titled section within a legal document. */
-export function LegalSection({ heading, children }: { heading: string; children: React.ReactNode }) {
+export function LegalSection({
+    heading,
+    children,
+}: { heading: string; children: React.ReactNode }) {
     return (
         <Box component="section">
             <Typography
@@ -113,7 +135,16 @@ export function LegalSection({ heading, children }: { heading: string; children:
 /** A paragraph of legal prose. */
 export function LegalP({ children }: { children: React.ReactNode }) {
     return (
-        <Typography sx={{ color: INK, fontSize: "0.95rem", lineHeight: 1.65, fontFamily: "var(--font-sans)" }}>{children}</Typography>
+        <Typography
+            sx={{
+                color: INK,
+                fontSize: "0.95rem",
+                lineHeight: 1.65,
+                fontFamily: "var(--font-sans)",
+            }}
+        >
+            {children}
+        </Typography>
     );
 }
 
@@ -134,7 +165,14 @@ export function LegalList({ items }: { items: React.ReactNode[] }) {
                             background: CORAL,
                         }}
                     />
-                    <Typography sx={{ color: INK, fontSize: "0.95rem", lineHeight: 1.65, fontFamily: "var(--font-sans)" }}>
+                    <Typography
+                        sx={{
+                            color: INK,
+                            fontSize: "0.95rem",
+                            lineHeight: 1.65,
+                            fontFamily: "var(--font-sans)",
+                        }}
+                    >
                         {item}
                     </Typography>
                 </Stack>
@@ -142,4 +180,3 @@ export function LegalList({ items }: { items: React.ReactNode[] }) {
         </Stack>
     );
 }
-

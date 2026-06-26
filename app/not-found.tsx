@@ -35,9 +35,24 @@ const GHOST = {
 
 export default function NotFound() {
     return (
-        <Box sx={{ minHeight: "100vh", display: "grid", placeItems: "center", px: 3, background: "#ffffff", color: INK }}>
+        <Box
+            sx={{
+                minHeight: "100vh",
+                display: "grid",
+                placeItems: "center",
+                px: 3,
+                background: "#ffffff",
+                color: INK,
+            }}
+        >
             <Stack alignItems="center" textAlign="center" spacing={3.5} sx={{ maxWidth: 460 }}>
-                <Image src="/logo.png" alt="Elixpo Mails" width={52} height={52} style={{ borderRadius: 12 }} />
+                <Image
+                    src="/logo.png"
+                    alt="Elixpo Mails"
+                    width={52}
+                    height={52}
+                    style={{ borderRadius: 12 }}
+                />
                 <Box>
                     <Typography
                         sx={{
@@ -51,15 +66,36 @@ export default function NotFound() {
                     >
                         404
                     </Typography>
-                    <Typography sx={{ fontWeight: 500, fontSize: "1.45rem", mt: 1.5, letterSpacing: "-0.02em", color: "#000000", fontFamily: "var(--font-display)" }}>
+                    <Typography
+                        sx={{
+                            fontWeight: 500,
+                            fontSize: "1.45rem",
+                            mt: 1.5,
+                            letterSpacing: "-0.02em",
+                            color: "#000000",
+                            fontFamily: "var(--font-display)",
+                        }}
+                    >
                         Lost in the outbox
                     </Typography>
-                    <Typography sx={{ color: SLATE, fontSize: "0.98rem", mt: 1.5, lineHeight: 1.6, fontFamily: "var(--font-sans)" }}>
-                        This page didn&rsquo;t make it to the inbox. The link may be broken or the page
-                        may have moved.
+                    <Typography
+                        sx={{
+                            color: SLATE,
+                            fontSize: "0.98rem",
+                            mt: 1.5,
+                            lineHeight: 1.6,
+                            fontFamily: "var(--font-sans)",
+                        }}
+                    >
+                        This page didn&rsquo;t make it to the inbox. The link may be broken or the
+                        page may have moved.
                     </Typography>
                 </Box>
-                <Stack direction={{ xs: "column", sm: "row" }} spacing={2} sx={{ width: "100%", justifyContent: "center" }}>
+                <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={2}
+                    sx={{ width: "100%", justifyContent: "center" }}
+                >
                     <Button component={Link} href="/" sx={PRIMARY}>
                         Back home
                     </Button>

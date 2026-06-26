@@ -34,9 +34,7 @@ function UsageRow({ label, used, limit }: { label: string; used: string; limit: 
             alignItems="center"
             sx={{ py: 1.1, borderBottom: `1px solid ${BORDER}` }}
         >
-            <Typography sx={{ fontSize: "0.88rem", color: "var(--fg-muted)" }}>
-                {label}
-            </Typography>
+            <Typography sx={{ fontSize: "0.88rem", color: "var(--fg-muted)" }}>{label}</Typography>
             <Typography
                 sx={{ fontSize: "0.86rem", color: TEXT_55, fontFamily: "var(--font-geist-mono)" }}
             >
@@ -105,7 +103,11 @@ export default async function BillingPage() {
                                     Starter
                                 </Typography>
                                 <Typography
-                                    sx={{ fontWeight: 700, fontSize: "1rem", color: "var(--success)" }}
+                                    sx={{
+                                        fontWeight: 700,
+                                        fontSize: "1rem",
+                                        color: "var(--success)",
+                                    }}
                                 >
                                     Free
                                 </Typography>
@@ -135,10 +137,10 @@ export default async function BillingPage() {
                     >
                         {STARTER_LIMITS.map((l) => (
                             <Stack key={l.label} direction="row" spacing={1} alignItems="center">
-                                <CheckIcon sx={{ fontSize: 16, color: "var(--success)", flexShrink: 0 }} />
-                                <Typography
-                                    sx={{ fontSize: "0.86rem", color: "var(--fg-muted)" }}
-                                >
+                                <CheckIcon
+                                    sx={{ fontSize: 16, color: "var(--success)", flexShrink: 0 }}
+                                />
+                                <Typography sx={{ fontSize: "0.86rem", color: "var(--fg-muted)" }}>
                                     {l.value}{" "}
                                     <Box component="span" sx={{ color: TEXT_55 }}>
                                         {l.label.toLowerCase()}

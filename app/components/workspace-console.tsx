@@ -203,7 +203,10 @@ function MessageLine({ msg, sx }: { msg: Msg; sx?: object }) {
                 <ErrorOutlineIcon sx={{ fontSize: 16, color: "var(--danger)" }} />
             )}
             <Typography
-                sx={{ fontSize: "0.82rem", color: msg.type === "ok" ? "var(--success)" : "var(--danger)" }}
+                sx={{
+                    fontSize: "0.82rem",
+                    color: msg.type === "ok" ? "var(--success)" : "var(--danger)",
+                }}
             >
                 {msg.text}
             </Typography>
@@ -501,7 +504,10 @@ function YourWorkspacesCard({
                                     }}
                                 >
                                     {busy ? (
-                                        <CircularProgress size={15} sx={{ color: "var(--accent-contrast)" }} />
+                                        <CircularProgress
+                                            size={15}
+                                            sx={{ color: "var(--accent-contrast)" }}
+                                        />
                                     ) : (
                                         "Dashboard"
                                     )}
@@ -727,10 +733,7 @@ function CosmeticsCard({
                             sx={{ ...gradientButtonSx, minWidth: 110 }}
                         >
                             {saving ? (
-                                <CircularProgress
-                                    size={18}
-                                    sx={{ color: "var(--fg-muted)" }}
-                                />
+                                <CircularProgress size={18} sx={{ color: "var(--fg-muted)" }} />
                             ) : (
                                 "Save"
                             )}
@@ -917,7 +920,10 @@ function MembersCard({
                                         }}
                                     >
                                         {busy ? (
-                                            <CircularProgress size={16} sx={{ color: "var(--accent-contrast)" }} />
+                                            <CircularProgress
+                                                size={16}
+                                                sx={{ color: "var(--accent-contrast)" }}
+                                            />
                                         ) : (
                                             "Approve"
                                         )}

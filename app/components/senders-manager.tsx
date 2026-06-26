@@ -216,9 +216,7 @@ function GmailHint() {
             }}
         >
             <InfoOutlinedIcon sx={{ fontSize: 18, color: "#5fb6ff", flexShrink: 0, mt: 0.2 }} />
-            <Typography
-                sx={{ fontSize: "0.8rem", color: "var(--fg-muted)", lineHeight: 1.6 }}
-            >
+            <Typography sx={{ fontSize: "0.8rem", color: "var(--fg-muted)", lineHeight: 1.6 }}>
                 For Gmail you need 2-Step Verification enabled, then a 16-character{" "}
                 <MuiLink
                     href={GMAIL_HELP}
@@ -958,8 +956,7 @@ function AliasesSection({
                                                             fontWeight: 600,
                                                             color: TEXT_55,
                                                             "&:hover": {
-                                                                background:
-                                                                    "var(--overlay)",
+                                                                background: "var(--overlay)",
                                                             },
                                                         }}
                                                     >

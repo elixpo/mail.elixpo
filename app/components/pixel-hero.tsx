@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { useState, useEffect } from "react";
 import { Box, Button, Chip, Container, Grid, Stack, Typography } from "@mui/material";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 // Senders brand list for the trust logos
 const SENDER_BRANDS = ["Gmail", "Outlook", "Yahoo", "iCloud", "Zoho", "Proton", "Fastmail", "SMTP"];
@@ -37,7 +37,7 @@ export default function PixelHero({ authed }: { authed?: boolean | null }) {
                     50% { opacity: 0.25; transform: scale(1.05); }
                 }
             `}</style>
-            
+
             {/* Centered Hero Header */}
             <Box sx={{ maxWidth: 880, mx: "auto", px: 2.5, textAlign: "center" }}>
                 {/* Taxonomy Chip */}
@@ -72,7 +72,7 @@ export default function PixelHero({ authed }: { authed?: boolean | null }) {
                             fontStyle: "italic",
                             fontWeight: 400,
                             color: "#75758a",
-                        }
+                        },
                     }}
                 >
                     Email <span>infrastructure</span> <br />
@@ -91,8 +91,8 @@ export default function PixelHero({ authed }: { authed?: boolean | null }) {
                         mb: 4.5,
                     }}
                 >
-                    Bring your own sender, design templates with live preview, and trigger 
-                    sends from your service via a signed webhook. Run on Cloudflare's edge.
+                    Bring your own sender, design templates with live preview, and trigger sends
+                    from your service via a signed webhook. Run on Cloudflare's edge.
                 </Typography>
 
                 {/* Actions: Pill CTA & Underlined Action Link */}
@@ -137,13 +137,15 @@ export default function PixelHero({ authed }: { authed?: boolean | null }) {
                             background: "rgba(238, 236, 231, 0.45)", // Semi-transparent Soft Stone
                             backdropFilter: "blur(12px)",
                             border: "1px solid rgba(0, 0, 0, 0.08)",
-                            boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 2px 10px rgba(0, 0, 0, 0.02)",
+                            boxShadow:
+                                "inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 2px 10px rgba(0, 0, 0, 0.02)",
                             fontFamily: "var(--font-sans)",
                             transition: "all 0.22s ease-in-out",
                             "&:hover": {
                                 background: "rgba(238, 236, 231, 0.75)",
                                 borderColor: "rgba(0, 0, 0, 0.16)",
-                                boxShadow: "inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 4px 15px rgba(0, 0, 0, 0.05)",
+                                boxShadow:
+                                    "inset 0 1px 1px rgba(255, 255, 255, 0.8), 0 4px 15px rgba(0, 0, 0, 0.05)",
                             },
                         }}
                     >
@@ -169,7 +171,7 @@ export default function PixelHero({ authed }: { authed?: boolean | null }) {
                     >
                         Compatible with any mailbox provider
                     </Typography>
-                    
+
                     <Stack
                         direction="row"
                         spacing={{ xs: 4, sm: 6, md: 8 }}
@@ -186,9 +188,9 @@ export default function PixelHero({ authed }: { authed?: boolean | null }) {
                                 transition: "color 0.2s ease",
                                 cursor: "default",
                                 "&:hover": {
-                                    color: "#17171c"
-                                }
-                            }
+                                    color: "#17171c",
+                                },
+                            },
                         }}
                     >
                         {SENDER_BRANDS.map((brand) => (

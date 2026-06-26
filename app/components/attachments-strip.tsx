@@ -179,9 +179,7 @@ export default function AttachmentsStrip({
                                 fontSize: "0.74rem",
                                 color: "var(--fg)",
                                 bgcolor:
-                                    a.kind === "variable"
-                                        ? "var(--accent-tint)"
-                                        : "var(--overlay)",
+                                    a.kind === "variable" ? "var(--accent-tint)" : "var(--overlay)",
                                 border: `1px solid ${a.kind === "variable" ? "var(--accent-border)" : BORDER}`,
                                 "& .MuiChip-deleteIcon": {
                                     color: "var(--fg-muted)",
@@ -268,7 +266,9 @@ function UrlDialog({
     const valid = /^https?:\/\//i.test(url.trim());
     return (
         <Dialog open onClose={onClose} slotProps={{ paper: dialogPaper }}>
-            <DialogTitle sx={{ color: "var(--fg)", fontWeight: 800 }}>Attach from a URL</DialogTitle>
+            <DialogTitle sx={{ color: "var(--fg)", fontWeight: 800 }}>
+                Attach from a URL
+            </DialogTitle>
             <DialogContent>
                 <Stack spacing={2} sx={{ mt: 0.5 }}>
                     <TextField

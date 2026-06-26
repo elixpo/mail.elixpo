@@ -100,19 +100,19 @@ const Footer = () => {
                         >
                             Stay updated on modern transactional email tech.
                         </Typography>
-                        
+
                         {/* Single-line Email Input */}
-                        <Stack 
-                            direction="row" 
-                            spacing={1} 
-                            sx={{ 
+                        <Stack
+                            direction="row"
+                            spacing={1}
+                            sx={{
                                 position: "relative",
                                 maxWidth: 360,
                                 borderBottom: "1.5px solid #292933",
                                 pb: 0.5,
                                 "&:focus-within": {
                                     borderBottomColor: "#9b60aa", // Form Focus Violet
-                                }
+                                },
                             }}
                         >
                             <Box
@@ -130,8 +130,8 @@ const Footer = () => {
                                     outline: "none",
                                     py: 1,
                                     "&::placeholder": {
-                                        color: "rgba(255,255,255,0.3)"
-                                    }
+                                        color: "rgba(255,255,255,0.3)",
+                                    },
                                 }}
                             />
                             <Button
@@ -146,22 +146,34 @@ const Footer = () => {
                                     p: 1,
                                     color: "#ffffff",
                                     "&:hover": {
-                                        color: "#ff7759"
-                                    }
+                                        color: "#ff7759",
+                                    },
                                 }}
                             >
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path
+                                        d="M5 12h14M12 5l7 7-7 7"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
                                 </svg>
                             </Button>
                         </Stack>
-                        <Typography sx={{ color: "#93939f", fontSize: "11px", mt: 1.5, lineHeight: 1.4 }}>
-                            By subscribing, you agree to our privacy policy. Transactional mail infrastructure without the complexity.
+                        <Typography
+                            sx={{ color: "#93939f", fontSize: "11px", mt: 1.5, lineHeight: 1.4 }}
+                        >
+                            By subscribing, you agree to our privacy policy. Transactional mail
+                            infrastructure without the complexity.
                         </Typography>
                     </Box>
 
                     {/* Columns on Right */}
-                    <Stack direction={{ xs: "column", sm: "row" }} spacing={{ xs: 4, sm: 6, md: 8 }}>
+                    <Stack
+                        direction={{ xs: "column", sm: "row" }}
+                        spacing={{ xs: 4, sm: 6, md: 8 }}
+                    >
                         {COLUMNS.map((col) => (
                             <Box key={col.heading} sx={{ minWidth: 100 }}>
                                 <Typography
@@ -189,8 +201,12 @@ const Footer = () => {
                                                 fontFamily: "var(--font-sans)",
                                                 transition: "color 0.2s ease",
                                             }}
-                                            onMouseEnter={(e) => { e.currentTarget.style.color = "#ffffff"; }}
-                                            onMouseLeave={(e) => { e.currentTarget.style.color = "#93939f"; }}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.color = "#ffffff";
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.color = "#93939f";
+                                            }}
                                         >
                                             {l.label}
                                         </Link>

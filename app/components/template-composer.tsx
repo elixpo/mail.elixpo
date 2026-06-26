@@ -564,9 +564,7 @@ export default function TemplateComposer({ templateId }: { templateId?: string }
                                     },
                                 }}
                             />
-                            <Typography
-                                sx={{ fontSize: "0.82rem", color: "var(--fg-muted)" }}
-                            >
+                            <Typography sx={{ fontSize: "0.82rem", color: "var(--fg-muted)" }}>
                                 Transactional
                             </Typography>
                             <Tooltip

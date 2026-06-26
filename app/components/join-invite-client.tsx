@@ -193,7 +193,10 @@ export function JoinInviteClient(props: JoinInviteClientProps) {
                                 sx={primaryButtonSx}
                             >
                                 {loading ? (
-                                    <CircularProgress size={20} sx={{ color: "var(--accent-contrast)" }} />
+                                    <CircularProgress
+                                        size={20}
+                                        sx={{ color: "var(--accent-contrast)" }}
+                                    />
                                 ) : (
                                     "Accept invite"
                                 )}

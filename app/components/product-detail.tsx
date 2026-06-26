@@ -1226,7 +1226,9 @@ function LogoUploader({ value, onChange }: { value: string; onChange: (v: string
                     Remove
                 </Button>
             )}
-            {err && <Typography sx={{ color: "var(--danger)", fontSize: "0.78rem" }}>{err}</Typography>}
+            {err && (
+                <Typography sx={{ color: "var(--danger)", fontSize: "0.78rem" }}>{err}</Typography>
+            )}
             <input
                 ref={fileRef}
                 type="file"

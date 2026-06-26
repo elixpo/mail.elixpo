@@ -320,12 +320,14 @@ export default function DashboardTopbar({ user }: { user: DashboardUser }) {
                                 </Typography>
                             </Box>
                         </Stack>
-                        <Stack direction="row" spacing={0.8} alignItems="center" sx={{ mt: 1.3 }}>
+                        <Stack spacing={0.8} alignItems="stretch" sx={{ mt: 1.3 }}>
                             <Chip
                                 label="Starter plan"
                                 size="small"
                                 sx={{
-                                    height: 20,
+                                    height: 22,
+                                    width: "100%",
+                                    justifyContent: "flex-start",
                                     fontSize: "0.66rem",
                                     fontWeight: 700,
                                     letterSpacing: "0.02em",
@@ -334,31 +336,25 @@ export default function DashboardTopbar({ user }: { user: DashboardUser }) {
                                     border: "1px solid var(--accent-border)",
                                 }}
                             />
-                            <Box sx={{ flexGrow: 1 }} />
-                            <Typography
+                            <Chip
+                                size="small"
+                                label={`Workspace · ${activeWorkspace?.name || user.tenantId}`}
                                 sx={{
-                                    fontSize: "0.6rem",
-                                    fontWeight: 700,
-                                    letterSpacing: "0.06em",
-                                    textTransform: "uppercase",
-                                    color: "var(--fg-faint)",
-                                }}
-                            >
-                                Workspace
-                            </Typography>
-                            <Typography
-                                sx={{
-                                    fontFamily: "var(--font-geist-mono)",
-                                    fontSize: "0.68rem",
+                                    height: 22,
+                                    width: "100%",
+                                    justifyContent: "flex-start",
+                                    fontSize: "0.66rem",
+                                    fontWeight: 600,
                                     color: "var(--fg-muted)",
-                                    maxWidth: 110,
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    whiteSpace: "nowrap",
+                                    bgcolor: "var(--overlay)",
+                                    border: "1px solid var(--border)",
+                                    "& .MuiChip-label": {
+                                        overflow: "hidden",
+                                        textOverflow: "ellipsis",
+                                        whiteSpace: "nowrap",
+                                    },
                                 }}
-                            >
-                                {user.tenantId}
-                            </Typography>
+                            />
                         </Stack>
                     </Box>
                     <Divider sx={{ borderColor: BORDER }} />
@@ -500,7 +496,10 @@ export default function DashboardTopbar({ user }: { user: DashboardUser }) {
                             py: 1.0,
                             gap: 1.3,
                             color: "var(--danger)",
-                            "&:hover": { background: "rgba(239,68,68,0.08)", color: "var(--danger)" },
+                            "&:hover": {
+                                background: "rgba(239,68,68,0.08)",
+                                color: "var(--danger)",
+                            },
                         }}
                     >
                         <LogoutIcon sx={{ fontSize: 18 }} />

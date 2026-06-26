@@ -14,14 +14,14 @@ export function DocTitle({ children }: { children: React.ReactNode }) {
     return (
         <Typography
             component="h1"
-            sx={{ 
-                fontWeight: 500, 
-                fontSize: "2.2rem", 
-                letterSpacing: "-0.03em", 
-                mb: 2, 
+            sx={{
+                fontWeight: 500,
+                fontSize: "2.2rem",
+                letterSpacing: "-0.03em",
+                mb: 2,
                 color: "#000000",
                 fontFamily: "var(--font-display)",
-                lineHeight: 1.1
+                lineHeight: 1.1,
             }}
         >
             {children}
@@ -31,13 +31,13 @@ export function DocTitle({ children }: { children: React.ReactNode }) {
 
 export function DocLead({ children }: { children: React.ReactNode }) {
     return (
-        <Typography 
-            sx={{ 
-                color: SLATE, 
-                fontSize: "1.05rem", 
-                lineHeight: 1.6, 
+        <Typography
+            sx={{
+                color: SLATE,
+                fontSize: "1.05rem",
+                lineHeight: 1.6,
                 mb: 3.5,
-                fontFamily: "var(--font-sans)"
+                fontFamily: "var(--font-sans)",
             }}
         >
             {children}
@@ -49,14 +49,14 @@ export function DocH2({ children }: { children: React.ReactNode }) {
     return (
         <Typography
             component="h2"
-            sx={{ 
-                fontWeight: 500, 
-                fontSize: "1.45rem", 
-                mt: 4.5, 
-                mb: 1.8, 
-                color: "#000000", 
+            sx={{
+                fontWeight: 500,
+                fontSize: "1.45rem",
+                mt: 4.5,
+                mb: 1.8,
+                color: "#000000",
                 letterSpacing: "-0.02em",
-                fontFamily: "var(--font-display)"
+                fontFamily: "var(--font-display)",
             }}
         >
             {children}
@@ -68,13 +68,13 @@ export function DocH3({ children }: { children: React.ReactNode }) {
     return (
         <Typography
             component="h3"
-            sx={{ 
-                fontWeight: 500, 
-                fontSize: "1.15rem", 
-                mt: 3.5, 
-                mb: 1.2, 
+            sx={{
+                fontWeight: 500,
+                fontSize: "1.15rem",
+                mt: 3.5,
+                mb: 1.2,
                 color: "#000000",
-                fontFamily: "var(--font-display)"
+                fontFamily: "var(--font-display)",
             }}
         >
             {children}
@@ -84,13 +84,13 @@ export function DocH3({ children }: { children: React.ReactNode }) {
 
 export function DocP({ children }: { children: React.ReactNode }) {
     return (
-        <Typography 
-            sx={{ 
-                color: INK, 
-                lineHeight: 1.65, 
-                mb: 2, 
+        <Typography
+            sx={{
+                color: INK,
+                lineHeight: 1.65,
+                mb: 2,
                 fontSize: "0.95rem",
-                fontFamily: "var(--font-sans)"
+                fontFamily: "var(--font-sans)",
             }}
         >
             {children}
@@ -100,14 +100,14 @@ export function DocP({ children }: { children: React.ReactNode }) {
 
 export function DocList({ items }: { items: React.ReactNode[] }) {
     return (
-        <Box 
-            component="ul" 
-            sx={{ 
-                color: INK, 
-                pl: 3, 
-                mb: 2.5, 
+        <Box
+            component="ul"
+            sx={{
+                color: INK,
+                pl: 3,
+                mb: 2.5,
                 fontFamily: "var(--font-sans)",
-                "& li": { mb: 1, lineHeight: 1.6, fontSize: "0.95rem" } 
+                "& li": { mb: 1, lineHeight: 1.6, fontSize: "0.95rem" },
             }}
         >
             {items.map((it, i) => (
@@ -168,7 +168,7 @@ export function Callout({
     const isWarn = tone === "warn";
     const borderColor = isWarn ? CORAL : ACTION_BLUE;
     const bgColor = isWarn ? "rgba(255, 119, 89, 0.05)" : "#f1f5ff"; // Soft Coral / Pale Blue Wash
-    
+
     return (
         <Box
             sx={{
@@ -181,27 +181,27 @@ export function Callout({
             }}
         >
             {title && (
-                <Typography 
-                    sx={{ 
-                        fontWeight: 600, 
-                        fontSize: "0.88rem", 
-                        color: isWarn ? CORAL : ACTION_BLUE, 
-                        mb: 0.8, 
+                <Typography
+                    sx={{
+                        fontWeight: 600,
+                        fontSize: "0.88rem",
+                        color: isWarn ? CORAL : ACTION_BLUE,
+                        mb: 0.8,
                         letterSpacing: "0.02em",
                         fontFamily: "var(--font-mono)",
-                        textTransform: "uppercase"
+                        textTransform: "uppercase",
                     }}
                 >
                     {title}
                 </Typography>
             )}
-            <Box 
-                sx={{ 
-                    color: INK, 
-                    fontSize: "0.92rem", 
-                    lineHeight: 1.6, 
+            <Box
+                sx={{
+                    color: INK,
+                    fontSize: "0.92rem",
+                    lineHeight: 1.6,
                     fontFamily: "var(--font-sans)",
-                    "& a": { color: ACTION_BLUE, textDecoration: "underline" } 
+                    "& a": { color: ACTION_BLUE, textDecoration: "underline" },
                 }}
             >
                 {children}
@@ -231,8 +231,8 @@ export function NextLink({ href, label }: { href: string; label: string }) {
                     border: `1px solid ${HAIRLINE}`,
                     fontFamily: "var(--font-sans)",
                     transition: "all 0.2s ease",
-                    "&:hover": { 
-                        borderColor: INK, 
+                    "&:hover": {
+                        borderColor: INK,
                         background: "rgba(0, 0, 0, 0.02)",
                     },
                 }}

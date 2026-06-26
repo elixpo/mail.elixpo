@@ -56,18 +56,26 @@ export function PageHeader({
             sx={{ mb: { xs: 3.5, md: 4.5 } }}
         >
             <Box>
-                <Typography 
-                    sx={{ 
-                        fontWeight: 500, 
-                        fontSize: { xs: "1.55rem", md: "1.9rem" }, 
-                        letterSpacing: "-0.02em", 
+                <Typography
+                    sx={{
+                        fontWeight: 500,
+                        fontSize: { xs: "1.55rem", md: "1.9rem" },
+                        letterSpacing: "-0.02em",
                         color: TEXT,
-                        fontFamily: "var(--font-display)" 
+                        fontFamily: "var(--font-display)",
                     }}
                 >
                     {title}
                 </Typography>
-                <Typography sx={{ color: TEXT_55, fontSize: "0.95rem", mt: 0.5, maxWidth: 620, fontFamily: "var(--font-sans)" }}>
+                <Typography
+                    sx={{
+                        color: TEXT_55,
+                        fontSize: "0.95rem",
+                        mt: 0.5,
+                        maxWidth: 620,
+                        fontFamily: "var(--font-sans)",
+                    }}
+                >
                     {description}
                 </Typography>
             </Box>
@@ -143,10 +151,28 @@ export function EmptyState({
                     <Icon sx={{ fontSize: 32 }} />
                 </Box>
                 <Box>
-                    <Typography sx={{ fontWeight: 500, fontSize: "1.2rem", color: TEXT, mb: 0.8, fontFamily: "var(--font-display)", letterSpacing: "-0.01em" }}>
+                    <Typography
+                        sx={{
+                            fontWeight: 500,
+                            fontSize: "1.2rem",
+                            color: TEXT,
+                            mb: 0.8,
+                            fontFamily: "var(--font-display)",
+                            letterSpacing: "-0.01em",
+                        }}
+                    >
                         {headline}
                     </Typography>
-                    <Typography sx={{ color: TEXT_55, fontSize: "0.95rem", lineHeight: 1.65, maxWidth: 460, mx: "auto", fontFamily: "var(--font-sans)" }}>
+                    <Typography
+                        sx={{
+                            color: TEXT_55,
+                            fontSize: "0.95rem",
+                            lineHeight: 1.65,
+                            maxWidth: 460,
+                            mx: "auto",
+                            fontFamily: "var(--font-sans)",
+                        }}
+                    >
                         {subtext}
                     </Typography>
                 </Box>

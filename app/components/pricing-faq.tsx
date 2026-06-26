@@ -36,12 +36,26 @@ export default function PricingFaq({ items }: { items: Faq[] }) {
                             "& .MuiAccordionSummary-content": { my: 1.5 },
                         }}
                     >
-                        <Typography sx={{ fontWeight: 500, fontSize: "1.08rem", color: "#000000", fontFamily: "var(--font-display)" }}>
+                        <Typography
+                            sx={{
+                                fontWeight: 500,
+                                fontSize: "1.08rem",
+                                color: "#000000",
+                                fontFamily: "var(--font-display)",
+                            }}
+                        >
                             {item.q}
                         </Typography>
                     </AccordionSummary>
                     <AccordionDetails sx={{ px: 1, pb: 3, pt: 0 }}>
-                        <Typography sx={{ color: INK, fontSize: "0.95rem", lineHeight: 1.65, fontFamily: "var(--font-sans)" }}>
+                        <Typography
+                            sx={{
+                                color: INK,
+                                fontSize: "0.95rem",
+                                lineHeight: 1.65,
+                                fontFamily: "var(--font-sans)",
+                            }}
+                        >
                             {item.a}
                         </Typography>
                     </AccordionDetails>

@@ -52,7 +52,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }, []);
 
     return (
-        <ThemeContext.Provider value={{ theme, setTheme, toggle }}>{children}</ThemeContext.Provider>
+        <ThemeContext.Provider value={{ theme, setTheme, toggle }}>
+            {children}
+        </ThemeContext.Provider>
     );
 }
 
