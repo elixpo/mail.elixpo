@@ -39,7 +39,6 @@ const COLUMNS: { heading: string; links: { label: string; href: string }[] }[] =
 
 const Footer = () => {
     const [copied, setCopied] = useState(false);
-    const [emailVal, setEmailVal] = useState("");
 
     const copyEmail = async () => {
         try {
@@ -101,26 +100,24 @@ const Footer = () => {
                             Stay updated on modern transactional email tech.
                         </Typography>
 
-                        {/* Single-line Email Input */}
+                        {/* Single-line Email Input — coming soon */}
                         <Stack
                             direction="row"
                             spacing={1}
+                            alignItems="center"
                             sx={{
                                 position: "relative",
                                 maxWidth: 360,
                                 borderBottom: "1.5px solid #292933",
                                 pb: 0.5,
-                                "&:focus-within": {
-                                    borderBottomColor: "#9b60aa", // Form Focus Violet
-                                },
+                                opacity: 0.55,
                             }}
                         >
                             <Box
                                 component="input"
                                 type="email"
+                                disabled
                                 placeholder="Subscribe to updates"
-                                value={emailVal}
-                                onChange={(e: any) => setEmailVal(e.target.value)}
                                 sx={{
                                     width: "100%",
                                     background: "transparent",
@@ -129,43 +126,36 @@ const Footer = () => {
                                     fontSize: "0.95rem",
                                     outline: "none",
                                     py: 1,
+                                    cursor: "not-allowed",
                                     "&::placeholder": {
                                         color: "rgba(255,255,255,0.3)",
                                     },
                                 }}
                             />
-                            <Button
-                                onClick={() => {
-                                    if (emailVal) {
-                                        alert("Thank you for subscribing!");
-                                        setEmailVal("");
-                                    }
-                                }}
+                            <Box
+                                component="span"
                                 sx={{
-                                    minWidth: 0,
-                                    p: 1,
-                                    color: "#ffffff",
-                                    "&:hover": {
-                                        color: "#ff7759",
-                                    },
+                                    flexShrink: 0,
+                                    fontSize: "10px",
+                                    fontWeight: 700,
+                                    letterSpacing: "0.06em",
+                                    textTransform: "uppercase",
+                                    color: "#ffad9b",
+                                    border: "1px solid rgba(255,119,89,0.3)",
+                                    background: "rgba(255,119,89,0.1)",
+                                    borderRadius: "20px",
+                                    px: 1,
+                                    py: 0.3,
+                                    whiteSpace: "nowrap",
                                 }}
                             >
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                    <path
-                                        d="M5 12h14M12 5l7 7-7 7"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                    />
-                                </svg>
-                            </Button>
+                                Coming soon
+                            </Box>
                         </Stack>
                         <Typography
                             sx={{ color: "#93939f", fontSize: "11px", mt: 1.5, lineHeight: 1.4 }}
                         >
-                            By subscribing, you agree to our privacy policy. Transactional mail
-                            infrastructure without the complexity.
+                            Product updates and changelog — subscriptions open soon.
                         </Typography>
                     </Box>
 

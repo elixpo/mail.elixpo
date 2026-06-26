@@ -2,15 +2,12 @@
 
 import type { SvgIconComponent } from "@mui/icons-material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import BoltIcon from "@mui/icons-material/Bolt";
 import CheckIcon from "@mui/icons-material/Check";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CodeIcon from "@mui/icons-material/Code";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DesignServicesIcon from "@mui/icons-material/DesignServices";
 import EastIcon from "@mui/icons-material/East";
 import HubIcon from "@mui/icons-material/Hub";
-import InsightsIcon from "@mui/icons-material/Insights";
 import LockIcon from "@mui/icons-material/Lock";
 import MarkEmailReadIcon from "@mui/icons-material/MarkEmailRead";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
@@ -32,7 +29,6 @@ const CORAL = "#ff7759";
 const ACTION_BLUE = "#1863dc";
 const INK = "#212121";
 const SLATE = "#75758a";
-const HAIRLINE = "#d9d9dd";
 
 // Cohere primary CTA button styles
 const PRIMARY_BTN = {
@@ -106,6 +102,51 @@ function SectionHead({
     );
 }
 
+// ── Connective "story thread" artifact between sections ─────────────────────
+function SectionThread({ node = true }: { node?: boolean }) {
+    return (
+        <Box
+            aria-hidden
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 0,
+                py: { xs: 0.5, md: 1 },
+            }}
+        >
+            <Box
+                sx={{
+                    width: "1.5px",
+                    height: { xs: 26, md: 38 },
+                    background: "linear-gradient(to bottom, transparent, var(--accent-border))",
+                }}
+            />
+            {node && (
+                <Box
+                    sx={{
+                        width: 9,
+                        height: 9,
+                        borderRadius: "50%",
+                        background: CORAL,
+                        boxShadow: "0 0 0 5px var(--accent-tint)",
+                        my: 0.4,
+                    }}
+                />
+            )}
+            <Box
+                sx={{
+                    width: "1.5px",
+                    height: { xs: 26, md: 38 },
+                    background: node
+                        ? "linear-gradient(to bottom, var(--accent-border), transparent)"
+                        : "linear-gradient(to bottom, var(--accent-border), transparent)",
+                }}
+            />
+        </Box>
+    );
+}
+
 // ── Auth-aware primary CTA ──────────────────────────────────────────────────
 function useAuthed(): boolean | null {
     const [authed, setAuthed] = useState<boolean | null>(null);
@@ -144,23 +185,18 @@ function PrimaryCta({
 const STEPS: { icon: SvgIconComponent; title: string; body: string }[] = [
     {
         icon: VpnKeyIcon,
-        title: "Connect a sender",
-        body: "Add your mailbox — email + app password. Stored encrypted, never returned.",
+        title: "Connect your sender",
+        body: "Add your mailbox — email + app password, encrypted at rest. Your domain, your reputation.",
     },
     {
         icon: DesignServicesIcon,
         title: "Design a template",
-        body: "Compose in a visual editor with {{variable}} placeholders and a live preview.",
+        body: "Compose in a visual editor with {{variable}} placeholders and a live inbox preview.",
     },
     {
         icon: WebhookIcon,
-        title: "Trigger via webhook",
-        body: "POST an event with per-config credentials. We merge variables and send.",
-    },
-    {
-        icon: InsightsIcon,
-        title: "Track delivery",
-        body: "Every send is logged with status, recipient, and resolved variables.",
+        title: "Send it",
+        body: "Send a one-time email to anyone — no login required — or trigger it from your stack with a signed webhook.",
     },
 ];
 
@@ -176,24 +212,24 @@ const FEATURES: { icon: SvgIconComponent; title: string; body: string }[] = [
         body: "Design emails in a WYSIWYG editor with {{variable}} placeholders and a live preview that renders exactly what recipients will see.",
     },
     {
+        icon: MarkEmailReadIcon,
+        title: "One-time templates, no login",
+        body: "Compose a template and send it to anyone, right away — Gmail-style. No account for the recipient, no webhook to wire up.",
+    },
+    {
+        icon: HubIcon,
+        title: "Custom team workspaces",
+        body: "Invite teammates with one link, assign roles (admin, writer, viewer), and approve who joins — everyone shares one branded workspace.",
+    },
+    {
         icon: WebhookIcon,
         title: "Trigger from your stack",
-        body: "Fire a single webhook from your service with per-config client credentials. We resolve variables into your template and deliver.",
-    },
-    {
-        icon: BoltIcon,
-        title: "Event-based, not batch",
-        body: "Welcome emails, receipts, password resets, alerts — every send is a single, idempotent, traceable event, not a campaign.",
-    },
-    {
-        icon: CodeIcon,
-        title: "No mail infra to build",
-        body: "Skip SMTP plumbing, retries, queues, and template engines. One dashboard and one endpoint, and you are sending.",
+        body: "Fire a single signed webhook from your service with per-product credentials. We resolve variables into your template and deliver.",
     },
     {
         icon: MarkEmailReadIcon,
-        title: "Delivery logs",
-        body: "Each triggered send is recorded with status, recipient, and the variables it resolved — searchable from your dashboard.",
+        title: "Delivery logs & unsubscribe",
+        body: "Every send is recorded with status, recipient, and resolved variables — with one-click unsubscribe and a managed suppression list built in.",
     },
 ];
 
@@ -209,7 +245,7 @@ const USE_CASES: { icon: SvgIconComponent; label: string }[] = [
 const TRUST: { icon: SvgIconComponent; label: string }[] = [
     { icon: HubIcon, label: "Single sign-on via Elixpo Accounts" },
     { icon: LockIcon, label: "Sender credentials encrypted at rest" },
-    { icon: PublicIcon, label: "Delivered on Cloudflare's global edge" },
+    { icon: PublicIcon, label: "Signed webhooks with one-click unsubscribe" },
 ];
 
 const WEBHOOK_EXAMPLE = `curl -X POST https://mail.elixpo.com/v1/send \\
@@ -228,77 +264,112 @@ export default function Home() {
             {/* ── Hero ─────────────────────────────────────────────────────── */}
             <PixelHero authed={authed} />
 
-            {/* ── How it works: Rule-separated lists instead of boxed cards ─────────────────── */}
-            <Box
-                sx={{
-                    background: "#ffffff",
-                    py: { xs: 8, md: 12 },
-                    borderTop: `1px solid ${HAIRLINE}`,
-                }}
-            >
+            {/* ── How it works: a connected three-step icon timeline ─────────────── */}
+            <Box sx={{ background: "var(--bg)", py: { xs: 7, md: 11 } }}>
                 <Container maxWidth="lg">
                     <SectionHead
                         eyebrow="How it works"
-                        title="From event to inbox in four steps"
-                        body="No SMTP servers to run, no template engine to wire up. Configure once, then trigger sends from anywhere in your stack."
+                        title="Up and running in three steps"
+                        body="Connect a sender, design your email, then send it — one-time to anyone, or triggered from your app. No mail servers, no template engine to wire up."
                     />
 
-                    <Stack
-                        direction={{ xs: "column", md: "row" }}
-                        spacing={4}
-                        sx={{ borderTop: `1px solid ${HAIRLINE}`, pt: 4 }}
-                    >
-                        {STEPS.map((s, i) => (
-                            <Box
-                                key={s.title}
-                                sx={{
-                                    flex: 1,
-                                    pt: 1,
-                                    display: "flex",
-                                    flexDirection: "column",
-                                }}
-                            >
-                                <Typography
+                    <Box sx={{ position: "relative" }}>
+                        {/* Connector line threading the three steps (desktop). */}
+                        <Box
+                            aria-hidden
+                            sx={{
+                                display: { xs: "none", md: "block" },
+                                position: "absolute",
+                                top: 34,
+                                left: "16%",
+                                right: "16%",
+                                height: "2px",
+                                background:
+                                    "linear-gradient(to right, transparent, var(--accent-border) 12%, var(--accent-border) 88%, transparent)",
+                            }}
+                        />
+                        <Stack
+                            direction={{ xs: "column", md: "row" }}
+                            spacing={{ xs: 4.5, md: 4 }}
+                        >
+                            {STEPS.map((s, i) => (
+                                <Box
+                                    key={s.title}
                                     sx={{
-                                        fontFamily: "var(--font-mono)",
-                                        fontSize: "0.82rem",
-                                        color: CORAL,
-                                        fontWeight: 500,
-                                        mb: 1.5,
+                                        flex: 1,
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        alignItems: { xs: "flex-start", md: "center" },
+                                        textAlign: { xs: "left", md: "center" },
                                     }}
                                 >
-                                    0{i + 1}
-                                </Typography>
-                                <Typography
-                                    sx={{
-                                        fontFamily: "var(--font-display)",
-                                        fontWeight: 500,
-                                        fontSize: "1.25rem",
-                                        color: "#000000",
-                                        mb: 1,
-                                        letterSpacing: "-0.01em",
-                                    }}
-                                >
-                                    {s.title}
-                                </Typography>
-                                <Typography
-                                    sx={{ color: SLATE, fontSize: "0.9rem", lineHeight: 1.6 }}
-                                >
-                                    {s.body}
-                                </Typography>
-                            </Box>
-                        ))}
-                    </Stack>
+                                    <Box
+                                        sx={{
+                                            width: 68,
+                                            height: 68,
+                                            borderRadius: "20px",
+                                            display: "grid",
+                                            placeItems: "center",
+                                            background: "var(--surface)",
+                                            border: "1.5px solid var(--accent-border)",
+                                            color: CORAL,
+                                            boxShadow: "0 6px 24px var(--accent-tint)",
+                                            position: "relative",
+                                            zIndex: 1,
+                                        }}
+                                    >
+                                        <s.icon sx={{ fontSize: 30 }} />
+                                    </Box>
+                                    <Typography
+                                        sx={{
+                                            fontFamily: "var(--font-mono)",
+                                            fontSize: "0.74rem",
+                                            color: CORAL,
+                                            fontWeight: 600,
+                                            mt: 2,
+                                            letterSpacing: "0.1em",
+                                        }}
+                                    >
+                                        STEP 0{i + 1}
+                                    </Typography>
+                                    <Typography
+                                        sx={{
+                                            fontFamily: "var(--font-display)",
+                                            fontWeight: 500,
+                                            fontSize: "1.25rem",
+                                            color: "var(--fg)",
+                                            mt: 0.8,
+                                            mb: 1,
+                                            letterSpacing: "-0.01em",
+                                        }}
+                                    >
+                                        {s.title}
+                                    </Typography>
+                                    <Typography
+                                        sx={{
+                                            color: "var(--fg-muted)",
+                                            fontSize: "0.92rem",
+                                            lineHeight: 1.6,
+                                            maxWidth: 300,
+                                        }}
+                                    >
+                                        {s.body}
+                                    </Typography>
+                                </Box>
+                            ))}
+                        </Stack>
+                    </Box>
                 </Container>
             </Box>
 
-            {/* ── Capabilities (Rule-aligned cards, no full borders) ──────────────────── */}
+            <SectionThread />
+
+            {/* ── Capabilities: soft band of icon cards (no rules) ───────────────── */}
             <Box
                 id="features"
                 sx={{
-                    background: "#ffffff",
+                    background: "var(--bg-soft)",
                     py: { xs: 8, md: 12 },
-                    borderTop: `1px solid ${HAIRLINE}`,
                     scrollMarginTop: "80px",
                 }}
             >
@@ -306,14 +377,13 @@ export default function Home() {
                     <SectionHead
                         eyebrow="Capabilities"
                         title="Everything you need to send"
-                        body="A multi-tenant transactional email layer — your sender, your templates, your triggers, on the edge."
+                        body="Your sender, your templates, your team — one-time sends or signed-webhook triggers, all from one branded workspace."
                     />
 
                     <Box
                         sx={{
                             display: "grid",
-                            columnGap: 5,
-                            rowGap: 7,
+                            gap: 2.5,
                             gridTemplateColumns: {
                                 xs: "1fr",
                                 sm: "repeat(2, 1fr)",
@@ -325,16 +395,39 @@ export default function Home() {
                             <Box
                                 key={f.title}
                                 sx={{
-                                    maxWidth: 360,
-                                    borderTop: `1.5px solid ${HAIRLINE}`,
-                                    pt: 2.5,
+                                    p: 3,
+                                    borderRadius: "18px",
+                                    background: "var(--surface)",
+                                    border: "1px solid var(--border)",
+                                    boxShadow: "var(--card-shadow)",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    transition: "border-color 0.2s ease, transform 0.2s ease",
+                                    "&:hover": {
+                                        borderColor: "var(--accent-border)",
+                                        transform: "translateY(-2px)",
+                                    },
                                 }}
                             >
+                                <Box
+                                    sx={{
+                                        width: 44,
+                                        height: 44,
+                                        borderRadius: "12px",
+                                        display: "grid",
+                                        placeItems: "center",
+                                        background: "var(--accent-tint)",
+                                        color: CORAL,
+                                        mb: 2,
+                                    }}
+                                >
+                                    <f.icon sx={{ fontSize: 22 }} />
+                                </Box>
                                 <Typography
                                     sx={{
                                         fontWeight: 500,
-                                        fontSize: "1.2rem",
-                                        color: "#000000",
+                                        fontSize: "1.12rem",
+                                        color: "var(--fg)",
                                         mb: 1,
                                         fontFamily: "var(--font-display)",
                                         letterSpacing: "-0.01em",
@@ -344,10 +437,11 @@ export default function Home() {
                                 </Typography>
                                 <Typography
                                     sx={{
-                                        color: SLATE,
+                                        color: "var(--fg-muted)",
                                         fontSize: "0.92rem",
                                         lineHeight: 1.6,
                                         mb: 2,
+                                        flexGrow: 1,
                                     }}
                                 >
                                     {f.body}
@@ -362,6 +456,7 @@ export default function Home() {
                                         textTransform: "none",
                                         p: 0,
                                         minWidth: 0,
+                                        alignSelf: "flex-start",
                                         background: "transparent",
                                         "&:hover": {
                                             background: "transparent",
@@ -374,22 +469,64 @@ export default function Home() {
                             </Box>
                         ))}
                     </Box>
+
+                    {/* Built-on chip: lixeditor dependency */}
+                    <Stack
+                        direction="row"
+                        justifyContent="center"
+                        sx={{ mt: { xs: 5, md: 7 } }}
+                    >
+                        <Stack
+                            component="a"
+                            href="https://www.npmjs.com/package/@elixpo/lixeditor"
+                            target="_blank"
+                            rel="noreferrer"
+                            direction="row"
+                            spacing={1}
+                            alignItems="center"
+                            sx={{
+                                px: 2.2,
+                                py: 1,
+                                borderRadius: "30px",
+                                border: "1px solid var(--border)",
+                                background: "var(--surface)",
+                                textDecoration: "none",
+                                transition: "all 0.2s ease",
+                                "&:hover": { borderColor: "var(--accent-border)" },
+                            }}
+                        >
+                            <DesignServicesIcon sx={{ fontSize: 16, color: CORAL }} />
+                            <Typography
+                                sx={{
+                                    color: "var(--fg-muted)",
+                                    fontSize: "0.84rem",
+                                    fontFamily: "var(--font-mono)",
+                                }}
+                            >
+                                Editor powered by{" "}
+                                <Box component="span" sx={{ color: "var(--fg)", fontWeight: 600 }}>
+                                    @elixpo/lixeditor
+                                </Box>
+                            </Typography>
+                        </Stack>
+                    </Stack>
                 </Container>
             </Box>
+
+            <SectionThread />
 
             {/* ── Use cases: Pill outline taxonomy controls ──────────────────────────────── */}
             <Box
                 sx={{
-                    background: "#ffffff",
+                    background: "var(--bg)",
                     py: { xs: 7, md: 9 },
-                    borderTop: `1px solid ${HAIRLINE}`,
                 }}
             >
                 <Container maxWidth="md">
                     <Stack alignItems="center" textAlign="center" spacing={4}>
                         <Typography
                             sx={{
-                                color: SLATE,
+                                color: "var(--fg-muted)",
                                 fontSize: "0.88rem",
                                 fontWeight: 500,
                                 fontFamily: "var(--font-mono)",
@@ -415,12 +552,12 @@ export default function Home() {
                                         px: 2.2,
                                         py: 0.8,
                                         borderRadius: "30px", // Outlined pill radius
-                                        border: "1px solid #d9d9dd",
+                                        border: "1px solid var(--border)",
                                         background: "transparent",
                                         transition: "all 0.2s ease",
                                         "&:hover": {
                                             borderColor: CORAL,
-                                            background: "rgba(255,119,89,0.05)",
+                                            background: "var(--accent-tint)",
                                         },
                                     }}
                                 >
@@ -442,12 +579,13 @@ export default function Home() {
                 </Container>
             </Box>
 
-            {/* ── Closing CTA: Soft Stone background panel ─────────────────────────────────── */}
+            <SectionThread node={false} />
+
+            {/* ── Closing CTA: dark video panel ──────────────────────────────────── */}
             <Box
                 sx={{
-                    background: "#ffffff",
+                    background: "var(--bg)",
                     py: { xs: 8, md: 10 },
-                    borderTop: `1px solid ${HAIRLINE}`,
                 }}
             >
                 <Container maxWidth="md">
@@ -458,7 +596,7 @@ export default function Home() {
                             py: { xs: 8, md: 10 },
                             px: { xs: 3, md: 6 },
                             background: "#0c0d12", // Dark base fallback
-                            border: `1px solid ${HAIRLINE}`,
+                            border: "1px solid var(--border)",
                             borderRadius: "22px", // Signature 22px radius
                             overflow: "hidden",
                             boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
