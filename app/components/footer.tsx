@@ -260,7 +260,7 @@ const Footer = () => {
                     }}
                 >
                     <Typography sx={{ fontSize: "inherit" }}>
-                        © {new Date().getFullYear()} Elixpo · Built on Cloudflare's edge
+                        © {new Date().getFullYear()} Elixpo · Event-based transactional email
                     </Typography>
                     <Typography sx={{ fontSize: "inherit" }}>
                         Transactional email infrastructure for the Elixpo ecosystem

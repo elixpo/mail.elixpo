@@ -91,8 +91,9 @@ export default function PixelHero({ authed }: { authed?: boolean | null }) {
                         mb: 4.5,
                     }}
                 >
-                    Bring your own sender, design templates with live preview, and trigger sends
-                    from your service via a signed webhook. Run on Cloudflare's edge.
+                    Bring your own sender, design templates with a live preview, and send them
+                    one-time to anyone — no login — or trigger them from your app via a signed
+                    webhook. One branded workspace for your whole team.
                 </Typography>
 
                 {/* Actions: Pill CTA & Underlined Action Link */}
