@@ -26,13 +26,13 @@ import { EmptyState } from "./dashboard-ui";
 import { BORDER, GlassCard, SURFACE } from "./glass-card";
 
 // ── Palette ─────────────────────────────────────────────────────────────────
-const ACCENT = "#9b7bf7";
+const ACCENT = "var(--accent)";
 const GREEN = "#34d399";
 const RED = "#f87171";
 const AMBER = "#fbbf24";
-const TEXT = "#f5f5f4";
-const TEXT_55 = "rgba(245,245,244,0.55)";
-const TEXT_40 = "rgba(245,245,244,0.4)";
+const TEXT = "var(--fg)";
+const TEXT_55 = "var(--fg-muted)";
+const TEXT_40 = "var(--fg-faint)";
 
 // ── Types ───────────────────────────────────────────────────────────────────
 interface DeliverySummary {

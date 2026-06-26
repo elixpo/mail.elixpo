@@ -6,7 +6,7 @@ import { Box, Button, Snackbar, Stack, Tooltip, Typography } from "@mui/material
 import Link from "next/link";
 import { useState } from "react";
 
-const ACCENT = "#9b7bf7";
+const ACCENT = "var(--accent)";
 const EMAIL = "hello@elixpo.com";
 
 const COLUMNS: { heading: string; links: { label: string; href: string }[] }[] = [

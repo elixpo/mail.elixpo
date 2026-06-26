@@ -97,11 +97,11 @@ export function ActionButton({
                 ...PRIMARY_BTN,
                 ...(comingSoon
                     ? {
-                          background: "rgba(255,255,255,0.05)",
-                          color: "rgba(255,255,255,0.4)",
+                          background: "var(--overlay)",
+                          color: "var(--fg-faint)",
                           boxShadow: "none",
                           border: `1px solid ${BORDER}`,
-                          "&:hover": { background: "rgba(255,255,255,0.07)" },
+                          "&:hover": { background: "var(--overlay-strong)" },
                       }
                     : {}),
             }}

@@ -87,18 +87,18 @@ const Navbar = () => {
     const linkHoverColor = isDashboard ? "#fff" : "#000000";
     const githubBorder = isDashboard ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.12)";
     const githubTextColor = isDashboard ? "rgba(244,244,246,0.8)" : "#212121";
-    const githubHoverBg = isDashboard ? "rgba(155,123,247,0.08)" : "rgba(0, 0, 0, 0.03)";
-    const githubHoverBorder = isDashboard ? "rgba(155,123,247,0.45)" : "#000000";
+    const githubHoverBg = isDashboard ? "var(--accent-tint)" : "rgba(0, 0, 0, 0.03)";
+    const githubHoverBorder = isDashboard ? "var(--accent-border)" : "#000000";
     
     // Primary CTA (Sign In) style: Cohere Black pill for public, purple gradient/accent for dashboard/custom
     const ctaStyles = isDashboard
         ? {
-              background: "linear-gradient(135deg, #9b7bf7 0%, #7c5cff 100%)",
+              background: "var(--accent-gradient)",
               borderRadius: "10px",
-              boxShadow: "0 4px 14px rgba(155,123,247,0.32)",
+              boxShadow: "0 4px 14px var(--accent-shadow)",
               "&:hover": {
                   background: "linear-gradient(135deg, #b094ff 0%, #8a6dff 100%)",
-                  boxShadow: "0 6px 20px rgba(155,123,247,0.45)",
+                  boxShadow: "0 6px 20px var(--accent-border)",
               },
           }
         : {
@@ -176,13 +176,13 @@ const Navbar = () => {
                             size="small"
                             sx={{
                                 display: { xs: "none", sm: "inline-flex" },
-                                bgcolor: isDashboard ? "rgba(155, 123, 247, 0.12)" : "rgba(255, 119, 89, 0.08)",
+                                bgcolor: isDashboard ? "var(--accent-tint)" : "rgba(255, 119, 89, 0.08)",
                                 color: isDashboard ? ACCENT : "#ff7759",
                                 fontSize: "10px",
                                 height: "22px",
                                 fontWeight: 600,
                                 letterSpacing: "0.04em",
-                                border: isDashboard ? "1px solid rgba(155, 123, 247, 0.3)" : "1px solid rgba(255, 119, 89, 0.3)",
+                                border: isDashboard ? "1px solid var(--accent-border)" : "1px solid rgba(255, 119, 89, 0.3)",
                             }}
                         />
                     )}
@@ -283,12 +283,12 @@ const Navbar = () => {
                                 pr: { xs: 0.6, sm: 1 },
                                 py: 0.5,
                                 transition: "all 0.15s ease",
-                                "&:hover": { borderColor: isDashboard ? "rgba(155,123,247,0.4)" : "#000000", background: isDashboard ? "rgba(155,123,247,0.06)" : "rgba(0,0,0,0.02)" },
+                                "&:hover": { borderColor: isDashboard ? "var(--accent)" : "#000000", background: isDashboard ? "var(--accent-tint)" : "rgba(0,0,0,0.02)" },
                             }}
                         >
                             <Avatar
                                 src={me.avatar || undefined}
-                                sx={{ width: 28, height: 28, fontSize: "0.85rem", bgcolor: isDashboard ? "rgba(155,123,247,0.4)" : "#17171c" }}
+                                sx={{ width: 28, height: 28, fontSize: "0.85rem", bgcolor: isDashboard ? "var(--accent)" : "#17171c" }}
                             >
                                 {(me.name || me.email || "?").charAt(0).toUpperCase()}
                             </Avatar>

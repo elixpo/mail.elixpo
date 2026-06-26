@@ -687,7 +687,7 @@ function CosmeticsCard({
                             fullWidth
                             size="small"
                             sx={fieldSx}
-                            FormHelperTextProps={{ sx: { color: "#fca5a5", ml: 0.5 } }}
+                            FormHelperTextProps={{ sx: { color: "var(--danger)", ml: 0.5 } }}
                         />
                         <TextField
                             label="Slug"
@@ -729,7 +729,7 @@ function CosmeticsCard({
                             {saving ? (
                                 <CircularProgress
                                     size={18}
-                                    sx={{ color: "rgba(245,245,244,0.6)" }}
+                                    sx={{ color: "var(--fg-muted)" }}
                                 />
                             ) : (
                                 "Save"
@@ -752,7 +752,7 @@ function ReadOnlyField({ label, value }: { label: string; value: string | null }
                     fontWeight: 700,
                     letterSpacing: "0.04em",
                     textTransform: "uppercase",
-                    color: "rgba(245,245,244,0.4)",
+                    color: "var(--fg-faint)",
                     mb: 0.3,
                 }}
             >
@@ -933,7 +933,7 @@ function MembersCard({
                                             fontSize: "0.72rem",
                                             fontWeight: 600,
                                             color: roleChipColor("owner"),
-                                            background: "rgba(255,255,255,0.04)",
+                                            background: "var(--overlay)",
                                             border: `1px solid ${BORDER}`,
                                         }}
                                     />
@@ -974,7 +974,7 @@ function MembersCard({
                                                     disabled={busy}
                                                     size="small"
                                                     sx={{
-                                                        color: "#fca5a5",
+                                                        color: "var(--danger)",
                                                         "&:hover": {
                                                             background: "rgba(252,165,165,0.12)",
                                                         },
@@ -996,7 +996,7 @@ function MembersCard({
                                             fontSize: "0.72rem",
                                             fontWeight: 600,
                                             color: roleChipColor(m.role),
-                                            background: "rgba(255,255,255,0.04)",
+                                            background: "var(--overlay)",
                                             border: `1px solid ${BORDER}`,
                                         }}
                                     />
@@ -1170,8 +1170,8 @@ function InviteLinkCard({
                         sx={{
                             p: 1.4,
                             borderRadius: "10px",
-                            background: "rgba(155,123,247,0.08)",
-                            border: "1px solid rgba(155,123,247,0.25)",
+                            background: "var(--accent-tint)",
+                            border: "1px solid var(--accent-border)",
                         }}
                     >
                         <Typography
@@ -1224,7 +1224,7 @@ function InviteLinkCard({
                             disabled={busy}
                             sx={{
                                 ...ghostButtonSx,
-                                color: "#fca5a5",
+                                color: "var(--danger)",
                                 borderColor: "rgba(252,165,165,0.3)",
                                 "&:hover": {
                                     background: "rgba(252,165,165,0.1)",
