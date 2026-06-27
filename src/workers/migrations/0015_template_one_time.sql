@@ -8,12 +8,19 @@
 --
 -- SQLite can't drop a NOT NULL constraint in place, so rebuild the table.
 -- webhooks / deliveries / template_attachments all reference templates(id).
--- `defer_foreign_keys` does NOT work here: DROP TABLE's implicit row-delete bumps
--- the deferred-violation counter, and because the replacement rows land in a
--- differently-named table that counter is never cleared, so COMMIT fails. D1
--- runs each migration statement on one connection (no wrapping transaction), so
--- a plain `PRAGMA foreign_keys=OFF` *does* take effect for the whole rebuild —
--- that's the approach used here. We re-enable it at the end.
+--
+-- ⚠️ APPLY THIS MIGRATION WITH `wrangler d1 execute --file`, NOT `migrations apply`.
+--   `migrations apply` runs the file inside a single transaction, where
+--   `PRAGMA foreign_keys=OFF` is a no-op and the rebuild trips the children's FK
+--   on DROP/RENAME (`defer_foreign_keys` can't save it either: DROP's implicit
+--   row-delete bumps the deferred-violation counter and, because the replacement
+--   rows land in a differently-named table, it's never cleared, so COMMIT fails).
+--   `execute --file` runs the statements on a bare connection, so
+--   `PRAGMA foreign_keys=OFF` holds for the whole rebuild and it succeeds:
+--     npx wrangler d1 execute elixpo_mail --remote --file src/workers/migrations/0015_template_one_time.sql
+--   then record it so the tracker stays in sync:
+--     npx wrangler d1 execute elixpo_mail --remote --command \
+--       "INSERT INTO d1_migrations (name) VALUES ('0015_template_one_time.sql');"
 PRAGMA foreign_keys=OFF;
 
 DROP TABLE IF EXISTS templates_new;
