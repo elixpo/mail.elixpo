@@ -312,12 +312,16 @@ export interface RedeliverResult {
 
 /**
  * Re-attempt a previously-queued delivery, rebuilding everything from its row.
- * Called by the consumer Worker (workers/smtp-sender) via /v1/internal/redeliver
- * for both queues:
- *   send queue  (final=false) — attempt; a still-transient failure leaves the
- *               row `queued` and asks CF to retry with backoff.
- *   retry queue (final=true)  — the failed-email queue's last attempt; it always
- *               resolves the row to sent or failed (never asks for more retries).
+ * Called by the consumer Worker (workers/smtp-sender) via /v1/internal/redeliver.
+ * One attempt, and it reports the outcome — the *orchestrator* decides what to
+ * do next (the send queue retries on `retryable`; the retry queue escalates to
+ * the durable Workflow; the Workflow sleeps and re-attempts):
+ *   sent      → row marked sent.
+ *   permanent → row marked failed.
+ *   transient → row left `queued`, retryable=true.
+ *
+ * `final: true` is the Workflow's terminal give-up: no attempt is made, the row
+ * is marked permanently failed because even long-horizon retries are exhausted.
  */
 export async function redeliverById(
     db: D1Database,
@@ -327,6 +331,16 @@ export async function redeliverById(
     const row = await getDelivery(db, deliveryId);
     if (!row) return { ok: false, status: "failed", retryable: false, error: "delivery_not_found" };
     if (row.status === "sent") return { ok: true, status: "sent", retryable: false };
+
+    if (opts.final) {
+        await markDeliveryFailed(
+            db,
+            deliveryId,
+            row.error || "Retries exhausted after extended backoff.",
+            row.smtp_response ?? null,
+        );
+        return { ok: false, status: "failed", retryable: false, error: "retries_exhausted" };
+    }
 
     const template = row.template_id ? await getTemplate(db, row.tenant_id, row.template_id) : null;
     if (!template) {
@@ -355,9 +369,9 @@ export async function redeliverById(
         await markDeliverySent(db, deliveryId, r.smtpResponse ?? null);
         return { ok: true, status: "sent", retryable: false };
     }
-    // Still transient AND we're not on the last-chance retry queue → keep queued
-    // and let the consumer retry. Otherwise (permanent, or final attempt) resolve.
-    if (r.retryable && !opts.final) {
+    // Transient → keep the row queued and report retryable so the orchestrator
+    // (queue backoff, or the durable Workflow) attempts again later.
+    if (r.retryable) {
         await markDeliveryQueued(db, deliveryId, r.error ?? null);
         return { ok: false, status: "queued", retryable: true, error: r.error };
     }
