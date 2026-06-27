@@ -2,7 +2,8 @@
 // The one component that opens raw TCP (Pages edge routes can't). The Pages app
 // calls POST /send server-to-server with a shared secret; this Worker relays the
 // message through the tenant's own SMTP credentials over cloudflare:sockets.
-// Later (step 5) this same Worker also becomes the Cloudflare Queue consumer.
+// It is ALSO the Cloudflare Queue consumer for elixpo-mail-send (retries) and
+// elixpo-mail-send-retry (failed-email last chance) — see the queue() handler.
 
 import { sendMail } from "./smtp.js";
 
@@ -103,7 +104,8 @@ export default {
 async function redeliver(env, deliveryId, final) {
     const base = env.PAGES_INTERNAL_URL;
     const secret = env.SMTP_SENDER_SECRET;
-    if (!base || !secret) throw new Error("redeliver not configured (PAGES_INTERNAL_URL / SMTP_SENDER_SECRET)");
+    if (!base || !secret)
+        throw new Error("redeliver not configured (PAGES_INTERNAL_URL / SMTP_SENDER_SECRET)");
     const res = await fetch(`${base.replace(/\/$/, "")}/v1/internal/redeliver`, {
         method: "POST",
         headers: { "content-type": "application/json", "x-sender-secret": secret },

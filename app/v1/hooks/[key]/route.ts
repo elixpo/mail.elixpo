@@ -149,10 +149,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     // transient error and the send was handed to the retry queue — the final
     // outcome resolves in the delivery log. 502 only on a real downstream failure.
     const status =
-        result.status === "queued"
-            ? 202
-            : result.ok || result.status === "suppressed"
-              ? 200
-              : 502;
+        result.status === "queued" ? 202 : result.ok || result.status === "suppressed" ? 200 : 502;
     return json(payload, status);
 }

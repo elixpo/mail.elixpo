@@ -106,14 +106,25 @@ interface AttemptInput {
 function classifyFailure(error?: string, response?: string | null): "transient" | "permanent" {
     const blob = `${error || ""} ${response || ""}`.toLowerCase();
     if (/\b5\d\d\b/.test(blob)) return "permanent";
-    if (/(auth|535|credential|password|username)/.test(blob) && /(fail|invalid|reject|denied)/.test(blob))
+    if (
+        /(auth|535|credential|password|username)/.test(blob) &&
+        /(fail|invalid|reject|denied)/.test(blob)
+    )
         return "permanent";
-    if (/(no such user|user unknown|mailbox unavailable|does not exist|invalid recipient|address rejected)/.test(blob))
+    if (
+        /(no such user|user unknown|mailbox unavailable|does not exist|invalid recipient|address rejected)/.test(
+            blob,
+        )
+    )
         return "permanent";
     return "transient";
 }
 
-async function executeSend(db: D1Database, deliveryId: string, input: AttemptInput): Promise<AttemptResult> {
+async function executeSend(
+    db: D1Database,
+    deliveryId: string,
+    input: AttemptInput,
+): Promise<AttemptResult> {
     const { tenantId, template, product, to, vars } = input;
     const productId = product?.id ?? template.product_id;
     const isTransactional = template.transactional === 1;
@@ -146,14 +157,24 @@ async function executeSend(db: D1Database, deliveryId: string, input: AttemptInp
         };
     }
     if (sender.status && sender.status !== "active") {
-        return { ok: false, retryable: false, subject, error: `Sender ${sender.email} is ${sender.status}.` };
+        return {
+            ok: false,
+            retryable: false,
+            subject,
+            error: `Sender ${sender.email} is ${sender.status}.`,
+        };
     }
 
     let pass: string;
     try {
         pass = await decryptSecret(sender.app_password_enc);
     } catch {
-        return { ok: false, retryable: false, subject, error: "Could not decrypt the sender's app password." };
+        return {
+            ok: false,
+            retryable: false,
+            subject,
+            error: "Could not decrypt the sender's app password.",
+        };
     }
 
     // Resolve attachments (substitute vars, download from Drive/URL, base64).
@@ -181,7 +202,8 @@ async function executeSend(db: D1Database, deliveryId: string, input: AttemptInp
         listUnsubscribe: unsubscribeUrl,
     });
 
-    if (result.ok) return { ok: true, retryable: false, subject, smtpResponse: result.response ?? null };
+    if (result.ok)
+        return { ok: true, retryable: false, subject, smtpResponse: result.response ?? null };
 
     const error = result.error || "Send failed.";
     const retryable = classifyFailure(error, result.response) === "transient";
@@ -253,7 +275,13 @@ export async function deliverTemplate(db: D1Database, input: DeliverInput): Prom
 
     if (r.ok) {
         await markDeliverySent(db, deliveryId, r.smtpResponse ?? null);
-        return { ok: true, deliveryId, status: "sent", subject: r.subject, smtpResponse: r.smtpResponse ?? null };
+        return {
+            ok: true,
+            deliveryId,
+            status: "sent",
+            subject: r.subject,
+            smtpResponse: r.smtpResponse ?? null,
+        };
     }
 
     // Transient failure → hand off to the retry queue and report 202/queued.
@@ -264,7 +292,14 @@ export async function deliverTemplate(db: D1Database, input: DeliverInput): Prom
 
     const error = r.error || "Send failed.";
     await markDeliveryFailed(db, deliveryId, error, r.smtpResponse ?? null);
-    return { ok: false, deliveryId, status: "failed", subject: r.subject, error, smtpResponse: r.smtpResponse ?? null };
+    return {
+        ok: false,
+        deliveryId,
+        status: "failed",
+        subject: r.subject,
+        error,
+        smtpResponse: r.smtpResponse ?? null,
+    };
 }
 
 export interface RedeliverResult {
