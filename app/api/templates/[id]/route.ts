@@ -33,7 +33,9 @@ export async function GET(request: NextRequest, { params }: Ctx) {
         template: {
             ...toPublic(row),
             attachments: attachments.map(attachmentToPublic),
-            footer: product ? productToFooter(product) : null,
+            // Webhook templates inherit the product footer; one-time templates
+            // keep their own footer from toPublic (parsed from footer_json).
+            ...(product ? { footer: productToFooter(product) } : {}),
         },
     });
 }

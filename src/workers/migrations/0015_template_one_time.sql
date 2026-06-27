@@ -6,9 +6,16 @@
 -- footer in footer_json. Product-backed templates (product_id NOT NULL) are
 -- unchanged and still inherit the product footer at send time.
 --
--- SQLite can't drop a NOT NULL constraint in place, so rebuild the table. FKs
--- are not enforced on D1, so dropping/recreating templates leaves the existing
--- webhooks/deliveries rows (which carry template_id) intact.
+-- SQLite can't drop a NOT NULL constraint in place, so rebuild the table. D1
+-- DOES enforce foreign keys during migrations, and webhooks/deliveries reference
+-- templates(id) — so dropping/renaming templates would trip an immediate FK
+-- check. `defer_foreign_keys` postpones every FK check to the end of the
+-- migration transaction, by which point templates exists again with all the same
+-- ids, so the deferred check passes. (Unlike PRAGMA foreign_keys=OFF, this works
+-- inside a transaction.)
+PRAGMA defer_foreign_keys = ON;
+
+DROP TABLE IF EXISTS templates_new;
 
 CREATE TABLE templates_new (
     id              TEXT PRIMARY KEY,
