@@ -34,7 +34,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const bgColor = typeof body?.bgColor === "string" ? body.bgColor : tmpl.bg_color;
     const vars = body?.vars && typeof body.vars === "object" ? body.vars : {};
 
-    const product = await getProduct(db, session.tenantId, tmpl.product_id);
+    const product = tmpl.product_id ? await getProduct(db, session.tenantId, tmpl.product_id) : null;
     const rendered = renderTemplate(
         { subject, content_html: contentHtml, background_color: bgColor },
         vars,

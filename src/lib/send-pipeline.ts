@@ -22,7 +22,7 @@ import { decryptSecret } from "./encryption";
 import { appUrl } from "./env";
 import { type ProductRow, getProduct, productToFooter } from "./products";
 import { enqueueRetry } from "./queue";
-import { renderTemplate } from "./render";
+import { type EmailFooter, renderTemplate } from "./render";
 import { type SenderRow, getSender } from "./senders";
 import { relayViaSender } from "./smtp-sender";
 import { isSuppressed, signUnsub } from "./suppressions";
@@ -34,6 +34,16 @@ import { type TemplateRow, getTemplate } from "./templates";
  *   2. the product's default sender, else
  *   3. the tenant's default sender (is_default = 1).
  */
+/** Per-template footer (one-time templates store their own footer JSON). */
+function parseTemplateFooter(t: TemplateRow): EmailFooter | null {
+    if (!t.footer_json) return null;
+    try {
+        return JSON.parse(t.footer_json) as EmailFooter;
+    } catch {
+        return null;
+    }
+}
+
 export async function resolveSender(
     db: D1Database,
     tenantId: string,
@@ -129,13 +139,18 @@ async function executeSend(
     const productId = product?.id ?? template.product_id;
     const isTransactional = template.transactional === 1;
 
-    // Per-recipient one-click unsubscribe link (non-transactional only).
-    const unsubscribeUrl = isTransactional
-        ? null
-        : `${await appUrl()}/u/${await signUnsub(productId, to)}`;
+    // Per-recipient one-click unsubscribe link (non-transactional only). The
+    // unsubscribe + suppression list are product-scoped, so one-time templates
+    // (no product) carry no unsubscribe link.
+    const unsubscribeUrl =
+        isTransactional || !productId
+            ? null
+            : `${await appUrl()}/u/${await signUnsub(productId, to)}`;
 
     const sender = await resolveSender(db, tenantId, template, product);
-    const footer = product ? productToFooter(product) : null;
+    // Footer: the product's brand footer when attached, else the template's own
+    // per-template footer (one-time templates).
+    const footer = product ? productToFooter(product) : parseTemplateFooter(template);
     if (footer && unsubscribeUrl) footer.unsubscribeUrl = unsubscribeUrl;
     const rendered = renderTemplate(
         {
@@ -225,8 +240,9 @@ export async function deliverTemplate(db: D1Database, input: DeliverInput): Prom
     const isTransactional = template.transactional === 1;
 
     // Honor unsubscribes — except for transactional templates (receipts etc.),
-    // which are CAN-SPAM exempt and always send.
-    if (!isTransactional && (await isSuppressed(db, productId, to))) {
+    // which are CAN-SPAM exempt and always send. Suppression is product-scoped,
+    // so one-time templates (no product) have nothing to check against.
+    if (!isTransactional && productId && (await isSuppressed(db, productId, to))) {
         const deliveryId = await createDelivery(db, {
             tenantId,
             productId,

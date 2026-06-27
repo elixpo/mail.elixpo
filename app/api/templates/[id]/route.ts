@@ -27,7 +27,7 @@ export async function GET(request: NextRequest, { params }: Ctx) {
     const row = await getTemplate(db, session.tenantId, id);
     if (!row) return NextResponse.json({ error: "not_found" }, { status: 404 });
     const attachments = await listAttachments(db, session.tenantId, id);
-    const product = await getProduct(db, session.tenantId, row.product_id);
+    const product = row.product_id ? await getProduct(db, session.tenantId, row.product_id) : null;
     return NextResponse.json({
         ok: true,
         template: {

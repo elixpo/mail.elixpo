@@ -13,7 +13,6 @@ import { extractVariables } from "./template-vars";
 export interface TemplateRow {
     id: string;
     tenant_id: string;
-    /** NULL = a one-time template (no product attached). */
     product_id: string | null;
     slug: string;
     name: string;
@@ -25,7 +24,6 @@ export interface TemplateRow {
     sender_id: string | null;
     bg_color: string | null;
     transactional: number;
-    /** Per-template footer JSON (one-time templates only). */
     footer_json: string | null;
     status: string;
     created_at: string;
