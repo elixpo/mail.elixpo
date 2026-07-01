@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const Stripe = (await import("stripe")).default;
-    const stripe = new Stripe(secretKey, { apiVersion: "2024-04-10" });
+    const stripe = new Stripe(secretKey);
 
     // Cancel at period end — user keeps access until renewal date
     await stripe.subscriptions.update(subscriptionId, {

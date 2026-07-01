@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const Stripe = (await import("stripe")).default;
-    const stripe = new Stripe(secretKey, { apiVersion: "2024-04-10" });
+    const stripe = new Stripe(secretKey);
     event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err) {
     console.error("[stripe/webhook] signature verification failed:", err);
@@ -117,9 +117,10 @@ async function handleStripeEvent(event: import("stripe").Stripe.Event) {
     // ── Successful payment / renewal ──────────────────────────────────────────
     case "invoice.payment_succeeded": {
       const inv = event.data.object as import("stripe").Stripe.Invoice;
-      const subId = typeof inv.subscription === "string"
-        ? inv.subscription
-        : inv.subscription?.id;
+      // Stripe v22 moved the subscription off the invoice into
+      // parent.subscription_details.
+      const sd = inv.parent?.subscription_details?.subscription;
+      const subId = typeof sd === "string" ? sd : sd?.id;
 
       // TODO: record invoice in D1, reset monthly send counter for the tenant
 
@@ -130,9 +131,10 @@ async function handleStripeEvent(event: import("stripe").Stripe.Event) {
     // ── Failed payment ────────────────────────────────────────────────────────
     case "invoice.payment_failed": {
       const inv = event.data.object as import("stripe").Stripe.Invoice;
-      const subId = typeof inv.subscription === "string"
-        ? inv.subscription
-        : inv.subscription?.id;
+      // Stripe v22 moved the subscription off the invoice into
+      // parent.subscription_details.
+      const sd = inv.parent?.subscription_details?.subscription;
+      const subId = typeof sd === "string" ? sd : sd?.id;
 
       // TODO: update subscription status to 'past_due' in D1
       // TODO: send "payment failed" email notification to tenant

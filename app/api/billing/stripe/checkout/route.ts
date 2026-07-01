@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const Stripe = (await import("stripe")).default;
-    const stripe = new Stripe(secretKey, { apiVersion: "2024-04-10" });
+    const stripe = new Stripe(secretKey);
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
