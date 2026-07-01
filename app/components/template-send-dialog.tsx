@@ -451,9 +451,9 @@ export default function TemplateSendDialog({
                             <FieldLabel>Recipients (required)</FieldLabel>
                             <Box
                                 onClick={(e) => {
-                                    const input = (
-                                        e.currentTarget as HTMLElement
-                                    ).querySelector("input");
+                                    const input = (e.currentTarget as HTMLElement).querySelector(
+                                        "input",
+                                    );
                                     (input as HTMLInputElement | null)?.focus();
                                 }}
                                 sx={{
@@ -534,8 +534,7 @@ export default function TemplateSendDialog({
                             <Typography
                                 sx={{ mt: 0.5, fontSize: "0.72rem", color: TEXT_40, mx: 0.2 }}
                             >
-                                Type an email then comma or Enter to add it. Up to{" "}
-                                {MAX_RECIPIENTS}.
+                                Type an email then comma or Enter to add it. Up to {MAX_RECIPIENTS}.
                             </Typography>
                             <Typography
                                 sx={{
