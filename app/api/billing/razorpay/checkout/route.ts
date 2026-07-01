@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
 
   let planId: PlanId, cycle: BillingCycle;
   try {
-    ({ planId, cycle } = await req.json());
+    ({ planId, cycle } = (await req.json()) as { planId: PlanId; cycle: BillingCycle });
   } catch {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!rzpRes.ok) {
-      const errBody = await rzpRes.json();
+      const errBody = (await rzpRes.json()) as { error?: { description?: string } };
       console.error("[razorpay/checkout] Razorpay API error:", errBody);
       return NextResponse.json(
         { error: errBody?.error?.description ?? "Razorpay error. Please try again." },
@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const subscription = await rzpRes.json();
+    const subscription = (await rzpRes.json()) as { id?: string };
 
     return NextResponse.json({
       subscriptionId: subscription.id,

@@ -360,7 +360,7 @@ function CancelButton({ provider, subscriptionId }: CancelButtonProps) {
       });
 
       if (!res.ok) {
-        const { error } = await res.json();
+        const { error } = (await res.json()) as { error?: string };
         throw new Error(error ?? "Cancellation failed.");
       }
 

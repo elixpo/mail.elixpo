@@ -17,7 +17,9 @@ export async function POST(req: NextRequest) {
   // const { subscriptionId } = await req.json();
   // const subscriptionId = await getSubscriptionIdFromSession(req);
 
-  const { subscriptionId } = await req.json().catch(() => ({ subscriptionId: null }));
+  const { subscriptionId } = (await req.json().catch(() => ({ subscriptionId: null }))) as {
+    subscriptionId?: string | null;
+  };
   if (!subscriptionId) {
     return NextResponse.json({ error: "No subscription found." }, { status: 400 });
   }

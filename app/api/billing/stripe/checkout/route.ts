@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   // Parse body
   let planId: PlanId, cycle: BillingCycle;
   try {
-    ({ planId, cycle } = await req.json());
+    ({ planId, cycle } = (await req.json()) as { planId: PlanId; cycle: BillingCycle });
   } catch {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }

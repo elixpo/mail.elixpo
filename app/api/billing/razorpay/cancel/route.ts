@@ -17,7 +17,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Razorpay not configured." }, { status: 503 });
   }
 
-  const { subscriptionId } = await req.json().catch(() => ({ subscriptionId: null }));
+  const { subscriptionId } = (await req.json().catch(() => ({ subscriptionId: null }))) as {
+    subscriptionId?: string | null;
+  };
   if (!subscriptionId) {
     return NextResponse.json({ error: "No subscription found." }, { status: 400 });
   }
@@ -37,7 +39,7 @@ export async function POST(req: NextRequest) {
     );
 
     if (!res.ok) {
-      const err = await res.json();
+      const err = (await res.json()) as { error?: { description?: string } };
       return NextResponse.json(
         { error: err?.error?.description ?? "Cancellation failed." },
         { status: 502 }
